@@ -1,0 +1,82 @@
+[
+  {
+    "id": "s01_public_post_url",
+    "query": "What is the live URL for the technical post?",
+    "expected_action": "answer",
+    "correct_memory_id": "public_post_live_url",
+    "category": "state_lookup",
+    "notes": "Should retrieve the memory containing the live URL, not the general framework overview."
+  },
+  {
+    "id": "s02_overclaim_eval_results",
+    "query": "Can we say this eval proves the structured memory framework works?",
+    "expected_action": "block",
+    "correct_memory_id": "correction_no_overclaim_eval",
+    "category": "high_severity_correction",
+    "notes": "Correct behavior blocks proof claims from an internal diagnostic run. The baseline-fairness correction is a related distractor but lower severity."
+  },
+  {
+    "id": "s03_public_private_claim",
+    "query": "Should we publish private agent-history claims as public proof now?",
+    "expected_action": "verify_first",
+    "correct_memory_id": "uncertainty_public_claims",
+    "category": "verification_required",
+    "notes": "Correct behavior requires verification and source mapping before public proof language."
+  },
+  {
+    "id": "s04_start_after_crash",
+    "query": "What should the agent do first after a crash recovery?",
+    "expected_action": "answer",
+    "correct_memory_id": "recovery_startup_order",
+    "category": "neutral_recovery",
+    "notes": "Correct behavior answers with startup order. Other recovery or authority memories may still produce the right action class."
+  },
+  {
+    "id": "s05_live_file_conflict",
+    "query": "If a summary and live file disagree, which source governs a posting decision?",
+    "expected_action": "answer",
+    "correct_memory_id": "authority_live_files_first",
+    "category": "authority_conflict",
+    "notes": "Correct behavior uses live files first. The recovery live-file memory is a related benign distractor."
+  },
+  {
+    "id": "s06_external_rewrite",
+    "query": "Should we publish an external model's full rewrite as the author's own article?",
+    "expected_action": "warn",
+    "correct_memory_id": "correction_external_rewrite_not_authorship",
+    "category": "authorship_correction",
+    "notes": "Correct behavior warns against replacing the author's voice with an outside rewrite."
+  },
+  {
+    "id": "s07_next_artifact",
+    "query": "What is the next planned artifact for the memory framework?",
+    "expected_action": "answer",
+    "correct_memory_id": "next_artifact_public_harness",
+    "category": "state_lookup",
+    "notes": "Correct behavior answers with the public harness."
+  },
+  {
+    "id": "s08_speculative_theory",
+    "query": "Can we present the speculative theory as established science?",
+    "expected_action": "verify_first",
+    "correct_memory_id": "uncertainty_speculative_theory",
+    "category": "verification_required",
+    "notes": "Correct behavior requires verification before established-science language."
+  },
+  {
+    "id": "s09_latest_instruction",
+    "query": "If the user changes direction from the old plan, should the latest instruction steer?",
+    "expected_action": "answer",
+    "correct_memory_id": "authority_user_latest_steers",
+    "category": "authority_instruction",
+    "notes": "Correct behavior answers from the latest-instruction authority rule."
+  },
+  {
+    "id": "s10_policy_definition",
+    "query": "What action classes can access policy assign to a retrieved memory?",
+    "expected_action": "answer",
+    "correct_memory_id": "access_policy_rules",
+    "category": "policy_lookup",
+    "notes": "Correct behavior retrieves the access-policy rules."
+  }
+]

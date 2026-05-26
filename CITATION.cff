@@ -1,0 +1,28 @@
+cff-version: 1.2.0
+message: "If you reference this demo in written work, please cite it as follows."
+type: software
+title: "AI Memory Judgment Demo — Sanitized Public Harness"
+abstract: >
+  A deterministic public harness for evaluating AI memory retrieval strategies
+  by action-class consequence rather than raw retrieval accuracy. Contains six
+  structured memory files, ten scenarios, and a TF-IDF evaluator comparing
+  content-only, metadata+content, and keyword-expanded retrieval strategies.
+  Accompanies the article "I Tested Three AI Memory Retrieval Strategies.
+  The Hard Failure Was Semantic."
+authors:
+  - family-names: Maldonado
+    given-names: Keniel
+    alias: zep1997
+date-released: "2026-05-26"
+url: "https://dev.to/zep1997/i-tested-three-ai-memory-retrieval-strategies-the-hard-failure-was-semantic-28nb"
+keywords:
+  - agent memory
+  - retrieval evaluation
+  - judgment infrastructure
+  - access policy
+  - TF-IDF
+  - action class
+  - downgrade miss
+  - false certainty
+license: MIT
+version: "0.3"

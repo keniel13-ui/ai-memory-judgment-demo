@@ -1,0 +1,27 @@
+Creative Commons Attribution 4.0 International (CC BY 4.0)
+
+Copyright (c) 2026 Keniel Maldonado (zep1997)
+
+The following files in this repository are licensed under CC BY 4.0:
+
+  README.md
+  FRAMEWORK.md
+  SCORING_RUBRIC.md
+  CHANGELOG.md
+  baseline_summary.md
+  01_persistence.md
+  02_corrections.md
+  03_uncertainty.md
+  04_failure_recovery.md
+  05_authority_policy.md
+  06_access_policy.md
+
+You are free to share and adapt this material for any purpose, including
+commercially, as long as you give appropriate credit, provide a link to the
+license, and indicate if changes were made.
+
+Full license text: https://creativecommons.org/licenses/by/4.0/
+
+Suggested attribution:
+  Keniel Maldonado (zep1997). "AI Memory Judgment Demo." 2026.
+  https://dev.to/zep1997/i-tested-three-ai-memory-retrieval-strategies-the-hard-failure-was-semantic-28nb
