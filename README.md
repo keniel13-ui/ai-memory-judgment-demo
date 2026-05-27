@@ -33,6 +33,7 @@ Supporting files:
 
 - `scenarios/retrieval_scenarios.json` — 10 scenario labels.
 - `run_retrieval_eval.py` — deterministic TF-IDF evaluator.
+- `run_embedding_eval.py` — local Ollama embedding evaluator.
 - `SCORING_RUBRIC.md` — action classes and metrics.
 - `RESEARCH_PROTOCOL.md` — formal research question, variables, metrics, validity threats, and reproducibility notes.
 - `RELATED_WORK.md` — honest map of closest prior work and contribution boundary.
@@ -40,6 +41,7 @@ Supporting files:
 - `METRICS.md` — current and planned metrics for comparison.
 - `EXPERIMENT_PLAN.md` — staged upgrades from demo to stronger evaluation.
 - `v0.2_experiment_plan.md` — next semantic-retrieval comparison plan.
+- `EMBEDDING_FINDINGS.md` — first local embedding run and interpretation.
 - `PAPER_OUTLINE.md` — paper-style report structure for future writeup.
 - `baseline_summary.md` — plain-language summary, not scored by this evaluator.
 - `results/retrieval_eval_results.md` — generated Markdown results.
@@ -82,6 +84,17 @@ The command regenerates:
 
 - `results/retrieval_eval_results.md`
 - `results/retrieval_eval_results.json`
+
+For the local embedding experiment, run:
+
+```bash
+python3 run_embedding_eval.py
+```
+
+This requires Ollama running locally and regenerates:
+
+- `results/embedding_eval_results.md`
+- `results/embedding_eval_results.json`
 
 ## Current Result
 
