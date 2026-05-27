@@ -41,6 +41,10 @@ Supporting files:
 - `METRICS.md` — current and planned metrics for comparison.
 - `EXPERIMENT_PLAN.md` — staged upgrades from demo to stronger evaluation.
 - `v0.2_experiment_plan.md` — next semantic-retrieval comparison plan.
+- `PREREGISTRATION_v0.3.md` — frozen hypotheses before dedicated embedding/top-k experiments.
+- `CLAIM_LEDGER.md` — claim status, evidence, weaknesses, and allowed/forbidden wording.
+- `AUDIT_RUBRIC.md` — adversarial objections and evidence needed to change claims.
+- `REVIEWER_PANEL.md` — reviewer personas used to pressure-test the work.
 - `EMBEDDING_FINDINGS.md` — first local embedding run and interpretation.
 - `PAPER_OUTLINE.md` — paper-style report structure for future writeup.
 - `baseline_summary.md` — plain-language summary, not scored by this evaluator.
