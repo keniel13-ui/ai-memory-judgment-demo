@@ -1,6 +1,6 @@
 # Higher Retrieval Accuracy Had the Worse Safety Result
 
-I ran the next version of my AI memory judgment demo, and the result was exactly why I do not think retrieval accuracy is enough.
+I ran the next version of my AI memory judgment demo, and the result exposed a problem with judging memory systems by retrieval accuracy alone.
 
 The best lexical methods retrieved the exact expected memory more often.
 
@@ -17,6 +17,13 @@ This is still a small public lab artifact, not a benchmark. But the failure shap
 Repo:
 
 https://github.com/keniel13-ui/ai-memory-judgment-demo
+
+Relevant files:
+
+- Lexical runner: https://github.com/keniel13-ui/ai-memory-judgment-demo/blob/main/run_retrieval_eval.py
+- Embedding runner: https://github.com/keniel13-ui/ai-memory-judgment-demo/blob/main/run_embedding_eval.py
+- Lexical results: https://github.com/keniel13-ui/ai-memory-judgment-demo/blob/main/results/retrieval_eval_results.md
+- Embedding results: https://github.com/keniel13-ui/ai-memory-judgment-demo/blob/main/results/embedding_eval_results.md
 
 ## The Setup
 
@@ -132,6 +139,8 @@ I call that a downgrade miss:
 
 The metadata-enriched embedding strategy fixed this case. It retrieved the stricter correction and produced the correct `block` action.
 
+That does not mean the architecture is solved. It means this particular top-1 failure was solved by metadata-enriched embeddings. A separate question remains: whether top-k policy aggregation can make lexical retrieval safer when the strictest relevant memory is not ranked first.
+
 ## The Secondary Finding
 
 The most interesting row-level detail was not only that the embedding method fixed `s02`.
@@ -205,9 +214,10 @@ That is enough to justify the metric.
 
 The next useful tests are:
 
-- run a dedicated embedding model
-- add top-k policy aggregation
+- run dedicated embedding models such as `nomic-embed-text` or `mxbai-embed-large`
+- add top-k policy aggregation with conservative arbitration
 - add at least 20 externally authored scenarios
+- report a weighted safety-loss score alongside retrieval accuracy
 - compare exact retrieval accuracy, action-class accuracy, and failure-consequence distribution side by side
 
 The point is not to make retrieval look bad.
