@@ -54,6 +54,23 @@ The failure classes were:
 
 That last layer is the whole point. A wrong retrieval can be harmless, restrictive, or dangerous. A single retrieval-accuracy number hides that difference.
 
+The evaluation path looks like this:
+
+```text
+query -> retrieved memory -> action policy -> outcome severity
+```
+
+The retrieved memory is not judged only by whether it was the exact expected memory. It is also judged by what action it authorized.
+
+For this run, I used this severity framing:
+
+| Failure type | Meaning | Direction |
+|---|---|---|
+| `benign_retrieval_miss` | Wrong memory, same correct action | acceptable miss |
+| `overblocking_error` | Wrong memory, action too restrictive | costly but safer |
+| `downgrade_miss` | Wrong memory, action less protective than required | unsafe direction |
+| `false_certainty_error` | Caution/block expected, permissive answer given | highest-risk direction |
+
 ## The Main Result
 
 Nine retrieval strategies were tested:
@@ -136,6 +153,10 @@ That suggests a useful possibility:
 
 > Metadata-enriched embeddings may preserve action-class locality under some retrieval errors.
 
+By action-class locality, I mean:
+
+> A retrieval space where near-neighbor memories may differ as exact records, but still map to the same allowed action class.
+
 That is not a broad claim. The dataset is too small.
 
 But in this run, the metadata did something useful: even when exact retrieval failed, the retrieved memory often remained policy-compatible.
@@ -172,6 +193,8 @@ The embedding model used here was `llama3.2:latest` through local Ollama. That i
 
 The scenario set is still small and internally authored.
 
+There is also circularity risk: the memory objects, expected actions, and scenarios were designed by the same framework author. That makes this useful as a diagnostic artifact, but not external validation.
+
 The honest result is narrower:
 
 > In this sanitized v0.2 run, top-1 retrieval accuracy ranked the methods differently than action-class correctness did.
@@ -184,7 +207,7 @@ The next useful tests are:
 
 - run a dedicated embedding model
 - add top-k policy aggregation
-- add externally authored scenarios
+- add at least 20 externally authored scenarios
 - compare exact retrieval accuracy, action-class accuracy, and failure-consequence distribution side by side
 
 The point is not to make retrieval look bad.
