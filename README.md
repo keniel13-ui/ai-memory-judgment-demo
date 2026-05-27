@@ -46,6 +46,7 @@ Supporting files:
 - `AUDIT_RUBRIC.md` — adversarial objections and evidence needed to change claims.
 - `REVIEWER_PANEL.md` — reviewer personas used to pressure-test the work.
 - `EMBEDDING_FINDINGS.md` — first local embedding run and interpretation.
+- `V0_3_FINDINGS.md` — preregistered `nomic-embed-text` run and claim updates.
 - `PAPER_OUTLINE.md` — paper-style report structure for future writeup.
 - `baseline_summary.md` — plain-language summary, not scored by this evaluator.
 - `results/retrieval_eval_results.md` — generated Markdown results.
