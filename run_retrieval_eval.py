@@ -2,14 +2,17 @@
 """
 Sanitized public retrieval-strategy demo.
 
-This compares three deterministic retrieval strategies over six structured
+This compares six deterministic retrieval strategies over six structured
 memory files:
-  1. content_only: TF-IDF over memory content only.
-  2. metadata_content: TF-IDF over content plus metadata fields.
-  3. keyword_expanded: metadata_content plus retrieval_terms.
+  1. TF-IDF over memory content only.
+  2. TF-IDF over content plus metadata fields.
+  3. TF-IDF over metadata, content, and retrieval_terms.
+  4. BM25 over memory content only.
+  5. BM25 over content plus metadata fields.
+  6. BM25 over metadata, content, and retrieval_terms.
 
-It does not test LLM generation, embeddings, BM25, or reranking. It isolates how
-retrieval text construction changes policy-decision outcomes.
+It does not test LLM generation, embeddings, or reranking. It isolates how
+retrieval method and retrieval text construction change policy-decision outcomes.
 """
 
 from __future__ import annotations
@@ -39,7 +42,15 @@ ACTION_RANK = {
 
 RISKY_EXPECTED = {"warn", "verify_first", "block"}
 PERMISSIVE_ACTIONS = {"answer", "answer_context"}
-STRATEGIES = ["content_only", "metadata_content", "keyword_expanded"]
+TEXT_STRATEGIES = ["content_only", "metadata_content", "keyword_expanded"]
+RETRIEVAL_STRATEGIES = [
+    ("tfidf_content_only", "tfidf", "content_only"),
+    ("tfidf_metadata_content", "tfidf", "metadata_content"),
+    ("tfidf_keyword_expanded", "tfidf", "keyword_expanded"),
+    ("bm25_content_only", "bm25", "content_only"),
+    ("bm25_metadata_content", "bm25", "metadata_content"),
+    ("bm25_keyword_expanded", "bm25", "keyword_expanded"),
+]
 
 
 @dataclass
@@ -147,6 +158,16 @@ def build_tfidf_index(
     return vectors, idf
 
 
+def build_token_index(
+    memories: dict[str, dict[str, Any]],
+    strategy: str,
+) -> dict[str, list[str]]:
+    return {
+        mem_id: tokenize(text_for_memory(mem_id, mem, strategy))
+        for mem_id, mem in memories.items()
+    }
+
+
 def vectorize_query(query: str, idf: dict[str, float]) -> dict[str, float]:
     tokens = tokenize(query)
     tf = Counter(tokens)
@@ -177,6 +198,38 @@ def retrieve_top1(
         mem_id: cosine_similarity(query_vec, vector)
         for mem_id, vector in vectors.items()
     }
+    top_id = max(scores, key=scores.get)
+    return top_id, scores[top_id]
+
+
+def retrieve_top1_bm25(
+    query: str,
+    documents: dict[str, list[str]],
+    k1: float = 1.5,
+    b: float = 0.75,
+) -> tuple[str, float]:
+    query_terms = tokenize(query)
+    n_docs = len(documents)
+    avgdl = sum(len(tokens) for tokens in documents.values()) / max(n_docs, 1)
+
+    df: Counter[str] = Counter()
+    for tokens in documents.values():
+        for token in set(tokens):
+            df[token] += 1
+
+    scores: dict[str, float] = {}
+    for mem_id, tokens in documents.items():
+        tf = Counter(tokens)
+        doc_len = len(tokens)
+        score = 0.0
+        for term in query_terms:
+            if tf[term] == 0:
+                continue
+            idf = math.log(1.0 + (n_docs - df[term] + 0.5) / (df[term] + 0.5))
+            denom = tf[term] + k1 * (1.0 - b + b * doc_len / max(avgdl, 1.0))
+            score += idf * (tf[term] * (k1 + 1.0)) / denom
+        scores[mem_id] = score
+
     top_id = max(scores, key=scores.get)
     return top_id, scores[top_id]
 
@@ -268,14 +321,28 @@ def main() -> None:
     scenarios = load_scenarios()
     rows: list[StrategyDecision] = []
 
-    for strategy in STRATEGIES:
-        vectors, idf = build_tfidf_index(memories, strategy)
+    for strategy_name, retrieval_method, text_strategy in RETRIEVAL_STRATEGIES:
+        if retrieval_method == "tfidf":
+            vectors, idf = build_tfidf_index(memories, text_strategy)
+        else:
+            documents = build_token_index(memories, text_strategy)
+
         for scenario in scenarios:
-            retrieved_id, retrieved_score = retrieve_top1(scenario["query"], vectors, idf)
+            if retrieval_method == "tfidf":
+                retrieved_id, retrieved_score = retrieve_top1(
+                    scenario["query"],
+                    vectors,
+                    idf,
+                )
+            else:
+                retrieved_id, retrieved_score = retrieve_top1_bm25(
+                    scenario["query"],
+                    documents,
+                )
             action, rationale = layered_action(memories[retrieved_id])
             rows.append(
                 score_decision(
-                    strategy=strategy,
+                    strategy=strategy_name,
                     scenario=scenario,
                     retrieved_id=retrieved_id,
                     retrieved_score=retrieved_score,
@@ -285,8 +352,8 @@ def main() -> None:
             )
 
     by_strategy = {
-        strategy: summarize([row for row in rows if row.strategy == strategy])
-        for strategy in STRATEGIES
+        strategy_name: summarize([row for row in rows if row.strategy == strategy_name])
+        for strategy_name, _, _ in RETRIEVAL_STRATEGIES
     }
 
     output = {
@@ -314,7 +381,7 @@ def main() -> None:
         "| Strategy | Retrieval | Action correct | End-to-end | Benign misses | Downgrade misses | FC errors | Overblocking |",
         "|---|---:|---:|---:|---:|---:|---:|---:|",
     ]
-    for strategy in STRATEGIES:
+    for strategy, _, _ in RETRIEVAL_STRATEGIES:
         summary = by_strategy[strategy]
         total = summary["total"]
         md.append(
@@ -349,13 +416,16 @@ def main() -> None:
             "",
             "## Strategy Definitions",
             "",
-            "- `content_only`: indexes only the memory `content` field.",
-            "- `metadata_content`: indexes content plus ID, memory type, status fields, source, and file.",
-            "- `keyword_expanded`: indexes metadata+content plus `retrieval_terms` semantic identifiers.",
+            "- `tfidf_content_only`: TF-IDF over only the memory `content` field.",
+            "- `tfidf_metadata_content`: TF-IDF over content plus ID, memory type, status fields, source, and file.",
+            "- `tfidf_keyword_expanded`: TF-IDF over metadata+content plus `retrieval_terms` semantic identifiers.",
+            "- `bm25_content_only`: BM25 over only the memory `content` field.",
+            "- `bm25_metadata_content`: BM25 over content plus ID, memory type, status fields, source, and file.",
+            "- `bm25_keyword_expanded`: BM25 over metadata+content plus `retrieval_terms` semantic identifiers.",
             "",
             "## Limitations",
             "",
-            "- Deterministic TF-IDF only; no embeddings, BM25, hybrid retrieval, or reranking.",
+            "- Deterministic lexical retrieval only; no embeddings, hybrid retrieval, or reranking.",
             "- Scenario set is small and still designed by the framework author.",
             "- No free-form LLM generation is scored.",
             "- Retrieval and memory-object design are entangled.",

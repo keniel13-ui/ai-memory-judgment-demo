@@ -7,7 +7,7 @@
     "generalization beyond this small scenario set"
   ],
   "strategies": {
-    "content_only": {
+    "tfidf_content_only": {
       "total": 10,
       "retrieval_correct": 9,
       "action_correct": 9,
@@ -17,7 +17,7 @@
       "false_certainty_errors": 0,
       "overblocking_errors": 0
     },
-    "metadata_content": {
+    "tfidf_metadata_content": {
       "total": 10,
       "retrieval_correct": 9,
       "action_correct": 9,
@@ -27,7 +27,37 @@
       "false_certainty_errors": 0,
       "overblocking_errors": 0
     },
-    "keyword_expanded": {
+    "tfidf_keyword_expanded": {
+      "total": 10,
+      "retrieval_correct": 9,
+      "action_correct": 9,
+      "end_to_end_correct": 9,
+      "benign_retrieval_misses": 0,
+      "downgrade_misses": 1,
+      "false_certainty_errors": 0,
+      "overblocking_errors": 0
+    },
+    "bm25_content_only": {
+      "total": 10,
+      "retrieval_correct": 9,
+      "action_correct": 9,
+      "end_to_end_correct": 9,
+      "benign_retrieval_misses": 0,
+      "downgrade_misses": 1,
+      "false_certainty_errors": 0,
+      "overblocking_errors": 0
+    },
+    "bm25_metadata_content": {
+      "total": 10,
+      "retrieval_correct": 9,
+      "action_correct": 9,
+      "end_to_end_correct": 9,
+      "benign_retrieval_misses": 0,
+      "downgrade_misses": 1,
+      "false_certainty_errors": 0,
+      "overblocking_errors": 0
+    },
+    "bm25_keyword_expanded": {
       "total": 10,
       "retrieval_correct": 9,
       "action_correct": 9,
@@ -40,7 +70,7 @@
   },
   "rows": [
     {
-      "strategy": "content_only",
+      "strategy": "tfidf_content_only",
       "scenario_id": "s01_public_post_url",
       "expected_action": "answer",
       "correct_memory_id": "public_post_live_url",
@@ -57,7 +87,7 @@
       "overblocking_error": false
     },
     {
-      "strategy": "content_only",
+      "strategy": "tfidf_content_only",
       "scenario_id": "s02_overclaim_eval_results",
       "expected_action": "block",
       "correct_memory_id": "correction_no_overclaim_eval",
@@ -74,7 +104,7 @@
       "overblocking_error": false
     },
     {
-      "strategy": "content_only",
+      "strategy": "tfidf_content_only",
       "scenario_id": "s03_public_private_claim",
       "expected_action": "verify_first",
       "correct_memory_id": "uncertainty_public_claims",
@@ -91,7 +121,7 @@
       "overblocking_error": false
     },
     {
-      "strategy": "content_only",
+      "strategy": "tfidf_content_only",
       "scenario_id": "s04_start_after_crash",
       "expected_action": "answer",
       "correct_memory_id": "recovery_startup_order",
@@ -108,7 +138,7 @@
       "overblocking_error": false
     },
     {
-      "strategy": "content_only",
+      "strategy": "tfidf_content_only",
       "scenario_id": "s05_live_file_conflict",
       "expected_action": "answer",
       "correct_memory_id": "authority_live_files_first",
@@ -125,7 +155,7 @@
       "overblocking_error": false
     },
     {
-      "strategy": "content_only",
+      "strategy": "tfidf_content_only",
       "scenario_id": "s06_external_rewrite",
       "expected_action": "warn",
       "correct_memory_id": "correction_external_rewrite_not_authorship",
@@ -142,7 +172,7 @@
       "overblocking_error": false
     },
     {
-      "strategy": "content_only",
+      "strategy": "tfidf_content_only",
       "scenario_id": "s07_next_artifact",
       "expected_action": "answer",
       "correct_memory_id": "next_artifact_public_harness",
@@ -159,7 +189,7 @@
       "overblocking_error": false
     },
     {
-      "strategy": "content_only",
+      "strategy": "tfidf_content_only",
       "scenario_id": "s08_speculative_theory",
       "expected_action": "verify_first",
       "correct_memory_id": "uncertainty_speculative_theory",
@@ -176,7 +206,7 @@
       "overblocking_error": false
     },
     {
-      "strategy": "content_only",
+      "strategy": "tfidf_content_only",
       "scenario_id": "s09_latest_instruction",
       "expected_action": "answer",
       "correct_memory_id": "authority_user_latest_steers",
@@ -193,7 +223,7 @@
       "overblocking_error": false
     },
     {
-      "strategy": "content_only",
+      "strategy": "tfidf_content_only",
       "scenario_id": "s10_policy_definition",
       "expected_action": "answer",
       "correct_memory_id": "access_policy_rules",
@@ -210,7 +240,7 @@
       "overblocking_error": false
     },
     {
-      "strategy": "metadata_content",
+      "strategy": "tfidf_metadata_content",
       "scenario_id": "s01_public_post_url",
       "expected_action": "answer",
       "correct_memory_id": "public_post_live_url",
@@ -227,7 +257,7 @@
       "overblocking_error": false
     },
     {
-      "strategy": "metadata_content",
+      "strategy": "tfidf_metadata_content",
       "scenario_id": "s02_overclaim_eval_results",
       "expected_action": "block",
       "correct_memory_id": "correction_no_overclaim_eval",
@@ -244,7 +274,7 @@
       "overblocking_error": false
     },
     {
-      "strategy": "metadata_content",
+      "strategy": "tfidf_metadata_content",
       "scenario_id": "s03_public_private_claim",
       "expected_action": "verify_first",
       "correct_memory_id": "uncertainty_public_claims",
@@ -261,7 +291,7 @@
       "overblocking_error": false
     },
     {
-      "strategy": "metadata_content",
+      "strategy": "tfidf_metadata_content",
       "scenario_id": "s04_start_after_crash",
       "expected_action": "answer",
       "correct_memory_id": "recovery_startup_order",
@@ -278,7 +308,7 @@
       "overblocking_error": false
     },
     {
-      "strategy": "metadata_content",
+      "strategy": "tfidf_metadata_content",
       "scenario_id": "s05_live_file_conflict",
       "expected_action": "answer",
       "correct_memory_id": "authority_live_files_first",
@@ -295,7 +325,7 @@
       "overblocking_error": false
     },
     {
-      "strategy": "metadata_content",
+      "strategy": "tfidf_metadata_content",
       "scenario_id": "s06_external_rewrite",
       "expected_action": "warn",
       "correct_memory_id": "correction_external_rewrite_not_authorship",
@@ -312,7 +342,7 @@
       "overblocking_error": false
     },
     {
-      "strategy": "metadata_content",
+      "strategy": "tfidf_metadata_content",
       "scenario_id": "s07_next_artifact",
       "expected_action": "answer",
       "correct_memory_id": "next_artifact_public_harness",
@@ -329,7 +359,7 @@
       "overblocking_error": false
     },
     {
-      "strategy": "metadata_content",
+      "strategy": "tfidf_metadata_content",
       "scenario_id": "s08_speculative_theory",
       "expected_action": "verify_first",
       "correct_memory_id": "uncertainty_speculative_theory",
@@ -346,7 +376,7 @@
       "overblocking_error": false
     },
     {
-      "strategy": "metadata_content",
+      "strategy": "tfidf_metadata_content",
       "scenario_id": "s09_latest_instruction",
       "expected_action": "answer",
       "correct_memory_id": "authority_user_latest_steers",
@@ -363,7 +393,7 @@
       "overblocking_error": false
     },
     {
-      "strategy": "metadata_content",
+      "strategy": "tfidf_metadata_content",
       "scenario_id": "s10_policy_definition",
       "expected_action": "answer",
       "correct_memory_id": "access_policy_rules",
@@ -380,7 +410,7 @@
       "overblocking_error": false
     },
     {
-      "strategy": "keyword_expanded",
+      "strategy": "tfidf_keyword_expanded",
       "scenario_id": "s01_public_post_url",
       "expected_action": "answer",
       "correct_memory_id": "public_post_live_url",
@@ -397,7 +427,7 @@
       "overblocking_error": false
     },
     {
-      "strategy": "keyword_expanded",
+      "strategy": "tfidf_keyword_expanded",
       "scenario_id": "s02_overclaim_eval_results",
       "expected_action": "block",
       "correct_memory_id": "correction_no_overclaim_eval",
@@ -414,7 +444,7 @@
       "overblocking_error": false
     },
     {
-      "strategy": "keyword_expanded",
+      "strategy": "tfidf_keyword_expanded",
       "scenario_id": "s03_public_private_claim",
       "expected_action": "verify_first",
       "correct_memory_id": "uncertainty_public_claims",
@@ -431,7 +461,7 @@
       "overblocking_error": false
     },
     {
-      "strategy": "keyword_expanded",
+      "strategy": "tfidf_keyword_expanded",
       "scenario_id": "s04_start_after_crash",
       "expected_action": "answer",
       "correct_memory_id": "recovery_startup_order",
@@ -448,7 +478,7 @@
       "overblocking_error": false
     },
     {
-      "strategy": "keyword_expanded",
+      "strategy": "tfidf_keyword_expanded",
       "scenario_id": "s05_live_file_conflict",
       "expected_action": "answer",
       "correct_memory_id": "authority_live_files_first",
@@ -465,7 +495,7 @@
       "overblocking_error": false
     },
     {
-      "strategy": "keyword_expanded",
+      "strategy": "tfidf_keyword_expanded",
       "scenario_id": "s06_external_rewrite",
       "expected_action": "warn",
       "correct_memory_id": "correction_external_rewrite_not_authorship",
@@ -482,7 +512,7 @@
       "overblocking_error": false
     },
     {
-      "strategy": "keyword_expanded",
+      "strategy": "tfidf_keyword_expanded",
       "scenario_id": "s07_next_artifact",
       "expected_action": "answer",
       "correct_memory_id": "next_artifact_public_harness",
@@ -499,7 +529,7 @@
       "overblocking_error": false
     },
     {
-      "strategy": "keyword_expanded",
+      "strategy": "tfidf_keyword_expanded",
       "scenario_id": "s08_speculative_theory",
       "expected_action": "verify_first",
       "correct_memory_id": "uncertainty_speculative_theory",
@@ -516,7 +546,7 @@
       "overblocking_error": false
     },
     {
-      "strategy": "keyword_expanded",
+      "strategy": "tfidf_keyword_expanded",
       "scenario_id": "s09_latest_instruction",
       "expected_action": "answer",
       "correct_memory_id": "authority_user_latest_steers",
@@ -533,12 +563,522 @@
       "overblocking_error": false
     },
     {
-      "strategy": "keyword_expanded",
+      "strategy": "tfidf_keyword_expanded",
       "scenario_id": "s10_policy_definition",
       "expected_action": "answer",
       "correct_memory_id": "access_policy_rules",
       "retrieved_id": "access_policy_rules",
       "retrieved_score": 0.719788,
+      "retrieval_correct": true,
+      "action": "answer",
+      "rationale": "settled memory hint: answer",
+      "action_correct": true,
+      "end_to_end_correct": true,
+      "benign_retrieval_miss": false,
+      "false_certainty_error": false,
+      "downgrade_miss": false,
+      "overblocking_error": false
+    },
+    {
+      "strategy": "bm25_content_only",
+      "scenario_id": "s01_public_post_url",
+      "expected_action": "answer",
+      "correct_memory_id": "public_post_live_url",
+      "retrieved_id": "public_post_live_url",
+      "retrieved_score": 10.106546,
+      "retrieval_correct": true,
+      "action": "answer",
+      "rationale": "settled memory hint: answer",
+      "action_correct": true,
+      "end_to_end_correct": true,
+      "benign_retrieval_miss": false,
+      "false_certainty_error": false,
+      "downgrade_miss": false,
+      "overblocking_error": false
+    },
+    {
+      "strategy": "bm25_content_only",
+      "scenario_id": "s02_overclaim_eval_results",
+      "expected_action": "block",
+      "correct_memory_id": "correction_no_overclaim_eval",
+      "retrieved_id": "correction_strawman_baseline",
+      "retrieved_score": 8.280414,
+      "retrieval_correct": false,
+      "action": "warn",
+      "rationale": "active correction uses warn",
+      "action_correct": false,
+      "end_to_end_correct": false,
+      "benign_retrieval_miss": false,
+      "false_certainty_error": false,
+      "downgrade_miss": true,
+      "overblocking_error": false
+    },
+    {
+      "strategy": "bm25_content_only",
+      "scenario_id": "s03_public_private_claim",
+      "expected_action": "verify_first",
+      "correct_memory_id": "uncertainty_public_claims",
+      "retrieved_id": "uncertainty_public_claims",
+      "retrieved_score": 13.821502,
+      "retrieval_correct": true,
+      "action": "verify_first",
+      "rationale": "verification_required gate",
+      "action_correct": true,
+      "end_to_end_correct": true,
+      "benign_retrieval_miss": false,
+      "false_certainty_error": false,
+      "downgrade_miss": false,
+      "overblocking_error": false
+    },
+    {
+      "strategy": "bm25_content_only",
+      "scenario_id": "s04_start_after_crash",
+      "expected_action": "answer",
+      "correct_memory_id": "recovery_startup_order",
+      "retrieved_id": "recovery_startup_order",
+      "retrieved_score": 9.355873,
+      "retrieval_correct": true,
+      "action": "answer",
+      "rationale": "settled memory hint: answer",
+      "action_correct": true,
+      "end_to_end_correct": true,
+      "benign_retrieval_miss": false,
+      "false_certainty_error": false,
+      "downgrade_miss": false,
+      "overblocking_error": false
+    },
+    {
+      "strategy": "bm25_content_only",
+      "scenario_id": "s05_live_file_conflict",
+      "expected_action": "answer",
+      "correct_memory_id": "authority_live_files_first",
+      "retrieved_id": "authority_live_files_first",
+      "retrieved_score": 13.06302,
+      "retrieval_correct": true,
+      "action": "answer",
+      "rationale": "settled memory hint: answer",
+      "action_correct": true,
+      "end_to_end_correct": true,
+      "benign_retrieval_miss": false,
+      "false_certainty_error": false,
+      "downgrade_miss": false,
+      "overblocking_error": false
+    },
+    {
+      "strategy": "bm25_content_only",
+      "scenario_id": "s06_external_rewrite",
+      "expected_action": "warn",
+      "correct_memory_id": "correction_external_rewrite_not_authorship",
+      "retrieved_id": "correction_external_rewrite_not_authorship",
+      "retrieved_score": 11.8501,
+      "retrieval_correct": true,
+      "action": "warn",
+      "rationale": "active correction uses warn",
+      "action_correct": true,
+      "end_to_end_correct": true,
+      "benign_retrieval_miss": false,
+      "false_certainty_error": false,
+      "downgrade_miss": false,
+      "overblocking_error": false
+    },
+    {
+      "strategy": "bm25_content_only",
+      "scenario_id": "s07_next_artifact",
+      "expected_action": "answer",
+      "correct_memory_id": "next_artifact_public_harness",
+      "retrieved_id": "next_artifact_public_harness",
+      "retrieved_score": 7.435112,
+      "retrieval_correct": true,
+      "action": "answer",
+      "rationale": "settled memory hint: answer",
+      "action_correct": true,
+      "end_to_end_correct": true,
+      "benign_retrieval_miss": false,
+      "false_certainty_error": false,
+      "downgrade_miss": false,
+      "overblocking_error": false
+    },
+    {
+      "strategy": "bm25_content_only",
+      "scenario_id": "s08_speculative_theory",
+      "expected_action": "verify_first",
+      "correct_memory_id": "uncertainty_speculative_theory",
+      "retrieved_id": "uncertainty_speculative_theory",
+      "retrieved_score": 13.337145,
+      "retrieval_correct": true,
+      "action": "verify_first",
+      "rationale": "verification_required gate",
+      "action_correct": true,
+      "end_to_end_correct": true,
+      "benign_retrieval_miss": false,
+      "false_certainty_error": false,
+      "downgrade_miss": false,
+      "overblocking_error": false
+    },
+    {
+      "strategy": "bm25_content_only",
+      "scenario_id": "s09_latest_instruction",
+      "expected_action": "answer",
+      "correct_memory_id": "authority_user_latest_steers",
+      "retrieved_id": "authority_user_latest_steers",
+      "retrieved_score": 6.656813,
+      "retrieval_correct": true,
+      "action": "answer",
+      "rationale": "settled memory hint: answer",
+      "action_correct": true,
+      "end_to_end_correct": true,
+      "benign_retrieval_miss": false,
+      "false_certainty_error": false,
+      "downgrade_miss": false,
+      "overblocking_error": false
+    },
+    {
+      "strategy": "bm25_content_only",
+      "scenario_id": "s10_policy_definition",
+      "expected_action": "answer",
+      "correct_memory_id": "access_policy_rules",
+      "retrieved_id": "access_policy_rules",
+      "retrieved_score": 17.364023,
+      "retrieval_correct": true,
+      "action": "answer",
+      "rationale": "settled memory hint: answer",
+      "action_correct": true,
+      "end_to_end_correct": true,
+      "benign_retrieval_miss": false,
+      "false_certainty_error": false,
+      "downgrade_miss": false,
+      "overblocking_error": false
+    },
+    {
+      "strategy": "bm25_metadata_content",
+      "scenario_id": "s01_public_post_url",
+      "expected_action": "answer",
+      "correct_memory_id": "public_post_live_url",
+      "retrieved_id": "public_post_live_url",
+      "retrieved_score": 14.419805,
+      "retrieval_correct": true,
+      "action": "answer",
+      "rationale": "settled memory hint: answer",
+      "action_correct": true,
+      "end_to_end_correct": true,
+      "benign_retrieval_miss": false,
+      "false_certainty_error": false,
+      "downgrade_miss": false,
+      "overblocking_error": false
+    },
+    {
+      "strategy": "bm25_metadata_content",
+      "scenario_id": "s02_overclaim_eval_results",
+      "expected_action": "block",
+      "correct_memory_id": "correction_no_overclaim_eval",
+      "retrieved_id": "correction_strawman_baseline",
+      "retrieved_score": 8.00324,
+      "retrieval_correct": false,
+      "action": "warn",
+      "rationale": "active correction uses warn",
+      "action_correct": false,
+      "end_to_end_correct": false,
+      "benign_retrieval_miss": false,
+      "false_certainty_error": false,
+      "downgrade_miss": true,
+      "overblocking_error": false
+    },
+    {
+      "strategy": "bm25_metadata_content",
+      "scenario_id": "s03_public_private_claim",
+      "expected_action": "verify_first",
+      "correct_memory_id": "uncertainty_public_claims",
+      "retrieved_id": "uncertainty_public_claims",
+      "retrieved_score": 14.403338,
+      "retrieval_correct": true,
+      "action": "verify_first",
+      "rationale": "verification_required gate",
+      "action_correct": true,
+      "end_to_end_correct": true,
+      "benign_retrieval_miss": false,
+      "false_certainty_error": false,
+      "downgrade_miss": false,
+      "overblocking_error": false
+    },
+    {
+      "strategy": "bm25_metadata_content",
+      "scenario_id": "s04_start_after_crash",
+      "expected_action": "answer",
+      "correct_memory_id": "recovery_startup_order",
+      "retrieved_id": "recovery_startup_order",
+      "retrieved_score": 11.502992,
+      "retrieval_correct": true,
+      "action": "answer",
+      "rationale": "settled memory hint: answer",
+      "action_correct": true,
+      "end_to_end_correct": true,
+      "benign_retrieval_miss": false,
+      "false_certainty_error": false,
+      "downgrade_miss": false,
+      "overblocking_error": false
+    },
+    {
+      "strategy": "bm25_metadata_content",
+      "scenario_id": "s05_live_file_conflict",
+      "expected_action": "answer",
+      "correct_memory_id": "authority_live_files_first",
+      "retrieved_id": "authority_live_files_first",
+      "retrieved_score": 12.707397,
+      "retrieval_correct": true,
+      "action": "answer",
+      "rationale": "settled memory hint: answer",
+      "action_correct": true,
+      "end_to_end_correct": true,
+      "benign_retrieval_miss": false,
+      "false_certainty_error": false,
+      "downgrade_miss": false,
+      "overblocking_error": false
+    },
+    {
+      "strategy": "bm25_metadata_content",
+      "scenario_id": "s06_external_rewrite",
+      "expected_action": "warn",
+      "correct_memory_id": "correction_external_rewrite_not_authorship",
+      "retrieved_id": "correction_external_rewrite_not_authorship",
+      "retrieved_score": 15.348063,
+      "retrieval_correct": true,
+      "action": "warn",
+      "rationale": "active correction uses warn",
+      "action_correct": true,
+      "end_to_end_correct": true,
+      "benign_retrieval_miss": false,
+      "false_certainty_error": false,
+      "downgrade_miss": false,
+      "overblocking_error": false
+    },
+    {
+      "strategy": "bm25_metadata_content",
+      "scenario_id": "s07_next_artifact",
+      "expected_action": "answer",
+      "correct_memory_id": "next_artifact_public_harness",
+      "retrieved_id": "next_artifact_public_harness",
+      "retrieved_score": 9.872522,
+      "retrieval_correct": true,
+      "action": "answer",
+      "rationale": "settled memory hint: answer",
+      "action_correct": true,
+      "end_to_end_correct": true,
+      "benign_retrieval_miss": false,
+      "false_certainty_error": false,
+      "downgrade_miss": false,
+      "overblocking_error": false
+    },
+    {
+      "strategy": "bm25_metadata_content",
+      "scenario_id": "s08_speculative_theory",
+      "expected_action": "verify_first",
+      "correct_memory_id": "uncertainty_speculative_theory",
+      "retrieved_id": "uncertainty_speculative_theory",
+      "retrieved_score": 15.759092,
+      "retrieval_correct": true,
+      "action": "verify_first",
+      "rationale": "verification_required gate",
+      "action_correct": true,
+      "end_to_end_correct": true,
+      "benign_retrieval_miss": false,
+      "false_certainty_error": false,
+      "downgrade_miss": false,
+      "overblocking_error": false
+    },
+    {
+      "strategy": "bm25_metadata_content",
+      "scenario_id": "s09_latest_instruction",
+      "expected_action": "answer",
+      "correct_memory_id": "authority_user_latest_steers",
+      "retrieved_id": "authority_user_latest_steers",
+      "retrieved_score": 11.584395,
+      "retrieval_correct": true,
+      "action": "answer",
+      "rationale": "settled memory hint: answer",
+      "action_correct": true,
+      "end_to_end_correct": true,
+      "benign_retrieval_miss": false,
+      "false_certainty_error": false,
+      "downgrade_miss": false,
+      "overblocking_error": false
+    },
+    {
+      "strategy": "bm25_metadata_content",
+      "scenario_id": "s10_policy_definition",
+      "expected_action": "answer",
+      "correct_memory_id": "access_policy_rules",
+      "retrieved_id": "access_policy_rules",
+      "retrieved_score": 17.89107,
+      "retrieval_correct": true,
+      "action": "answer",
+      "rationale": "settled memory hint: answer",
+      "action_correct": true,
+      "end_to_end_correct": true,
+      "benign_retrieval_miss": false,
+      "false_certainty_error": false,
+      "downgrade_miss": false,
+      "overblocking_error": false
+    },
+    {
+      "strategy": "bm25_keyword_expanded",
+      "scenario_id": "s01_public_post_url",
+      "expected_action": "answer",
+      "correct_memory_id": "public_post_live_url",
+      "retrieved_id": "public_post_live_url",
+      "retrieved_score": 17.325828,
+      "retrieval_correct": true,
+      "action": "answer",
+      "rationale": "settled memory hint: answer",
+      "action_correct": true,
+      "end_to_end_correct": true,
+      "benign_retrieval_miss": false,
+      "false_certainty_error": false,
+      "downgrade_miss": false,
+      "overblocking_error": false
+    },
+    {
+      "strategy": "bm25_keyword_expanded",
+      "scenario_id": "s02_overclaim_eval_results",
+      "expected_action": "block",
+      "correct_memory_id": "correction_no_overclaim_eval",
+      "retrieved_id": "correction_strawman_baseline",
+      "retrieved_score": 7.958077,
+      "retrieval_correct": false,
+      "action": "warn",
+      "rationale": "active correction uses warn",
+      "action_correct": false,
+      "end_to_end_correct": false,
+      "benign_retrieval_miss": false,
+      "false_certainty_error": false,
+      "downgrade_miss": true,
+      "overblocking_error": false
+    },
+    {
+      "strategy": "bm25_keyword_expanded",
+      "scenario_id": "s03_public_private_claim",
+      "expected_action": "verify_first",
+      "correct_memory_id": "uncertainty_public_claims",
+      "retrieved_id": "uncertainty_public_claims",
+      "retrieved_score": 18.644648,
+      "retrieval_correct": true,
+      "action": "verify_first",
+      "rationale": "verification_required gate",
+      "action_correct": true,
+      "end_to_end_correct": true,
+      "benign_retrieval_miss": false,
+      "false_certainty_error": false,
+      "downgrade_miss": false,
+      "overblocking_error": false
+    },
+    {
+      "strategy": "bm25_keyword_expanded",
+      "scenario_id": "s04_start_after_crash",
+      "expected_action": "answer",
+      "correct_memory_id": "recovery_startup_order",
+      "retrieved_id": "recovery_startup_order",
+      "retrieved_score": 13.0171,
+      "retrieval_correct": true,
+      "action": "answer",
+      "rationale": "settled memory hint: answer",
+      "action_correct": true,
+      "end_to_end_correct": true,
+      "benign_retrieval_miss": false,
+      "false_certainty_error": false,
+      "downgrade_miss": false,
+      "overblocking_error": false
+    },
+    {
+      "strategy": "bm25_keyword_expanded",
+      "scenario_id": "s05_live_file_conflict",
+      "expected_action": "answer",
+      "correct_memory_id": "authority_live_files_first",
+      "retrieved_id": "authority_live_files_first",
+      "retrieved_score": 15.574184,
+      "retrieval_correct": true,
+      "action": "answer",
+      "rationale": "settled memory hint: answer",
+      "action_correct": true,
+      "end_to_end_correct": true,
+      "benign_retrieval_miss": false,
+      "false_certainty_error": false,
+      "downgrade_miss": false,
+      "overblocking_error": false
+    },
+    {
+      "strategy": "bm25_keyword_expanded",
+      "scenario_id": "s06_external_rewrite",
+      "expected_action": "warn",
+      "correct_memory_id": "correction_external_rewrite_not_authorship",
+      "retrieved_id": "correction_external_rewrite_not_authorship",
+      "retrieved_score": 18.991681,
+      "retrieval_correct": true,
+      "action": "warn",
+      "rationale": "active correction uses warn",
+      "action_correct": true,
+      "end_to_end_correct": true,
+      "benign_retrieval_miss": false,
+      "false_certainty_error": false,
+      "downgrade_miss": false,
+      "overblocking_error": false
+    },
+    {
+      "strategy": "bm25_keyword_expanded",
+      "scenario_id": "s07_next_artifact",
+      "expected_action": "answer",
+      "correct_memory_id": "next_artifact_public_harness",
+      "retrieved_id": "next_artifact_public_harness",
+      "retrieved_score": 10.237748,
+      "retrieval_correct": true,
+      "action": "answer",
+      "rationale": "settled memory hint: answer",
+      "action_correct": true,
+      "end_to_end_correct": true,
+      "benign_retrieval_miss": false,
+      "false_certainty_error": false,
+      "downgrade_miss": false,
+      "overblocking_error": false
+    },
+    {
+      "strategy": "bm25_keyword_expanded",
+      "scenario_id": "s08_speculative_theory",
+      "expected_action": "verify_first",
+      "correct_memory_id": "uncertainty_speculative_theory",
+      "retrieved_id": "uncertainty_speculative_theory",
+      "retrieved_score": 19.246651,
+      "retrieval_correct": true,
+      "action": "verify_first",
+      "rationale": "verification_required gate",
+      "action_correct": true,
+      "end_to_end_correct": true,
+      "benign_retrieval_miss": false,
+      "false_certainty_error": false,
+      "downgrade_miss": false,
+      "overblocking_error": false
+    },
+    {
+      "strategy": "bm25_keyword_expanded",
+      "scenario_id": "s09_latest_instruction",
+      "expected_action": "answer",
+      "correct_memory_id": "authority_user_latest_steers",
+      "retrieved_id": "authority_user_latest_steers",
+      "retrieved_score": 18.809772,
+      "retrieval_correct": true,
+      "action": "answer",
+      "rationale": "settled memory hint: answer",
+      "action_correct": true,
+      "end_to_end_correct": true,
+      "benign_retrieval_miss": false,
+      "false_certainty_error": false,
+      "downgrade_miss": false,
+      "overblocking_error": false
+    },
+    {
+      "strategy": "bm25_keyword_expanded",
+      "scenario_id": "s10_policy_definition",
+      "expected_action": "answer",
+      "correct_memory_id": "access_policy_rules",
+      "retrieved_id": "access_policy_rules",
+      "retrieved_score": 25.372105,
       "retrieval_correct": true,
       "action": "answer",
       "rationale": "settled memory hint: answer",

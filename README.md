@@ -6,7 +6,7 @@ This folder is a small, inspectable demo for testing one idea:
 
 > Agent memory should be evaluated by the consequence of retrieval, not only by top-1 retrieval accuracy.
 
-The demo uses six structured memory files, ten scenarios, and a deterministic evaluator. It does not use an LLM, embeddings, BM25, reranking, or generated answers.
+The demo uses six structured memory files, ten scenarios, and a deterministic evaluator. It does not use an LLM, embeddings, reranking, or generated answers.
 
 ## What This Is
 
@@ -34,6 +34,13 @@ Supporting files:
 - `scenarios/retrieval_scenarios.json` — 10 scenario labels.
 - `run_retrieval_eval.py` — deterministic TF-IDF evaluator.
 - `SCORING_RUBRIC.md` — action classes and metrics.
+- `RESEARCH_PROTOCOL.md` — formal research question, variables, metrics, validity threats, and reproducibility notes.
+- `RELATED_WORK.md` — honest map of closest prior work and contribution boundary.
+- `VALIDITY_THREATS.md` — explicit risk register for the current demo and next experiments.
+- `METRICS.md` — current and planned metrics for comparison.
+- `EXPERIMENT_PLAN.md` — staged upgrades from demo to stronger evaluation.
+- `v0.2_experiment_plan.md` — next semantic-retrieval comparison plan.
+- `PAPER_OUTLINE.md` — paper-style report structure for future writeup.
 - `baseline_summary.md` — plain-language summary, not scored by this evaluator.
 - `results/retrieval_eval_results.md` — generated Markdown results.
 - `results/retrieval_eval_results.json` — generated raw JSON results.
@@ -43,13 +50,16 @@ Supporting files:
 - 10 internally designed scenarios.
 - 21 memory objects across 6 files.
 - Top-1 retrieval only.
-- Deterministic TF-IDF only.
-- Three retrieval text strategies:
-  - `content_only`
-  - `metadata_content`
-  - `keyword_expanded`
+- Deterministic lexical retrieval only.
+- Two retrieval methods:
+  - TF-IDF
+  - BM25
+- Three text-construction strategies for each retrieval method:
+  - content only
+  - metadata + content
+  - metadata + content + retrieval terms
 - No LLM generation scored.
-- No embeddings, BM25, hybrid retrieval, or reranking.
+- No embeddings, hybrid retrieval, or reranking.
 - Each memory object carries structured fields that determine its action/access policy.
 - The evaluator retrieves one memory, computes an action class, and compares it with the expected action.
 
@@ -79,9 +89,12 @@ Generated from the sanitized memory objects:
 
 | Strategy | Retrieval | Action correct | End-to-end | Benign misses | Downgrade misses | FC errors | Overblocking |
 |---|---:|---:|---:|---:|---:|---:|---:|
-| content_only | 9/10 | 9/10 | 9/10 | 0 | 1 | 0 | 0 |
-| metadata_content | 9/10 | 9/10 | 9/10 | 0 | 1 | 0 | 0 |
-| keyword_expanded | 9/10 | 9/10 | 9/10 | 0 | 1 | 0 | 0 |
+| tfidf_content_only | 9/10 | 9/10 | 9/10 | 0 | 1 | 0 | 0 |
+| tfidf_metadata_content | 9/10 | 9/10 | 9/10 | 0 | 1 | 0 | 0 |
+| tfidf_keyword_expanded | 9/10 | 9/10 | 9/10 | 0 | 1 | 0 | 0 |
+| bm25_content_only | 9/10 | 9/10 | 9/10 | 0 | 1 | 0 | 0 |
+| bm25_metadata_content | 9/10 | 9/10 | 9/10 | 0 | 1 | 0 | 0 |
+| bm25_keyword_expanded | 9/10 | 9/10 | 9/10 | 0 | 1 | 0 | 0 |
 
 ## Interpretation
 
@@ -124,7 +137,7 @@ Do not treat this as:
 - The memory pool is tiny.
 - The evaluator is deterministic.
 - Retrieval and memory-object design are entangled.
-- No modern retrieval baselines are tested.
+- No semantic retrieval baseline is tested.
 - No cost analysis is included.
 
 ## Next Tests
@@ -132,7 +145,7 @@ Do not treat this as:
 The next meaningful versions should add:
 
 1. A larger external scenario set written by someone who did not design the framework.
-2. BM25 and embedding retrieval compared against this TF-IDF baseline.
+2. Embedding retrieval compared against the lexical baselines.
 3. Multi-memory retrieval, because one top-1 memory may be too brittle for judgment-lineage work.
 4. Model-in-the-loop generation and blind scoring.
 
