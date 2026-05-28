@@ -38,6 +38,7 @@ Supporting files:
 - `RESEARCH_PROTOCOL.md` — formal research question, variables, metrics, validity threats, and reproducibility notes.
 - `RELATED_WORK.md` — honest map of closest prior work and contribution boundary.
 - `VALIDITY_THREATS.md` — explicit risk register for the current demo and next experiments.
+- `FULL_FRAMEWORK_BASELINE.md` — separates the full-framework baseline from the retrieval-baseline article.
 - `METRICS.md` — current and planned metrics for comparison.
 - `EXPERIMENT_PLAN.md` — staged upgrades from demo to stronger evaluation.
 - `v0.2_experiment_plan.md` — next semantic-retrieval comparison plan.
