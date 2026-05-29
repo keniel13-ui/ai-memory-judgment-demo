@@ -36,6 +36,7 @@ Supporting files:
 - `run_embedding_eval.py` — local Ollama embedding evaluator.
 - `run_topk_inspection.py` — deterministic top-k inspection for the s02 downgrade miss.
 - `run_topk_aggregation_eval.py` — conservative top-k action aggregation evaluator.
+- `run_aligned_topk_aggregation_eval.py` — query-aligned top-k block-elevation evaluator.
 - `SCORING_RUBRIC.md` — action classes and metrics.
 - `RESEARCH_PROTOCOL.md` — formal research question, variables, metrics, validity threats, and reproducibility notes.
 - `RELATED_WORK.md` — honest map of closest prior work and contribution boundary.

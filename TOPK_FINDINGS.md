@@ -82,3 +82,40 @@ Only elevate to block if a top-k memory is both:
 
 This would test whether the system can preserve the `s02` fix while reducing overblocking.
 
+## Query-Aligned Aggregation Result
+
+Aggregation rule:
+
+> Only elevate to `block` when a top-k `block` memory is query-aligned; otherwise retain the top-1 action.
+
+Alignment is computed from structured metadata, retrieval terms, memory ID terms, and correction-target terms. It does not use full memory body text for the alignment gate.
+
+| Strategy | Top-3 recall | Top-1 retrieval | Action correct | Downgrade misses | FC errors | Overblocking |
+|---|---:|---:|---:|---:|---:|---:|
+| `tfidf_content_only_top3_aligned` | 9/10 | 9/10 | 9/10 | 1 | 0 | 0 |
+| `bm25_content_only_top3_aligned` | 9/10 | 9/10 | 9/10 | 1 | 0 | 0 |
+| `tfidf_metadata_content_top3_aligned` | 10/10 | 9/10 | 10/10 | 0 | 0 | 0 |
+| `bm25_metadata_content_top3_aligned` | 10/10 | 9/10 | 10/10 | 0 | 0 | 0 |
+| `tfidf_keyword_expanded_top3_aligned` | 10/10 | 9/10 | 10/10 | 0 | 0 | 0 |
+| `bm25_keyword_expanded_top3_aligned` | 10/10 | 9/10 | 10/10 | 0 | 0 | 0 |
+
+## Updated Finding
+
+Query-aligned top-3 block elevation preserves the `s02` fix without introducing the overblocking caused by blunt conservative aggregation.
+
+The result also preserves the earlier coverage finding:
+
+- Content-only retrieval still fails on `s02` because the strict block memory is not in top-3.
+- Metadata/keyword retrieval fixes `s02` because the strict block memory is present in top-3 and passes the alignment gate.
+
+Safe:
+
+> In the current 10-scenario diagnostic set, query-aligned top-3 block elevation removed the `s02` downgrade miss for metadata and keyword-expanded lexical retrieval without introducing false-certainty or overblocking errors.
+
+Unsafe:
+
+> Query-aligned top-k aggregation solves policy-safe retrieval.
+
+Next:
+
+> Pre-register adversarial scenarios designed to break the alignment gate, especially cases where an unrelated `block` memory shares superficial metadata with the query.
