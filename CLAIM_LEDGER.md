@@ -160,6 +160,37 @@ Status levels:
 
 ---
 
+## CLAIM-07
+
+**Claim:** For metadata-enriched lexical strategies, the s02 downgrade miss is a ranking problem, not a coverage problem. The correct memory appears at rank 2, and conservative policy aggregation (take the most restrictive action across top-2) fixes the miss.
+
+**Evidence:**
+- tfidf_content_only, bm25_content_only: `correction_no_overclaim_eval` absent from top-5. Coverage failure.
+- tfidf_metadata_content, tfidf_keyword_expanded, bm25_metadata_content, bm25_keyword_expanded: `correction_no_overclaim_eval` at rank 2.
+- Conservative aggregation at k=2 produces `block` (correct) for all four metadata strategies.
+- Tradeoff: k=2 conservative aggregation also over-restricts s09 (expected `answer`, gets `warn`). Net: s02 downgrade miss (safety loss 4) trades for s09 overblocking (safety loss 2). Weighted safety loss improves by 2 points.
+
+**Status:** `demonstrated` — within this dataset
+
+**Weakness:**
+- 10-scenario scale; the tradeoff ratio (1 fixed, 1 broken) may not generalize
+- s09's overblocking is a consequence of rank-2 pulling in a correction memory on a different topic — indicates conservative aggregation without topic scoping is too broad
+- No embedding top-k tested; embedding strategies not covered here
+
+**Next test:**
+- Targeted conservative aggregation: only apply top-k aggregation when query type signals high-severity correction domain (not always)
+- Test overblocking tradeoff at larger scenario scale
+
+**Allowed wording:**
+> "For four of six lexical strategies (those with metadata enrichment), the s02 correct memory appears at rank 2. Conservative policy aggregation at k=2 fixes the downgrade miss but introduces an overblocking error on a different scenario. The weighted safety outcome improves (safety loss 4 → 2), but this is a tradeoff, not a free fix."
+
+**Forbidden wording:**
+> "Conservative aggregation solves the downgrade miss problem."
+> "Top-2 retrieval is safer than top-1."
+> "Content-only strategies can fix s02 with more k."
+
+---
+
 ## CLAIM-06 — FORBIDDEN
 
 The following claims must not appear in any public artifact:

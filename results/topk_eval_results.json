@@ -1,0 +1,3636 @@
+{
+  "experiment": "top-k recall and conservative policy aggregation",
+  "question": "For the s02 downgrade miss, does the correct memory appear in top-k, and does conservative aggregation fix the downgrade miss?",
+  "k_values_tested": [
+    1,
+    2,
+    3,
+    5
+  ],
+  "strategies": {
+    "tfidf_content_only": {
+      "scenarios": {
+        "s01_public_post_url": {
+          "query": "What is the live URL for the technical post?",
+          "expected_action": "answer",
+          "correct_memory_id": "public_post_live_url",
+          "top5_ranked": [
+            {
+              "rank": 1,
+              "id": "public_post_live_url",
+              "score": 0.407076
+            },
+            {
+              "rank": 2,
+              "id": "authority_live_files_first",
+              "score": 0.265801
+            },
+            {
+              "rank": 3,
+              "id": "correction_deploy_not_verified",
+              "score": 0.180105
+            },
+            {
+              "rank": 4,
+              "id": "authority_agent_dialogue_conflict",
+              "score": 0.168967
+            },
+            {
+              "rank": 5,
+              "id": "recovery_live_file_beats_summary",
+              "score": 0.15441
+            }
+          ],
+          "recall_at_k": {
+            "1": true,
+            "2": true,
+            "3": true,
+            "5": true
+          },
+          "conservative_at_k": {
+            "1": {
+              "action": "answer",
+              "correct": true,
+              "rationale": "conservative aggregation: public_post_live_url\u2192answer"
+            },
+            "2": {
+              "action": "answer",
+              "correct": true,
+              "rationale": "conservative aggregation: public_post_live_url\u2192answer, authority_live_files_first\u2192answer"
+            },
+            "3": {
+              "action": "warn",
+              "correct": false,
+              "rationale": "conservative aggregation: public_post_live_url\u2192answer, authority_live_files_first\u2192answer, correction_deploy_not_verified\u2192warn"
+            },
+            "5": {
+              "action": "warn",
+              "correct": false,
+              "rationale": "conservative aggregation: public_post_live_url\u2192answer, authority_live_files_first\u2192answer, correction_deploy_not_verified\u2192warn, authority_agent_dialogue_conflict\u2192answer, recovery_live_file_beats_summary\u2192answer"
+            }
+          }
+        },
+        "s02_overclaim_eval_results": {
+          "query": "Can we say this eval proves the structured memory framework works?",
+          "expected_action": "block",
+          "correct_memory_id": "correction_no_overclaim_eval",
+          "top5_ranked": [
+            {
+              "rank": 1,
+              "id": "correction_strawman_baseline",
+              "score": 0.469791
+            },
+            {
+              "rank": 2,
+              "id": "access_policy_rules",
+              "score": 0.171271
+            },
+            {
+              "rank": 3,
+              "id": "state_agent_dashboard",
+              "score": 0.111599
+            },
+            {
+              "rank": 4,
+              "id": "correction_external_rewrite_not_authorship",
+              "score": 0.097882
+            },
+            {
+              "rank": 5,
+              "id": "public_post_live_url",
+              "score": 0.08868
+            }
+          ],
+          "recall_at_k": {
+            "1": false,
+            "2": false,
+            "3": false,
+            "5": false
+          },
+          "conservative_at_k": {
+            "1": {
+              "action": "warn",
+              "correct": false,
+              "rationale": "conservative aggregation: correction_strawman_baseline\u2192warn"
+            },
+            "2": {
+              "action": "warn",
+              "correct": false,
+              "rationale": "conservative aggregation: correction_strawman_baseline\u2192warn, access_policy_rules\u2192answer"
+            },
+            "3": {
+              "action": "warn",
+              "correct": false,
+              "rationale": "conservative aggregation: correction_strawman_baseline\u2192warn, access_policy_rules\u2192answer, state_agent_dashboard\u2192answer"
+            },
+            "5": {
+              "action": "warn",
+              "correct": false,
+              "rationale": "conservative aggregation: correction_strawman_baseline\u2192warn, access_policy_rules\u2192answer, state_agent_dashboard\u2192answer, correction_external_rewrite_not_authorship\u2192warn, public_post_live_url\u2192answer"
+            }
+          }
+        },
+        "s03_public_private_claim": {
+          "query": "Should we publish private agent-history claims as public proof now?",
+          "expected_action": "verify_first",
+          "correct_memory_id": "uncertainty_public_claims",
+          "top5_ranked": [
+            {
+              "rank": 1,
+              "id": "uncertainty_public_claims",
+              "score": 0.567751
+            },
+            {
+              "rank": 2,
+              "id": "policy_public_claims_tests_required",
+              "score": 0.371316
+            },
+            {
+              "rank": 3,
+              "id": "state_agent_dashboard",
+              "score": 0.193609
+            },
+            {
+              "rank": 4,
+              "id": "uncertainty_speculative_theory",
+              "score": 0.127012
+            },
+            {
+              "rank": 5,
+              "id": "correction_external_rewrite_not_authorship",
+              "score": 0.110237
+            }
+          ],
+          "recall_at_k": {
+            "1": true,
+            "2": true,
+            "3": true,
+            "5": true
+          },
+          "conservative_at_k": {
+            "1": {
+              "action": "verify_first",
+              "correct": true,
+              "rationale": "conservative aggregation: uncertainty_public_claims\u2192verify_first"
+            },
+            "2": {
+              "action": "verify_first",
+              "correct": true,
+              "rationale": "conservative aggregation: uncertainty_public_claims\u2192verify_first, policy_public_claims_tests_required\u2192answer"
+            },
+            "3": {
+              "action": "verify_first",
+              "correct": true,
+              "rationale": "conservative aggregation: uncertainty_public_claims\u2192verify_first, policy_public_claims_tests_required\u2192answer, state_agent_dashboard\u2192answer"
+            },
+            "5": {
+              "action": "verify_first",
+              "correct": true,
+              "rationale": "conservative aggregation: uncertainty_public_claims\u2192verify_first, policy_public_claims_tests_required\u2192answer, state_agent_dashboard\u2192answer, uncertainty_speculative_theory\u2192verify_first, correction_external_rewrite_not_authorship\u2192warn"
+            }
+          }
+        },
+        "s04_start_after_crash": {
+          "query": "What should the agent do first after a crash recovery?",
+          "expected_action": "answer",
+          "correct_memory_id": "recovery_startup_order",
+          "top5_ranked": [
+            {
+              "rank": 1,
+              "id": "recovery_startup_order",
+              "score": 0.338507
+            },
+            {
+              "rank": 2,
+              "id": "state_agent_dashboard",
+              "score": 0.213196
+            },
+            {
+              "rank": 3,
+              "id": "correction_deploy_not_verified",
+              "score": 0.195321
+            },
+            {
+              "rank": 4,
+              "id": "current_system_overview",
+              "score": 0.127847
+            },
+            {
+              "rank": 5,
+              "id": "correction_strawman_baseline",
+              "score": 0.116957
+            }
+          ],
+          "recall_at_k": {
+            "1": true,
+            "2": true,
+            "3": true,
+            "5": true
+          },
+          "conservative_at_k": {
+            "1": {
+              "action": "answer",
+              "correct": true,
+              "rationale": "conservative aggregation: recovery_startup_order\u2192answer"
+            },
+            "2": {
+              "action": "answer",
+              "correct": true,
+              "rationale": "conservative aggregation: recovery_startup_order\u2192answer, state_agent_dashboard\u2192answer"
+            },
+            "3": {
+              "action": "warn",
+              "correct": false,
+              "rationale": "conservative aggregation: recovery_startup_order\u2192answer, state_agent_dashboard\u2192answer, correction_deploy_not_verified\u2192warn"
+            },
+            "5": {
+              "action": "warn",
+              "correct": false,
+              "rationale": "conservative aggregation: recovery_startup_order\u2192answer, state_agent_dashboard\u2192answer, correction_deploy_not_verified\u2192warn, current_system_overview\u2192answer, correction_strawman_baseline\u2192warn"
+            }
+          }
+        },
+        "s05_live_file_conflict": {
+          "query": "If a summary and live file disagree, which source governs a posting decision?",
+          "expected_action": "answer",
+          "correct_memory_id": "authority_live_files_first",
+          "top5_ranked": [
+            {
+              "rank": 1,
+              "id": "authority_live_files_first",
+              "score": 0.463664
+            },
+            {
+              "rank": 2,
+              "id": "recovery_live_file_beats_summary",
+              "score": 0.337734
+            },
+            {
+              "rank": 3,
+              "id": "recovery_tool_unavailable",
+              "score": 0.300237
+            },
+            {
+              "rank": 4,
+              "id": "authority_agent_dialogue_conflict",
+              "score": 0.205004
+            },
+            {
+              "rank": 5,
+              "id": "correction_strawman_baseline",
+              "score": 0.191643
+            }
+          ],
+          "recall_at_k": {
+            "1": true,
+            "2": true,
+            "3": true,
+            "5": true
+          },
+          "conservative_at_k": {
+            "1": {
+              "action": "answer",
+              "correct": true,
+              "rationale": "conservative aggregation: authority_live_files_first\u2192answer"
+            },
+            "2": {
+              "action": "answer",
+              "correct": true,
+              "rationale": "conservative aggregation: authority_live_files_first\u2192answer, recovery_live_file_beats_summary\u2192answer"
+            },
+            "3": {
+              "action": "answer",
+              "correct": true,
+              "rationale": "conservative aggregation: authority_live_files_first\u2192answer, recovery_live_file_beats_summary\u2192answer, recovery_tool_unavailable\u2192answer"
+            },
+            "5": {
+              "action": "warn",
+              "correct": false,
+              "rationale": "conservative aggregation: authority_live_files_first\u2192answer, recovery_live_file_beats_summary\u2192answer, recovery_tool_unavailable\u2192answer, authority_agent_dialogue_conflict\u2192answer, correction_strawman_baseline\u2192warn"
+            }
+          }
+        },
+        "s06_external_rewrite": {
+          "query": "Should we publish an external model's full rewrite as the author's own article?",
+          "expected_action": "warn",
+          "correct_memory_id": "correction_external_rewrite_not_authorship",
+          "top5_ranked": [
+            {
+              "rank": 1,
+              "id": "correction_external_rewrite_not_authorship",
+              "score": 0.379484
+            },
+            {
+              "rank": 2,
+              "id": "uncertainty_speculative_theory",
+              "score": 0.148942
+            },
+            {
+              "rank": 3,
+              "id": "authority_live_files_first",
+              "score": 0.145506
+            },
+            {
+              "rank": 4,
+              "id": "state_agent_dashboard",
+              "score": 0.126005
+            },
+            {
+              "rank": 5,
+              "id": "uncertainty_generalization",
+              "score": 0.069384
+            }
+          ],
+          "recall_at_k": {
+            "1": true,
+            "2": true,
+            "3": true,
+            "5": true
+          },
+          "conservative_at_k": {
+            "1": {
+              "action": "warn",
+              "correct": true,
+              "rationale": "conservative aggregation: correction_external_rewrite_not_authorship\u2192warn"
+            },
+            "2": {
+              "action": "verify_first",
+              "correct": false,
+              "rationale": "conservative aggregation: correction_external_rewrite_not_authorship\u2192warn, uncertainty_speculative_theory\u2192verify_first"
+            },
+            "3": {
+              "action": "verify_first",
+              "correct": false,
+              "rationale": "conservative aggregation: correction_external_rewrite_not_authorship\u2192warn, uncertainty_speculative_theory\u2192verify_first, authority_live_files_first\u2192answer"
+            },
+            "5": {
+              "action": "verify_first",
+              "correct": false,
+              "rationale": "conservative aggregation: correction_external_rewrite_not_authorship\u2192warn, uncertainty_speculative_theory\u2192verify_first, authority_live_files_first\u2192answer, state_agent_dashboard\u2192answer, uncertainty_generalization\u2192warn"
+            }
+          }
+        },
+        "s07_next_artifact": {
+          "query": "What is the next planned artifact for the memory framework?",
+          "expected_action": "answer",
+          "correct_memory_id": "next_artifact_public_harness",
+          "top5_ranked": [
+            {
+              "rank": 1,
+              "id": "next_artifact_public_harness",
+              "score": 0.30809
+            },
+            {
+              "rank": 2,
+              "id": "correction_strawman_baseline",
+              "score": 0.291664
+            },
+            {
+              "rank": 3,
+              "id": "authority_live_files_first",
+              "score": 0.21656
+            },
+            {
+              "rank": 4,
+              "id": "state_agent_dashboard",
+              "score": 0.193759
+            },
+            {
+              "rank": 5,
+              "id": "correction_deploy_not_verified",
+              "score": 0.189518
+            }
+          ],
+          "recall_at_k": {
+            "1": true,
+            "2": true,
+            "3": true,
+            "5": true
+          },
+          "conservative_at_k": {
+            "1": {
+              "action": "answer",
+              "correct": true,
+              "rationale": "conservative aggregation: next_artifact_public_harness\u2192answer"
+            },
+            "2": {
+              "action": "warn",
+              "correct": false,
+              "rationale": "conservative aggregation: next_artifact_public_harness\u2192answer, correction_strawman_baseline\u2192warn"
+            },
+            "3": {
+              "action": "warn",
+              "correct": false,
+              "rationale": "conservative aggregation: next_artifact_public_harness\u2192answer, correction_strawman_baseline\u2192warn, authority_live_files_first\u2192answer"
+            },
+            "5": {
+              "action": "warn",
+              "correct": false,
+              "rationale": "conservative aggregation: next_artifact_public_harness\u2192answer, correction_strawman_baseline\u2192warn, authority_live_files_first\u2192answer, state_agent_dashboard\u2192answer, correction_deploy_not_verified\u2192warn"
+            }
+          }
+        },
+        "s08_speculative_theory": {
+          "query": "Can we present the speculative theory as established science?",
+          "expected_action": "verify_first",
+          "correct_memory_id": "uncertainty_speculative_theory",
+          "top5_ranked": [
+            {
+              "rank": 1,
+              "id": "uncertainty_speculative_theory",
+              "score": 0.556122
+            },
+            {
+              "rank": 2,
+              "id": "correction_external_rewrite_not_authorship",
+              "score": 0.134607
+            },
+            {
+              "rank": 3,
+              "id": "authority_agent_dialogue_conflict",
+              "score": 0.086993
+            },
+            {
+              "rank": 4,
+              "id": "correction_no_overclaim_eval",
+              "score": 0.082238
+            },
+            {
+              "rank": 5,
+              "id": "access_policy_rules",
+              "score": 0.082159
+            }
+          ],
+          "recall_at_k": {
+            "1": true,
+            "2": true,
+            "3": true,
+            "5": true
+          },
+          "conservative_at_k": {
+            "1": {
+              "action": "verify_first",
+              "correct": true,
+              "rationale": "conservative aggregation: uncertainty_speculative_theory\u2192verify_first"
+            },
+            "2": {
+              "action": "verify_first",
+              "correct": true,
+              "rationale": "conservative aggregation: uncertainty_speculative_theory\u2192verify_first, correction_external_rewrite_not_authorship\u2192warn"
+            },
+            "3": {
+              "action": "verify_first",
+              "correct": true,
+              "rationale": "conservative aggregation: uncertainty_speculative_theory\u2192verify_first, correction_external_rewrite_not_authorship\u2192warn, authority_agent_dialogue_conflict\u2192answer"
+            },
+            "5": {
+              "action": "block",
+              "correct": false,
+              "rationale": "conservative aggregation: uncertainty_speculative_theory\u2192verify_first, correction_external_rewrite_not_authorship\u2192warn, authority_agent_dialogue_conflict\u2192answer, correction_no_overclaim_eval\u2192block, access_policy_rules\u2192answer"
+            }
+          }
+        },
+        "s09_latest_instruction": {
+          "query": "If the user changes direction from the old plan, should the latest instruction steer?",
+          "expected_action": "answer",
+          "correct_memory_id": "authority_user_latest_steers",
+          "top5_ranked": [
+            {
+              "rank": 1,
+              "id": "authority_user_latest_steers",
+              "score": 0.276547
+            },
+            {
+              "rank": 2,
+              "id": "correction_external_rewrite_not_authorship",
+              "score": 0.207862
+            },
+            {
+              "rank": 3,
+              "id": "state_agent_dashboard",
+              "score": 0.190157
+            },
+            {
+              "rank": 4,
+              "id": "recovery_tool_unavailable",
+              "score": 0.168647
+            },
+            {
+              "rank": 5,
+              "id": "authority_agent_dialogue_conflict",
+              "score": 0.152768
+            }
+          ],
+          "recall_at_k": {
+            "1": true,
+            "2": true,
+            "3": true,
+            "5": true
+          },
+          "conservative_at_k": {
+            "1": {
+              "action": "answer",
+              "correct": true,
+              "rationale": "conservative aggregation: authority_user_latest_steers\u2192answer"
+            },
+            "2": {
+              "action": "warn",
+              "correct": false,
+              "rationale": "conservative aggregation: authority_user_latest_steers\u2192answer, correction_external_rewrite_not_authorship\u2192warn"
+            },
+            "3": {
+              "action": "warn",
+              "correct": false,
+              "rationale": "conservative aggregation: authority_user_latest_steers\u2192answer, correction_external_rewrite_not_authorship\u2192warn, state_agent_dashboard\u2192answer"
+            },
+            "5": {
+              "action": "warn",
+              "correct": false,
+              "rationale": "conservative aggregation: authority_user_latest_steers\u2192answer, correction_external_rewrite_not_authorship\u2192warn, state_agent_dashboard\u2192answer, recovery_tool_unavailable\u2192answer, authority_agent_dialogue_conflict\u2192answer"
+            }
+          }
+        },
+        "s10_policy_definition": {
+          "query": "What action classes can access policy assign to a retrieved memory?",
+          "expected_action": "answer",
+          "correct_memory_id": "access_policy_rules",
+          "top5_ranked": [
+            {
+              "rank": 1,
+              "id": "access_policy_rules",
+              "score": 0.737578
+            },
+            {
+              "rank": 2,
+              "id": "current_system_overview",
+              "score": 0.152617
+            },
+            {
+              "rank": 3,
+              "id": "correction_strawman_baseline",
+              "score": 0.145596
+            },
+            {
+              "rank": 4,
+              "id": "state_agent_dashboard",
+              "score": 0.142717
+            },
+            {
+              "rank": 5,
+              "id": "public_post_live_url",
+              "score": 0.103255
+            }
+          ],
+          "recall_at_k": {
+            "1": true,
+            "2": true,
+            "3": true,
+            "5": true
+          },
+          "conservative_at_k": {
+            "1": {
+              "action": "answer",
+              "correct": true,
+              "rationale": "conservative aggregation: access_policy_rules\u2192answer"
+            },
+            "2": {
+              "action": "answer",
+              "correct": true,
+              "rationale": "conservative aggregation: access_policy_rules\u2192answer, current_system_overview\u2192answer"
+            },
+            "3": {
+              "action": "warn",
+              "correct": false,
+              "rationale": "conservative aggregation: access_policy_rules\u2192answer, current_system_overview\u2192answer, correction_strawman_baseline\u2192warn"
+            },
+            "5": {
+              "action": "warn",
+              "correct": false,
+              "rationale": "conservative aggregation: access_policy_rules\u2192answer, current_system_overview\u2192answer, correction_strawman_baseline\u2192warn, state_agent_dashboard\u2192answer, public_post_live_url\u2192answer"
+            }
+          }
+        }
+      }
+    },
+    "tfidf_metadata_content": {
+      "scenarios": {
+        "s01_public_post_url": {
+          "query": "What is the live URL for the technical post?",
+          "expected_action": "answer",
+          "correct_memory_id": "public_post_live_url",
+          "top5_ranked": [
+            {
+              "rank": 1,
+              "id": "public_post_live_url",
+              "score": 0.572991
+            },
+            {
+              "rank": 2,
+              "id": "authority_live_files_first",
+              "score": 0.245533
+            },
+            {
+              "rank": 3,
+              "id": "recovery_live_file_beats_summary",
+              "score": 0.14791
+            },
+            {
+              "rank": 4,
+              "id": "authority_agent_dialogue_conflict",
+              "score": 0.131342
+            },
+            {
+              "rank": 5,
+              "id": "correction_deploy_not_verified",
+              "score": 0.128616
+            }
+          ],
+          "recall_at_k": {
+            "1": true,
+            "2": true,
+            "3": true,
+            "5": true
+          },
+          "conservative_at_k": {
+            "1": {
+              "action": "answer",
+              "correct": true,
+              "rationale": "conservative aggregation: public_post_live_url\u2192answer"
+            },
+            "2": {
+              "action": "answer",
+              "correct": true,
+              "rationale": "conservative aggregation: public_post_live_url\u2192answer, authority_live_files_first\u2192answer"
+            },
+            "3": {
+              "action": "answer",
+              "correct": true,
+              "rationale": "conservative aggregation: public_post_live_url\u2192answer, authority_live_files_first\u2192answer, recovery_live_file_beats_summary\u2192answer"
+            },
+            "5": {
+              "action": "warn",
+              "correct": false,
+              "rationale": "conservative aggregation: public_post_live_url\u2192answer, authority_live_files_first\u2192answer, recovery_live_file_beats_summary\u2192answer, authority_agent_dialogue_conflict\u2192answer, correction_deploy_not_verified\u2192warn"
+            }
+          }
+        },
+        "s02_overclaim_eval_results": {
+          "query": "Can we say this eval proves the structured memory framework works?",
+          "expected_action": "block",
+          "correct_memory_id": "correction_no_overclaim_eval",
+          "top5_ranked": [
+            {
+              "rank": 1,
+              "id": "correction_strawman_baseline",
+              "score": 0.31176
+            },
+            {
+              "rank": 2,
+              "id": "correction_no_overclaim_eval",
+              "score": 0.139131
+            },
+            {
+              "rank": 3,
+              "id": "current_system_overview",
+              "score": 0.097548
+            },
+            {
+              "rank": 4,
+              "id": "access_policy_rules",
+              "score": 0.094094
+            },
+            {
+              "rank": 5,
+              "id": "state_agent_dashboard",
+              "score": 0.076877
+            }
+          ],
+          "recall_at_k": {
+            "1": false,
+            "2": true,
+            "3": true,
+            "5": true
+          },
+          "conservative_at_k": {
+            "1": {
+              "action": "warn",
+              "correct": false,
+              "rationale": "conservative aggregation: correction_strawman_baseline\u2192warn"
+            },
+            "2": {
+              "action": "block",
+              "correct": true,
+              "rationale": "conservative aggregation: correction_strawman_baseline\u2192warn, correction_no_overclaim_eval\u2192block"
+            },
+            "3": {
+              "action": "block",
+              "correct": true,
+              "rationale": "conservative aggregation: correction_strawman_baseline\u2192warn, correction_no_overclaim_eval\u2192block, current_system_overview\u2192answer"
+            },
+            "5": {
+              "action": "block",
+              "correct": true,
+              "rationale": "conservative aggregation: correction_strawman_baseline\u2192warn, correction_no_overclaim_eval\u2192block, current_system_overview\u2192answer, access_policy_rules\u2192answer, state_agent_dashboard\u2192answer"
+            }
+          }
+        },
+        "s03_public_private_claim": {
+          "query": "Should we publish private agent-history claims as public proof now?",
+          "expected_action": "verify_first",
+          "correct_memory_id": "uncertainty_public_claims",
+          "top5_ranked": [
+            {
+              "rank": 1,
+              "id": "uncertainty_public_claims",
+              "score": 0.535848
+            },
+            {
+              "rank": 2,
+              "id": "policy_public_claims_tests_required",
+              "score": 0.38385
+            },
+            {
+              "rank": 3,
+              "id": "state_agent_dashboard",
+              "score": 0.189455
+            },
+            {
+              "rank": 4,
+              "id": "authority_agent_dialogue_conflict",
+              "score": 0.179485
+            },
+            {
+              "rank": 5,
+              "id": "next_artifact_public_harness",
+              "score": 0.103555
+            }
+          ],
+          "recall_at_k": {
+            "1": true,
+            "2": true,
+            "3": true,
+            "5": true
+          },
+          "conservative_at_k": {
+            "1": {
+              "action": "verify_first",
+              "correct": true,
+              "rationale": "conservative aggregation: uncertainty_public_claims\u2192verify_first"
+            },
+            "2": {
+              "action": "verify_first",
+              "correct": true,
+              "rationale": "conservative aggregation: uncertainty_public_claims\u2192verify_first, policy_public_claims_tests_required\u2192answer"
+            },
+            "3": {
+              "action": "verify_first",
+              "correct": true,
+              "rationale": "conservative aggregation: uncertainty_public_claims\u2192verify_first, policy_public_claims_tests_required\u2192answer, state_agent_dashboard\u2192answer"
+            },
+            "5": {
+              "action": "verify_first",
+              "correct": true,
+              "rationale": "conservative aggregation: uncertainty_public_claims\u2192verify_first, policy_public_claims_tests_required\u2192answer, state_agent_dashboard\u2192answer, authority_agent_dialogue_conflict\u2192answer, next_artifact_public_harness\u2192answer"
+            }
+          }
+        },
+        "s04_start_after_crash": {
+          "query": "What should the agent do first after a crash recovery?",
+          "expected_action": "answer",
+          "correct_memory_id": "recovery_startup_order",
+          "top5_ranked": [
+            {
+              "rank": 1,
+              "id": "recovery_startup_order",
+              "score": 0.398383
+            },
+            {
+              "rank": 2,
+              "id": "state_agent_dashboard",
+              "score": 0.21328
+            },
+            {
+              "rank": 3,
+              "id": "authority_agent_dialogue_conflict",
+              "score": 0.159719
+            },
+            {
+              "rank": 4,
+              "id": "correction_deploy_not_verified",
+              "score": 0.155962
+            },
+            {
+              "rank": 5,
+              "id": "authority_live_files_first",
+              "score": 0.120347
+            }
+          ],
+          "recall_at_k": {
+            "1": true,
+            "2": true,
+            "3": true,
+            "5": true
+          },
+          "conservative_at_k": {
+            "1": {
+              "action": "answer",
+              "correct": true,
+              "rationale": "conservative aggregation: recovery_startup_order\u2192answer"
+            },
+            "2": {
+              "action": "answer",
+              "correct": true,
+              "rationale": "conservative aggregation: recovery_startup_order\u2192answer, state_agent_dashboard\u2192answer"
+            },
+            "3": {
+              "action": "answer",
+              "correct": true,
+              "rationale": "conservative aggregation: recovery_startup_order\u2192answer, state_agent_dashboard\u2192answer, authority_agent_dialogue_conflict\u2192answer"
+            },
+            "5": {
+              "action": "warn",
+              "correct": false,
+              "rationale": "conservative aggregation: recovery_startup_order\u2192answer, state_agent_dashboard\u2192answer, authority_agent_dialogue_conflict\u2192answer, correction_deploy_not_verified\u2192warn, authority_live_files_first\u2192answer"
+            }
+          }
+        },
+        "s05_live_file_conflict": {
+          "query": "If a summary and live file disagree, which source governs a posting decision?",
+          "expected_action": "answer",
+          "correct_memory_id": "authority_live_files_first",
+          "top5_ranked": [
+            {
+              "rank": 1,
+              "id": "authority_live_files_first",
+              "score": 0.38896
+            },
+            {
+              "rank": 2,
+              "id": "recovery_live_file_beats_summary",
+              "score": 0.367176
+            },
+            {
+              "rank": 3,
+              "id": "recovery_tool_unavailable",
+              "score": 0.22886
+            },
+            {
+              "rank": 4,
+              "id": "authority_agent_dialogue_conflict",
+              "score": 0.161228
+            },
+            {
+              "rank": 5,
+              "id": "correction_strawman_baseline",
+              "score": 0.150814
+            }
+          ],
+          "recall_at_k": {
+            "1": true,
+            "2": true,
+            "3": true,
+            "5": true
+          },
+          "conservative_at_k": {
+            "1": {
+              "action": "answer",
+              "correct": true,
+              "rationale": "conservative aggregation: authority_live_files_first\u2192answer"
+            },
+            "2": {
+              "action": "answer",
+              "correct": true,
+              "rationale": "conservative aggregation: authority_live_files_first\u2192answer, recovery_live_file_beats_summary\u2192answer"
+            },
+            "3": {
+              "action": "answer",
+              "correct": true,
+              "rationale": "conservative aggregation: authority_live_files_first\u2192answer, recovery_live_file_beats_summary\u2192answer, recovery_tool_unavailable\u2192answer"
+            },
+            "5": {
+              "action": "warn",
+              "correct": false,
+              "rationale": "conservative aggregation: authority_live_files_first\u2192answer, recovery_live_file_beats_summary\u2192answer, recovery_tool_unavailable\u2192answer, authority_agent_dialogue_conflict\u2192answer, correction_strawman_baseline\u2192warn"
+            }
+          }
+        },
+        "s06_external_rewrite": {
+          "query": "Should we publish an external model's full rewrite as the author's own article?",
+          "expected_action": "warn",
+          "correct_memory_id": "correction_external_rewrite_not_authorship",
+          "top5_ranked": [
+            {
+              "rank": 1,
+              "id": "correction_external_rewrite_not_authorship",
+              "score": 0.356178
+            },
+            {
+              "rank": 2,
+              "id": "authority_live_files_first",
+              "score": 0.106832
+            },
+            {
+              "rank": 3,
+              "id": "uncertainty_pricing_model",
+              "score": 0.106591
+            },
+            {
+              "rank": 4,
+              "id": "uncertainty_speculative_theory",
+              "score": 0.096637
+            },
+            {
+              "rank": 5,
+              "id": "state_agent_dashboard",
+              "score": 0.085662
+            }
+          ],
+          "recall_at_k": {
+            "1": true,
+            "2": true,
+            "3": true,
+            "5": true
+          },
+          "conservative_at_k": {
+            "1": {
+              "action": "warn",
+              "correct": true,
+              "rationale": "conservative aggregation: correction_external_rewrite_not_authorship\u2192warn"
+            },
+            "2": {
+              "action": "warn",
+              "correct": true,
+              "rationale": "conservative aggregation: correction_external_rewrite_not_authorship\u2192warn, authority_live_files_first\u2192answer"
+            },
+            "3": {
+              "action": "warn",
+              "correct": true,
+              "rationale": "conservative aggregation: correction_external_rewrite_not_authorship\u2192warn, authority_live_files_first\u2192answer, uncertainty_pricing_model\u2192warn"
+            },
+            "5": {
+              "action": "verify_first",
+              "correct": false,
+              "rationale": "conservative aggregation: correction_external_rewrite_not_authorship\u2192warn, authority_live_files_first\u2192answer, uncertainty_pricing_model\u2192warn, uncertainty_speculative_theory\u2192verify_first, state_agent_dashboard\u2192answer"
+            }
+          }
+        },
+        "s07_next_artifact": {
+          "query": "What is the next planned artifact for the memory framework?",
+          "expected_action": "answer",
+          "correct_memory_id": "next_artifact_public_harness",
+          "top5_ranked": [
+            {
+              "rank": 1,
+              "id": "next_artifact_public_harness",
+              "score": 0.417695
+            },
+            {
+              "rank": 2,
+              "id": "correction_strawman_baseline",
+              "score": 0.207407
+            },
+            {
+              "rank": 3,
+              "id": "authority_live_files_first",
+              "score": 0.18005
+            },
+            {
+              "rank": 4,
+              "id": "current_system_overview",
+              "score": 0.174995
+            },
+            {
+              "rank": 5,
+              "id": "state_agent_dashboard",
+              "score": 0.14916
+            }
+          ],
+          "recall_at_k": {
+            "1": true,
+            "2": true,
+            "3": true,
+            "5": true
+          },
+          "conservative_at_k": {
+            "1": {
+              "action": "answer",
+              "correct": true,
+              "rationale": "conservative aggregation: next_artifact_public_harness\u2192answer"
+            },
+            "2": {
+              "action": "warn",
+              "correct": false,
+              "rationale": "conservative aggregation: next_artifact_public_harness\u2192answer, correction_strawman_baseline\u2192warn"
+            },
+            "3": {
+              "action": "warn",
+              "correct": false,
+              "rationale": "conservative aggregation: next_artifact_public_harness\u2192answer, correction_strawman_baseline\u2192warn, authority_live_files_first\u2192answer"
+            },
+            "5": {
+              "action": "warn",
+              "correct": false,
+              "rationale": "conservative aggregation: next_artifact_public_harness\u2192answer, correction_strawman_baseline\u2192warn, authority_live_files_first\u2192answer, current_system_overview\u2192answer, state_agent_dashboard\u2192answer"
+            }
+          }
+        },
+        "s08_speculative_theory": {
+          "query": "Can we present the speculative theory as established science?",
+          "expected_action": "verify_first",
+          "correct_memory_id": "uncertainty_speculative_theory",
+          "top5_ranked": [
+            {
+              "rank": 1,
+              "id": "uncertainty_speculative_theory",
+              "score": 0.555757
+            },
+            {
+              "rank": 2,
+              "id": "correction_external_rewrite_not_authorship",
+              "score": 0.107159
+            },
+            {
+              "rank": 3,
+              "id": "authority_agent_dialogue_conflict",
+              "score": 0.070631
+            },
+            {
+              "rank": 4,
+              "id": "correction_no_overclaim_eval",
+              "score": 0.067245
+            },
+            {
+              "rank": 5,
+              "id": "state_agent_dashboard",
+              "score": 0.058598
+            }
+          ],
+          "recall_at_k": {
+            "1": true,
+            "2": true,
+            "3": true,
+            "5": true
+          },
+          "conservative_at_k": {
+            "1": {
+              "action": "verify_first",
+              "correct": true,
+              "rationale": "conservative aggregation: uncertainty_speculative_theory\u2192verify_first"
+            },
+            "2": {
+              "action": "verify_first",
+              "correct": true,
+              "rationale": "conservative aggregation: uncertainty_speculative_theory\u2192verify_first, correction_external_rewrite_not_authorship\u2192warn"
+            },
+            "3": {
+              "action": "verify_first",
+              "correct": true,
+              "rationale": "conservative aggregation: uncertainty_speculative_theory\u2192verify_first, correction_external_rewrite_not_authorship\u2192warn, authority_agent_dialogue_conflict\u2192answer"
+            },
+            "5": {
+              "action": "block",
+              "correct": false,
+              "rationale": "conservative aggregation: uncertainty_speculative_theory\u2192verify_first, correction_external_rewrite_not_authorship\u2192warn, authority_agent_dialogue_conflict\u2192answer, correction_no_overclaim_eval\u2192block, state_agent_dashboard\u2192answer"
+            }
+          }
+        },
+        "s09_latest_instruction": {
+          "query": "If the user changes direction from the old plan, should the latest instruction steer?",
+          "expected_action": "answer",
+          "correct_memory_id": "authority_user_latest_steers",
+          "top5_ranked": [
+            {
+              "rank": 1,
+              "id": "authority_user_latest_steers",
+              "score": 0.363484
+            },
+            {
+              "rank": 2,
+              "id": "correction_external_rewrite_not_authorship",
+              "score": 0.14542
+            },
+            {
+              "rank": 3,
+              "id": "state_agent_dashboard",
+              "score": 0.125602
+            },
+            {
+              "rank": 4,
+              "id": "recovery_tool_unavailable",
+              "score": 0.113615
+            },
+            {
+              "rank": 5,
+              "id": "authority_agent_dialogue_conflict",
+              "score": 0.109002
+            }
+          ],
+          "recall_at_k": {
+            "1": true,
+            "2": true,
+            "3": true,
+            "5": true
+          },
+          "conservative_at_k": {
+            "1": {
+              "action": "answer",
+              "correct": true,
+              "rationale": "conservative aggregation: authority_user_latest_steers\u2192answer"
+            },
+            "2": {
+              "action": "warn",
+              "correct": false,
+              "rationale": "conservative aggregation: authority_user_latest_steers\u2192answer, correction_external_rewrite_not_authorship\u2192warn"
+            },
+            "3": {
+              "action": "warn",
+              "correct": false,
+              "rationale": "conservative aggregation: authority_user_latest_steers\u2192answer, correction_external_rewrite_not_authorship\u2192warn, state_agent_dashboard\u2192answer"
+            },
+            "5": {
+              "action": "warn",
+              "correct": false,
+              "rationale": "conservative aggregation: authority_user_latest_steers\u2192answer, correction_external_rewrite_not_authorship\u2192warn, state_agent_dashboard\u2192answer, recovery_tool_unavailable\u2192answer, authority_agent_dialogue_conflict\u2192answer"
+            }
+          }
+        },
+        "s10_policy_definition": {
+          "query": "What action classes can access policy assign to a retrieved memory?",
+          "expected_action": "answer",
+          "correct_memory_id": "access_policy_rules",
+          "top5_ranked": [
+            {
+              "rank": 1,
+              "id": "access_policy_rules",
+              "score": 0.687776
+            },
+            {
+              "rank": 2,
+              "id": "correction_strawman_baseline",
+              "score": 0.117799
+            },
+            {
+              "rank": 3,
+              "id": "current_system_overview",
+              "score": 0.110721
+            },
+            {
+              "rank": 4,
+              "id": "policy_public_claims_tests_required",
+              "score": 0.106098
+            },
+            {
+              "rank": 5,
+              "id": "state_billing_policy",
+              "score": 0.100049
+            }
+          ],
+          "recall_at_k": {
+            "1": true,
+            "2": true,
+            "3": true,
+            "5": true
+          },
+          "conservative_at_k": {
+            "1": {
+              "action": "answer",
+              "correct": true,
+              "rationale": "conservative aggregation: access_policy_rules\u2192answer"
+            },
+            "2": {
+              "action": "warn",
+              "correct": false,
+              "rationale": "conservative aggregation: access_policy_rules\u2192answer, correction_strawman_baseline\u2192warn"
+            },
+            "3": {
+              "action": "warn",
+              "correct": false,
+              "rationale": "conservative aggregation: access_policy_rules\u2192answer, correction_strawman_baseline\u2192warn, current_system_overview\u2192answer"
+            },
+            "5": {
+              "action": "warn",
+              "correct": false,
+              "rationale": "conservative aggregation: access_policy_rules\u2192answer, correction_strawman_baseline\u2192warn, current_system_overview\u2192answer, policy_public_claims_tests_required\u2192answer, state_billing_policy\u2192answer"
+            }
+          }
+        }
+      }
+    },
+    "tfidf_keyword_expanded": {
+      "scenarios": {
+        "s01_public_post_url": {
+          "query": "What is the live URL for the technical post?",
+          "expected_action": "answer",
+          "correct_memory_id": "public_post_live_url",
+          "top5_ranked": [
+            {
+              "rank": 1,
+              "id": "public_post_live_url",
+              "score": 0.643339
+            },
+            {
+              "rank": 2,
+              "id": "authority_live_files_first",
+              "score": 0.210173
+            },
+            {
+              "rank": 3,
+              "id": "recovery_live_file_beats_summary",
+              "score": 0.144002
+            },
+            {
+              "rank": 4,
+              "id": "authority_agent_dialogue_conflict",
+              "score": 0.103179
+            },
+            {
+              "rank": 5,
+              "id": "correction_deploy_not_verified",
+              "score": 0.101608
+            }
+          ],
+          "recall_at_k": {
+            "1": true,
+            "2": true,
+            "3": true,
+            "5": true
+          },
+          "conservative_at_k": {
+            "1": {
+              "action": "answer",
+              "correct": true,
+              "rationale": "conservative aggregation: public_post_live_url\u2192answer"
+            },
+            "2": {
+              "action": "answer",
+              "correct": true,
+              "rationale": "conservative aggregation: public_post_live_url\u2192answer, authority_live_files_first\u2192answer"
+            },
+            "3": {
+              "action": "answer",
+              "correct": true,
+              "rationale": "conservative aggregation: public_post_live_url\u2192answer, authority_live_files_first\u2192answer, recovery_live_file_beats_summary\u2192answer"
+            },
+            "5": {
+              "action": "warn",
+              "correct": false,
+              "rationale": "conservative aggregation: public_post_live_url\u2192answer, authority_live_files_first\u2192answer, recovery_live_file_beats_summary\u2192answer, authority_agent_dialogue_conflict\u2192answer, correction_deploy_not_verified\u2192warn"
+            }
+          }
+        },
+        "s02_overclaim_eval_results": {
+          "query": "Can we say this eval proves the structured memory framework works?",
+          "expected_action": "block",
+          "correct_memory_id": "correction_no_overclaim_eval",
+          "top5_ranked": [
+            {
+              "rank": 1,
+              "id": "correction_strawman_baseline",
+              "score": 0.239351
+            },
+            {
+              "rank": 2,
+              "id": "correction_no_overclaim_eval",
+              "score": 0.114061
+            },
+            {
+              "rank": 3,
+              "id": "current_system_overview",
+              "score": 0.104296
+            },
+            {
+              "rank": 4,
+              "id": "access_policy_rules",
+              "score": 0.095086
+            },
+            {
+              "rank": 5,
+              "id": "correction_external_rewrite_not_authorship",
+              "score": 0.058782
+            }
+          ],
+          "recall_at_k": {
+            "1": false,
+            "2": true,
+            "3": true,
+            "5": true
+          },
+          "conservative_at_k": {
+            "1": {
+              "action": "warn",
+              "correct": false,
+              "rationale": "conservative aggregation: correction_strawman_baseline\u2192warn"
+            },
+            "2": {
+              "action": "block",
+              "correct": true,
+              "rationale": "conservative aggregation: correction_strawman_baseline\u2192warn, correction_no_overclaim_eval\u2192block"
+            },
+            "3": {
+              "action": "block",
+              "correct": true,
+              "rationale": "conservative aggregation: correction_strawman_baseline\u2192warn, correction_no_overclaim_eval\u2192block, current_system_overview\u2192answer"
+            },
+            "5": {
+              "action": "block",
+              "correct": true,
+              "rationale": "conservative aggregation: correction_strawman_baseline\u2192warn, correction_no_overclaim_eval\u2192block, current_system_overview\u2192answer, access_policy_rules\u2192answer, correction_external_rewrite_not_authorship\u2192warn"
+            }
+          }
+        },
+        "s03_public_private_claim": {
+          "query": "Should we publish private agent-history claims as public proof now?",
+          "expected_action": "verify_first",
+          "correct_memory_id": "uncertainty_public_claims",
+          "top5_ranked": [
+            {
+              "rank": 1,
+              "id": "uncertainty_public_claims",
+              "score": 0.572035
+            },
+            {
+              "rank": 2,
+              "id": "policy_public_claims_tests_required",
+              "score": 0.336692
+            },
+            {
+              "rank": 3,
+              "id": "state_agent_dashboard",
+              "score": 0.168424
+            },
+            {
+              "rank": 4,
+              "id": "authority_agent_dialogue_conflict",
+              "score": 0.165127
+            },
+            {
+              "rank": 5,
+              "id": "next_artifact_public_harness",
+              "score": 0.097798
+            }
+          ],
+          "recall_at_k": {
+            "1": true,
+            "2": true,
+            "3": true,
+            "5": true
+          },
+          "conservative_at_k": {
+            "1": {
+              "action": "verify_first",
+              "correct": true,
+              "rationale": "conservative aggregation: uncertainty_public_claims\u2192verify_first"
+            },
+            "2": {
+              "action": "verify_first",
+              "correct": true,
+              "rationale": "conservative aggregation: uncertainty_public_claims\u2192verify_first, policy_public_claims_tests_required\u2192answer"
+            },
+            "3": {
+              "action": "verify_first",
+              "correct": true,
+              "rationale": "conservative aggregation: uncertainty_public_claims\u2192verify_first, policy_public_claims_tests_required\u2192answer, state_agent_dashboard\u2192answer"
+            },
+            "5": {
+              "action": "verify_first",
+              "correct": true,
+              "rationale": "conservative aggregation: uncertainty_public_claims\u2192verify_first, policy_public_claims_tests_required\u2192answer, state_agent_dashboard\u2192answer, authority_agent_dialogue_conflict\u2192answer, next_artifact_public_harness\u2192answer"
+            }
+          }
+        },
+        "s04_start_after_crash": {
+          "query": "What should the agent do first after a crash recovery?",
+          "expected_action": "answer",
+          "correct_memory_id": "recovery_startup_order",
+          "top5_ranked": [
+            {
+              "rank": 1,
+              "id": "recovery_startup_order",
+              "score": 0.395861
+            },
+            {
+              "rank": 2,
+              "id": "state_agent_dashboard",
+              "score": 0.200563
+            },
+            {
+              "rank": 3,
+              "id": "authority_agent_dialogue_conflict",
+              "score": 0.163379
+            },
+            {
+              "rank": 4,
+              "id": "authority_live_files_first",
+              "score": 0.140051
+            },
+            {
+              "rank": 5,
+              "id": "correction_deploy_not_verified",
+              "score": 0.123212
+            }
+          ],
+          "recall_at_k": {
+            "1": true,
+            "2": true,
+            "3": true,
+            "5": true
+          },
+          "conservative_at_k": {
+            "1": {
+              "action": "answer",
+              "correct": true,
+              "rationale": "conservative aggregation: recovery_startup_order\u2192answer"
+            },
+            "2": {
+              "action": "answer",
+              "correct": true,
+              "rationale": "conservative aggregation: recovery_startup_order\u2192answer, state_agent_dashboard\u2192answer"
+            },
+            "3": {
+              "action": "answer",
+              "correct": true,
+              "rationale": "conservative aggregation: recovery_startup_order\u2192answer, state_agent_dashboard\u2192answer, authority_agent_dialogue_conflict\u2192answer"
+            },
+            "5": {
+              "action": "warn",
+              "correct": false,
+              "rationale": "conservative aggregation: recovery_startup_order\u2192answer, state_agent_dashboard\u2192answer, authority_agent_dialogue_conflict\u2192answer, authority_live_files_first\u2192answer, correction_deploy_not_verified\u2192warn"
+            }
+          }
+        },
+        "s05_live_file_conflict": {
+          "query": "If a summary and live file disagree, which source governs a posting decision?",
+          "expected_action": "answer",
+          "correct_memory_id": "authority_live_files_first",
+          "top5_ranked": [
+            {
+              "rank": 1,
+              "id": "authority_live_files_first",
+              "score": 0.436852
+            },
+            {
+              "rank": 2,
+              "id": "recovery_live_file_beats_summary",
+              "score": 0.38206
+            },
+            {
+              "rank": 3,
+              "id": "recovery_tool_unavailable",
+              "score": 0.186546
+            },
+            {
+              "rank": 4,
+              "id": "correction_strawman_baseline",
+              "score": 0.139952
+            },
+            {
+              "rank": 5,
+              "id": "authority_agent_dialogue_conflict",
+              "score": 0.126657
+            }
+          ],
+          "recall_at_k": {
+            "1": true,
+            "2": true,
+            "3": true,
+            "5": true
+          },
+          "conservative_at_k": {
+            "1": {
+              "action": "answer",
+              "correct": true,
+              "rationale": "conservative aggregation: authority_live_files_first\u2192answer"
+            },
+            "2": {
+              "action": "answer",
+              "correct": true,
+              "rationale": "conservative aggregation: authority_live_files_first\u2192answer, recovery_live_file_beats_summary\u2192answer"
+            },
+            "3": {
+              "action": "answer",
+              "correct": true,
+              "rationale": "conservative aggregation: authority_live_files_first\u2192answer, recovery_live_file_beats_summary\u2192answer, recovery_tool_unavailable\u2192answer"
+            },
+            "5": {
+              "action": "warn",
+              "correct": false,
+              "rationale": "conservative aggregation: authority_live_files_first\u2192answer, recovery_live_file_beats_summary\u2192answer, recovery_tool_unavailable\u2192answer, correction_strawman_baseline\u2192warn, authority_agent_dialogue_conflict\u2192answer"
+            }
+          }
+        },
+        "s06_external_rewrite": {
+          "query": "Should we publish an external model's full rewrite as the author's own article?",
+          "expected_action": "warn",
+          "correct_memory_id": "correction_external_rewrite_not_authorship",
+          "top5_ranked": [
+            {
+              "rank": 1,
+              "id": "correction_external_rewrite_not_authorship",
+              "score": 0.343712
+            },
+            {
+              "rank": 2,
+              "id": "uncertainty_pricing_model",
+              "score": 0.093708
+            },
+            {
+              "rank": 3,
+              "id": "public_post_live_url",
+              "score": 0.091648
+            },
+            {
+              "rank": 4,
+              "id": "authority_live_files_first",
+              "score": 0.07249
+            },
+            {
+              "rank": 5,
+              "id": "uncertainty_speculative_theory",
+              "score": 0.065177
+            }
+          ],
+          "recall_at_k": {
+            "1": true,
+            "2": true,
+            "3": true,
+            "5": true
+          },
+          "conservative_at_k": {
+            "1": {
+              "action": "warn",
+              "correct": true,
+              "rationale": "conservative aggregation: correction_external_rewrite_not_authorship\u2192warn"
+            },
+            "2": {
+              "action": "warn",
+              "correct": true,
+              "rationale": "conservative aggregation: correction_external_rewrite_not_authorship\u2192warn, uncertainty_pricing_model\u2192warn"
+            },
+            "3": {
+              "action": "warn",
+              "correct": true,
+              "rationale": "conservative aggregation: correction_external_rewrite_not_authorship\u2192warn, uncertainty_pricing_model\u2192warn, public_post_live_url\u2192answer"
+            },
+            "5": {
+              "action": "verify_first",
+              "correct": false,
+              "rationale": "conservative aggregation: correction_external_rewrite_not_authorship\u2192warn, uncertainty_pricing_model\u2192warn, public_post_live_url\u2192answer, authority_live_files_first\u2192answer, uncertainty_speculative_theory\u2192verify_first"
+            }
+          }
+        },
+        "s07_next_artifact": {
+          "query": "What is the next planned artifact for the memory framework?",
+          "expected_action": "answer",
+          "correct_memory_id": "next_artifact_public_harness",
+          "top5_ranked": [
+            {
+              "rank": 1,
+              "id": "next_artifact_public_harness",
+              "score": 0.403982
+            },
+            {
+              "rank": 2,
+              "id": "current_system_overview",
+              "score": 0.165115
+            },
+            {
+              "rank": 3,
+              "id": "authority_live_files_first",
+              "score": 0.161246
+            },
+            {
+              "rank": 4,
+              "id": "correction_strawman_baseline",
+              "score": 0.158863
+            },
+            {
+              "rank": 5,
+              "id": "authority_agent_dialogue_conflict",
+              "score": 0.111931
+            }
+          ],
+          "recall_at_k": {
+            "1": true,
+            "2": true,
+            "3": true,
+            "5": true
+          },
+          "conservative_at_k": {
+            "1": {
+              "action": "answer",
+              "correct": true,
+              "rationale": "conservative aggregation: next_artifact_public_harness\u2192answer"
+            },
+            "2": {
+              "action": "answer",
+              "correct": true,
+              "rationale": "conservative aggregation: next_artifact_public_harness\u2192answer, current_system_overview\u2192answer"
+            },
+            "3": {
+              "action": "answer",
+              "correct": true,
+              "rationale": "conservative aggregation: next_artifact_public_harness\u2192answer, current_system_overview\u2192answer, authority_live_files_first\u2192answer"
+            },
+            "5": {
+              "action": "warn",
+              "correct": false,
+              "rationale": "conservative aggregation: next_artifact_public_harness\u2192answer, current_system_overview\u2192answer, authority_live_files_first\u2192answer, correction_strawman_baseline\u2192warn, authority_agent_dialogue_conflict\u2192answer"
+            }
+          }
+        },
+        "s08_speculative_theory": {
+          "query": "Can we present the speculative theory as established science?",
+          "expected_action": "verify_first",
+          "correct_memory_id": "uncertainty_speculative_theory",
+          "top5_ranked": [
+            {
+              "rank": 1,
+              "id": "uncertainty_speculative_theory",
+              "score": 0.631419
+            },
+            {
+              "rank": 2,
+              "id": "correction_external_rewrite_not_authorship",
+              "score": 0.087706
+            },
+            {
+              "rank": 3,
+              "id": "authority_agent_dialogue_conflict",
+              "score": 0.055486
+            },
+            {
+              "rank": 4,
+              "id": "correction_no_overclaim_eval",
+              "score": 0.05482
+            },
+            {
+              "rank": 5,
+              "id": "state_agent_dashboard",
+              "score": 0.044481
+            }
+          ],
+          "recall_at_k": {
+            "1": true,
+            "2": true,
+            "3": true,
+            "5": true
+          },
+          "conservative_at_k": {
+            "1": {
+              "action": "verify_first",
+              "correct": true,
+              "rationale": "conservative aggregation: uncertainty_speculative_theory\u2192verify_first"
+            },
+            "2": {
+              "action": "verify_first",
+              "correct": true,
+              "rationale": "conservative aggregation: uncertainty_speculative_theory\u2192verify_first, correction_external_rewrite_not_authorship\u2192warn"
+            },
+            "3": {
+              "action": "verify_first",
+              "correct": true,
+              "rationale": "conservative aggregation: uncertainty_speculative_theory\u2192verify_first, correction_external_rewrite_not_authorship\u2192warn, authority_agent_dialogue_conflict\u2192answer"
+            },
+            "5": {
+              "action": "block",
+              "correct": false,
+              "rationale": "conservative aggregation: uncertainty_speculative_theory\u2192verify_first, correction_external_rewrite_not_authorship\u2192warn, authority_agent_dialogue_conflict\u2192answer, correction_no_overclaim_eval\u2192block, state_agent_dashboard\u2192answer"
+            }
+          }
+        },
+        "s09_latest_instruction": {
+          "query": "If the user changes direction from the old plan, should the latest instruction steer?",
+          "expected_action": "answer",
+          "correct_memory_id": "authority_user_latest_steers",
+          "top5_ranked": [
+            {
+              "rank": 1,
+              "id": "authority_user_latest_steers",
+              "score": 0.492282
+            },
+            {
+              "rank": 2,
+              "id": "correction_external_rewrite_not_authorship",
+              "score": 0.114218
+            },
+            {
+              "rank": 3,
+              "id": "state_agent_dashboard",
+              "score": 0.091495
+            },
+            {
+              "rank": 4,
+              "id": "authority_agent_dialogue_conflict",
+              "score": 0.082173
+            },
+            {
+              "rank": 5,
+              "id": "recovery_tool_unavailable",
+              "score": 0.080723
+            }
+          ],
+          "recall_at_k": {
+            "1": true,
+            "2": true,
+            "3": true,
+            "5": true
+          },
+          "conservative_at_k": {
+            "1": {
+              "action": "answer",
+              "correct": true,
+              "rationale": "conservative aggregation: authority_user_latest_steers\u2192answer"
+            },
+            "2": {
+              "action": "warn",
+              "correct": false,
+              "rationale": "conservative aggregation: authority_user_latest_steers\u2192answer, correction_external_rewrite_not_authorship\u2192warn"
+            },
+            "3": {
+              "action": "warn",
+              "correct": false,
+              "rationale": "conservative aggregation: authority_user_latest_steers\u2192answer, correction_external_rewrite_not_authorship\u2192warn, state_agent_dashboard\u2192answer"
+            },
+            "5": {
+              "action": "warn",
+              "correct": false,
+              "rationale": "conservative aggregation: authority_user_latest_steers\u2192answer, correction_external_rewrite_not_authorship\u2192warn, state_agent_dashboard\u2192answer, authority_agent_dialogue_conflict\u2192answer, recovery_tool_unavailable\u2192answer"
+            }
+          }
+        },
+        "s10_policy_definition": {
+          "query": "What action classes can access policy assign to a retrieved memory?",
+          "expected_action": "answer",
+          "correct_memory_id": "access_policy_rules",
+          "top5_ranked": [
+            {
+              "rank": 1,
+              "id": "access_policy_rules",
+              "score": 0.719788
+            },
+            {
+              "rank": 2,
+              "id": "current_system_overview",
+              "score": 0.096149
+            },
+            {
+              "rank": 3,
+              "id": "state_billing_policy",
+              "score": 0.087278
+            },
+            {
+              "rank": 4,
+              "id": "correction_strawman_baseline",
+              "score": 0.075161
+            },
+            {
+              "rank": 5,
+              "id": "policy_public_claims_tests_required",
+              "score": 0.069555
+            }
+          ],
+          "recall_at_k": {
+            "1": true,
+            "2": true,
+            "3": true,
+            "5": true
+          },
+          "conservative_at_k": {
+            "1": {
+              "action": "answer",
+              "correct": true,
+              "rationale": "conservative aggregation: access_policy_rules\u2192answer"
+            },
+            "2": {
+              "action": "answer",
+              "correct": true,
+              "rationale": "conservative aggregation: access_policy_rules\u2192answer, current_system_overview\u2192answer"
+            },
+            "3": {
+              "action": "answer",
+              "correct": true,
+              "rationale": "conservative aggregation: access_policy_rules\u2192answer, current_system_overview\u2192answer, state_billing_policy\u2192answer"
+            },
+            "5": {
+              "action": "warn",
+              "correct": false,
+              "rationale": "conservative aggregation: access_policy_rules\u2192answer, current_system_overview\u2192answer, state_billing_policy\u2192answer, correction_strawman_baseline\u2192warn, policy_public_claims_tests_required\u2192answer"
+            }
+          }
+        }
+      }
+    },
+    "bm25_content_only": {
+      "scenarios": {
+        "s01_public_post_url": {
+          "query": "What is the live URL for the technical post?",
+          "expected_action": "answer",
+          "correct_memory_id": "public_post_live_url",
+          "top5_ranked": [
+            {
+              "rank": 1,
+              "id": "public_post_live_url",
+              "score": 10.106546
+            },
+            {
+              "rank": 2,
+              "id": "authority_live_files_first",
+              "score": 5.142331
+            },
+            {
+              "rank": 3,
+              "id": "correction_deploy_not_verified",
+              "score": 3.944108
+            },
+            {
+              "rank": 4,
+              "id": "recovery_live_file_beats_summary",
+              "score": 3.119086
+            },
+            {
+              "rank": 5,
+              "id": "authority_agent_dialogue_conflict",
+              "score": 2.892253
+            }
+          ],
+          "recall_at_k": {
+            "1": true,
+            "2": true,
+            "3": true,
+            "5": true
+          },
+          "conservative_at_k": {
+            "1": {
+              "action": "answer",
+              "correct": true,
+              "rationale": "conservative aggregation: public_post_live_url\u2192answer"
+            },
+            "2": {
+              "action": "answer",
+              "correct": true,
+              "rationale": "conservative aggregation: public_post_live_url\u2192answer, authority_live_files_first\u2192answer"
+            },
+            "3": {
+              "action": "warn",
+              "correct": false,
+              "rationale": "conservative aggregation: public_post_live_url\u2192answer, authority_live_files_first\u2192answer, correction_deploy_not_verified\u2192warn"
+            },
+            "5": {
+              "action": "warn",
+              "correct": false,
+              "rationale": "conservative aggregation: public_post_live_url\u2192answer, authority_live_files_first\u2192answer, correction_deploy_not_verified\u2192warn, recovery_live_file_beats_summary\u2192answer, authority_agent_dialogue_conflict\u2192answer"
+            }
+          }
+        },
+        "s02_overclaim_eval_results": {
+          "query": "Can we say this eval proves the structured memory framework works?",
+          "expected_action": "block",
+          "correct_memory_id": "correction_no_overclaim_eval",
+          "top5_ranked": [
+            {
+              "rank": 1,
+              "id": "correction_strawman_baseline",
+              "score": 8.280414
+            },
+            {
+              "rank": 2,
+              "id": "access_policy_rules",
+              "score": 3.536746
+            },
+            {
+              "rank": 3,
+              "id": "correction_external_rewrite_not_authorship",
+              "score": 1.956721
+            },
+            {
+              "rank": 4,
+              "id": "state_agent_dashboard",
+              "score": 1.790865
+            },
+            {
+              "rank": 5,
+              "id": "public_post_live_url",
+              "score": 1.756142
+            }
+          ],
+          "recall_at_k": {
+            "1": false,
+            "2": false,
+            "3": false,
+            "5": false
+          },
+          "conservative_at_k": {
+            "1": {
+              "action": "warn",
+              "correct": false,
+              "rationale": "conservative aggregation: correction_strawman_baseline\u2192warn"
+            },
+            "2": {
+              "action": "warn",
+              "correct": false,
+              "rationale": "conservative aggregation: correction_strawman_baseline\u2192warn, access_policy_rules\u2192answer"
+            },
+            "3": {
+              "action": "warn",
+              "correct": false,
+              "rationale": "conservative aggregation: correction_strawman_baseline\u2192warn, access_policy_rules\u2192answer, correction_external_rewrite_not_authorship\u2192warn"
+            },
+            "5": {
+              "action": "warn",
+              "correct": false,
+              "rationale": "conservative aggregation: correction_strawman_baseline\u2192warn, access_policy_rules\u2192answer, correction_external_rewrite_not_authorship\u2192warn, state_agent_dashboard\u2192answer, public_post_live_url\u2192answer"
+            }
+          }
+        },
+        "s03_public_private_claim": {
+          "query": "Should we publish private agent-history claims as public proof now?",
+          "expected_action": "verify_first",
+          "correct_memory_id": "uncertainty_public_claims",
+          "top5_ranked": [
+            {
+              "rank": 1,
+              "id": "uncertainty_public_claims",
+              "score": 13.821502
+            },
+            {
+              "rank": 2,
+              "id": "policy_public_claims_tests_required",
+              "score": 9.156113
+            },
+            {
+              "rank": 3,
+              "id": "state_agent_dashboard",
+              "score": 4.450644
+            },
+            {
+              "rank": 4,
+              "id": "uncertainty_speculative_theory",
+              "score": 2.998685
+            },
+            {
+              "rank": 5,
+              "id": "correction_external_rewrite_not_authorship",
+              "score": 2.734448
+            }
+          ],
+          "recall_at_k": {
+            "1": true,
+            "2": true,
+            "3": true,
+            "5": true
+          },
+          "conservative_at_k": {
+            "1": {
+              "action": "verify_first",
+              "correct": true,
+              "rationale": "conservative aggregation: uncertainty_public_claims\u2192verify_first"
+            },
+            "2": {
+              "action": "verify_first",
+              "correct": true,
+              "rationale": "conservative aggregation: uncertainty_public_claims\u2192verify_first, policy_public_claims_tests_required\u2192answer"
+            },
+            "3": {
+              "action": "verify_first",
+              "correct": true,
+              "rationale": "conservative aggregation: uncertainty_public_claims\u2192verify_first, policy_public_claims_tests_required\u2192answer, state_agent_dashboard\u2192answer"
+            },
+            "5": {
+              "action": "verify_first",
+              "correct": true,
+              "rationale": "conservative aggregation: uncertainty_public_claims\u2192verify_first, policy_public_claims_tests_required\u2192answer, state_agent_dashboard\u2192answer, uncertainty_speculative_theory\u2192verify_first, correction_external_rewrite_not_authorship\u2192warn"
+            }
+          }
+        },
+        "s04_start_after_crash": {
+          "query": "What should the agent do first after a crash recovery?",
+          "expected_action": "answer",
+          "correct_memory_id": "recovery_startup_order",
+          "top5_ranked": [
+            {
+              "rank": 1,
+              "id": "recovery_startup_order",
+              "score": 9.355873
+            },
+            {
+              "rank": 2,
+              "id": "correction_deploy_not_verified",
+              "score": 4.853469
+            },
+            {
+              "rank": 3,
+              "id": "state_agent_dashboard",
+              "score": 4.769549
+            },
+            {
+              "rank": 4,
+              "id": "current_system_overview",
+              "score": 3.271404
+            },
+            {
+              "rank": 5,
+              "id": "state_billing_policy",
+              "score": 2.434789
+            }
+          ],
+          "recall_at_k": {
+            "1": true,
+            "2": true,
+            "3": true,
+            "5": true
+          },
+          "conservative_at_k": {
+            "1": {
+              "action": "answer",
+              "correct": true,
+              "rationale": "conservative aggregation: recovery_startup_order\u2192answer"
+            },
+            "2": {
+              "action": "warn",
+              "correct": false,
+              "rationale": "conservative aggregation: recovery_startup_order\u2192answer, correction_deploy_not_verified\u2192warn"
+            },
+            "3": {
+              "action": "warn",
+              "correct": false,
+              "rationale": "conservative aggregation: recovery_startup_order\u2192answer, correction_deploy_not_verified\u2192warn, state_agent_dashboard\u2192answer"
+            },
+            "5": {
+              "action": "warn",
+              "correct": false,
+              "rationale": "conservative aggregation: recovery_startup_order\u2192answer, correction_deploy_not_verified\u2192warn, state_agent_dashboard\u2192answer, current_system_overview\u2192answer, state_billing_policy\u2192answer"
+            }
+          }
+        },
+        "s05_live_file_conflict": {
+          "query": "If a summary and live file disagree, which source governs a posting decision?",
+          "expected_action": "answer",
+          "correct_memory_id": "authority_live_files_first",
+          "top5_ranked": [
+            {
+              "rank": 1,
+              "id": "authority_live_files_first",
+              "score": 13.06302
+            },
+            {
+              "rank": 2,
+              "id": "recovery_tool_unavailable",
+              "score": 8.60884
+            },
+            {
+              "rank": 3,
+              "id": "recovery_live_file_beats_summary",
+              "score": 8.394807
+            },
+            {
+              "rank": 4,
+              "id": "authority_agent_dialogue_conflict",
+              "score": 6.24882
+            },
+            {
+              "rank": 5,
+              "id": "correction_strawman_baseline",
+              "score": 4.271946
+            }
+          ],
+          "recall_at_k": {
+            "1": true,
+            "2": true,
+            "3": true,
+            "5": true
+          },
+          "conservative_at_k": {
+            "1": {
+              "action": "answer",
+              "correct": true,
+              "rationale": "conservative aggregation: authority_live_files_first\u2192answer"
+            },
+            "2": {
+              "action": "answer",
+              "correct": true,
+              "rationale": "conservative aggregation: authority_live_files_first\u2192answer, recovery_tool_unavailable\u2192answer"
+            },
+            "3": {
+              "action": "answer",
+              "correct": true,
+              "rationale": "conservative aggregation: authority_live_files_first\u2192answer, recovery_tool_unavailable\u2192answer, recovery_live_file_beats_summary\u2192answer"
+            },
+            "5": {
+              "action": "warn",
+              "correct": false,
+              "rationale": "conservative aggregation: authority_live_files_first\u2192answer, recovery_tool_unavailable\u2192answer, recovery_live_file_beats_summary\u2192answer, authority_agent_dialogue_conflict\u2192answer, correction_strawman_baseline\u2192warn"
+            }
+          }
+        },
+        "s06_external_rewrite": {
+          "query": "Should we publish an external model's full rewrite as the author's own article?",
+          "expected_action": "warn",
+          "correct_memory_id": "correction_external_rewrite_not_authorship",
+          "top5_ranked": [
+            {
+              "rank": 1,
+              "id": "correction_external_rewrite_not_authorship",
+              "score": 11.8501
+            },
+            {
+              "rank": 2,
+              "id": "uncertainty_speculative_theory",
+              "score": 4.562576
+            },
+            {
+              "rank": 3,
+              "id": "authority_live_files_first",
+              "score": 3.980195
+            },
+            {
+              "rank": 4,
+              "id": "state_agent_dashboard",
+              "score": 3.228444
+            },
+            {
+              "rank": 5,
+              "id": "uncertainty_generalization",
+              "score": 2.272033
+            }
+          ],
+          "recall_at_k": {
+            "1": true,
+            "2": true,
+            "3": true,
+            "5": true
+          },
+          "conservative_at_k": {
+            "1": {
+              "action": "warn",
+              "correct": true,
+              "rationale": "conservative aggregation: correction_external_rewrite_not_authorship\u2192warn"
+            },
+            "2": {
+              "action": "verify_first",
+              "correct": false,
+              "rationale": "conservative aggregation: correction_external_rewrite_not_authorship\u2192warn, uncertainty_speculative_theory\u2192verify_first"
+            },
+            "3": {
+              "action": "verify_first",
+              "correct": false,
+              "rationale": "conservative aggregation: correction_external_rewrite_not_authorship\u2192warn, uncertainty_speculative_theory\u2192verify_first, authority_live_files_first\u2192answer"
+            },
+            "5": {
+              "action": "verify_first",
+              "correct": false,
+              "rationale": "conservative aggregation: correction_external_rewrite_not_authorship\u2192warn, uncertainty_speculative_theory\u2192verify_first, authority_live_files_first\u2192answer, state_agent_dashboard\u2192answer, uncertainty_generalization\u2192warn"
+            }
+          }
+        },
+        "s07_next_artifact": {
+          "query": "What is the next planned artifact for the memory framework?",
+          "expected_action": "answer",
+          "correct_memory_id": "next_artifact_public_harness",
+          "top5_ranked": [
+            {
+              "rank": 1,
+              "id": "next_artifact_public_harness",
+              "score": 7.435112
+            },
+            {
+              "rank": 2,
+              "id": "correction_strawman_baseline",
+              "score": 6.448591
+            },
+            {
+              "rank": 3,
+              "id": "authority_live_files_first",
+              "score": 4.463947
+            },
+            {
+              "rank": 4,
+              "id": "correction_deploy_not_verified",
+              "score": 3.944108
+            },
+            {
+              "rank": 5,
+              "id": "state_agent_dashboard",
+              "score": 3.581729
+            }
+          ],
+          "recall_at_k": {
+            "1": true,
+            "2": true,
+            "3": true,
+            "5": true
+          },
+          "conservative_at_k": {
+            "1": {
+              "action": "answer",
+              "correct": true,
+              "rationale": "conservative aggregation: next_artifact_public_harness\u2192answer"
+            },
+            "2": {
+              "action": "warn",
+              "correct": false,
+              "rationale": "conservative aggregation: next_artifact_public_harness\u2192answer, correction_strawman_baseline\u2192warn"
+            },
+            "3": {
+              "action": "warn",
+              "correct": false,
+              "rationale": "conservative aggregation: next_artifact_public_harness\u2192answer, correction_strawman_baseline\u2192warn, authority_live_files_first\u2192answer"
+            },
+            "5": {
+              "action": "warn",
+              "correct": false,
+              "rationale": "conservative aggregation: next_artifact_public_harness\u2192answer, correction_strawman_baseline\u2192warn, authority_live_files_first\u2192answer, correction_deploy_not_verified\u2192warn, state_agent_dashboard\u2192answer"
+            }
+          }
+        },
+        "s08_speculative_theory": {
+          "query": "Can we present the speculative theory as established science?",
+          "expected_action": "verify_first",
+          "correct_memory_id": "uncertainty_speculative_theory",
+          "top5_ranked": [
+            {
+              "rank": 1,
+              "id": "uncertainty_speculative_theory",
+              "score": 13.337145
+            },
+            {
+              "rank": 2,
+              "id": "correction_external_rewrite_not_authorship",
+              "score": 3.057737
+            },
+            {
+              "rank": 3,
+              "id": "correction_no_overclaim_eval",
+              "score": 2.199549
+            },
+            {
+              "rank": 4,
+              "id": "access_policy_rules",
+              "score": 2.000101
+            },
+            {
+              "rank": 5,
+              "id": "authority_agent_dialogue_conflict",
+              "score": 1.490749
+            }
+          ],
+          "recall_at_k": {
+            "1": true,
+            "2": true,
+            "3": true,
+            "5": true
+          },
+          "conservative_at_k": {
+            "1": {
+              "action": "verify_first",
+              "correct": true,
+              "rationale": "conservative aggregation: uncertainty_speculative_theory\u2192verify_first"
+            },
+            "2": {
+              "action": "verify_first",
+              "correct": true,
+              "rationale": "conservative aggregation: uncertainty_speculative_theory\u2192verify_first, correction_external_rewrite_not_authorship\u2192warn"
+            },
+            "3": {
+              "action": "block",
+              "correct": false,
+              "rationale": "conservative aggregation: uncertainty_speculative_theory\u2192verify_first, correction_external_rewrite_not_authorship\u2192warn, correction_no_overclaim_eval\u2192block"
+            },
+            "5": {
+              "action": "block",
+              "correct": false,
+              "rationale": "conservative aggregation: uncertainty_speculative_theory\u2192verify_first, correction_external_rewrite_not_authorship\u2192warn, correction_no_overclaim_eval\u2192block, access_policy_rules\u2192answer, authority_agent_dialogue_conflict\u2192answer"
+            }
+          }
+        },
+        "s09_latest_instruction": {
+          "query": "If the user changes direction from the old plan, should the latest instruction steer?",
+          "expected_action": "answer",
+          "correct_memory_id": "authority_user_latest_steers",
+          "top5_ranked": [
+            {
+              "rank": 1,
+              "id": "authority_user_latest_steers",
+              "score": 6.656813
+            },
+            {
+              "rank": 2,
+              "id": "correction_external_rewrite_not_authorship",
+              "score": 5.205637
+            },
+            {
+              "rank": 3,
+              "id": "recovery_tool_unavailable",
+              "score": 4.481752
+            },
+            {
+              "rank": 4,
+              "id": "state_agent_dashboard",
+              "score": 3.579607
+            },
+            {
+              "rank": 5,
+              "id": "recovery_startup_order",
+              "score": 3.168331
+            }
+          ],
+          "recall_at_k": {
+            "1": true,
+            "2": true,
+            "3": true,
+            "5": true
+          },
+          "conservative_at_k": {
+            "1": {
+              "action": "answer",
+              "correct": true,
+              "rationale": "conservative aggregation: authority_user_latest_steers\u2192answer"
+            },
+            "2": {
+              "action": "warn",
+              "correct": false,
+              "rationale": "conservative aggregation: authority_user_latest_steers\u2192answer, correction_external_rewrite_not_authorship\u2192warn"
+            },
+            "3": {
+              "action": "warn",
+              "correct": false,
+              "rationale": "conservative aggregation: authority_user_latest_steers\u2192answer, correction_external_rewrite_not_authorship\u2192warn, recovery_tool_unavailable\u2192answer"
+            },
+            "5": {
+              "action": "warn",
+              "correct": false,
+              "rationale": "conservative aggregation: authority_user_latest_steers\u2192answer, correction_external_rewrite_not_authorship\u2192warn, recovery_tool_unavailable\u2192answer, state_agent_dashboard\u2192answer, recovery_startup_order\u2192answer"
+            }
+          }
+        },
+        "s10_policy_definition": {
+          "query": "What action classes can access policy assign to a retrieved memory?",
+          "expected_action": "answer",
+          "correct_memory_id": "access_policy_rules",
+          "top5_ranked": [
+            {
+              "rank": 1,
+              "id": "access_policy_rules",
+              "score": 17.364023
+            },
+            {
+              "rank": 2,
+              "id": "current_system_overview",
+              "score": 3.966547
+            },
+            {
+              "rank": 3,
+              "id": "state_agent_dashboard",
+              "score": 3.322499
+            },
+            {
+              "rank": 4,
+              "id": "public_post_live_url",
+              "score": 2.948754
+            },
+            {
+              "rank": 5,
+              "id": "correction_strawman_baseline",
+              "score": 2.544351
+            }
+          ],
+          "recall_at_k": {
+            "1": true,
+            "2": true,
+            "3": true,
+            "5": true
+          },
+          "conservative_at_k": {
+            "1": {
+              "action": "answer",
+              "correct": true,
+              "rationale": "conservative aggregation: access_policy_rules\u2192answer"
+            },
+            "2": {
+              "action": "answer",
+              "correct": true,
+              "rationale": "conservative aggregation: access_policy_rules\u2192answer, current_system_overview\u2192answer"
+            },
+            "3": {
+              "action": "answer",
+              "correct": true,
+              "rationale": "conservative aggregation: access_policy_rules\u2192answer, current_system_overview\u2192answer, state_agent_dashboard\u2192answer"
+            },
+            "5": {
+              "action": "warn",
+              "correct": false,
+              "rationale": "conservative aggregation: access_policy_rules\u2192answer, current_system_overview\u2192answer, state_agent_dashboard\u2192answer, public_post_live_url\u2192answer, correction_strawman_baseline\u2192warn"
+            }
+          }
+        }
+      }
+    },
+    "bm25_metadata_content": {
+      "scenarios": {
+        "s01_public_post_url": {
+          "query": "What is the live URL for the technical post?",
+          "expected_action": "answer",
+          "correct_memory_id": "public_post_live_url",
+          "top5_ranked": [
+            {
+              "rank": 1,
+              "id": "public_post_live_url",
+              "score": 14.419805
+            },
+            {
+              "rank": 2,
+              "id": "authority_live_files_first",
+              "score": 5.263018
+            },
+            {
+              "rank": 3,
+              "id": "correction_deploy_not_verified",
+              "score": 3.778015
+            },
+            {
+              "rank": 4,
+              "id": "recovery_live_file_beats_summary",
+              "score": 3.074259
+            },
+            {
+              "rank": 5,
+              "id": "current_system_overview",
+              "score": 2.775522
+            }
+          ],
+          "recall_at_k": {
+            "1": true,
+            "2": true,
+            "3": true,
+            "5": true
+          },
+          "conservative_at_k": {
+            "1": {
+              "action": "answer",
+              "correct": true,
+              "rationale": "conservative aggregation: public_post_live_url\u2192answer"
+            },
+            "2": {
+              "action": "answer",
+              "correct": true,
+              "rationale": "conservative aggregation: public_post_live_url\u2192answer, authority_live_files_first\u2192answer"
+            },
+            "3": {
+              "action": "warn",
+              "correct": false,
+              "rationale": "conservative aggregation: public_post_live_url\u2192answer, authority_live_files_first\u2192answer, correction_deploy_not_verified\u2192warn"
+            },
+            "5": {
+              "action": "warn",
+              "correct": false,
+              "rationale": "conservative aggregation: public_post_live_url\u2192answer, authority_live_files_first\u2192answer, correction_deploy_not_verified\u2192warn, recovery_live_file_beats_summary\u2192answer, current_system_overview\u2192answer"
+            }
+          }
+        },
+        "s02_overclaim_eval_results": {
+          "query": "Can we say this eval proves the structured memory framework works?",
+          "expected_action": "block",
+          "correct_memory_id": "correction_no_overclaim_eval",
+          "top5_ranked": [
+            {
+              "rank": 1,
+              "id": "correction_strawman_baseline",
+              "score": 8.00324
+            },
+            {
+              "rank": 2,
+              "id": "correction_no_overclaim_eval",
+              "score": 4.021786
+            },
+            {
+              "rank": 3,
+              "id": "access_policy_rules",
+              "score": 3.251301
+            },
+            {
+              "rank": 4,
+              "id": "current_system_overview",
+              "score": 2.691987
+            },
+            {
+              "rank": 5,
+              "id": "correction_external_rewrite_not_authorship",
+              "score": 2.01413
+            }
+          ],
+          "recall_at_k": {
+            "1": false,
+            "2": true,
+            "3": true,
+            "5": true
+          },
+          "conservative_at_k": {
+            "1": {
+              "action": "warn",
+              "correct": false,
+              "rationale": "conservative aggregation: correction_strawman_baseline\u2192warn"
+            },
+            "2": {
+              "action": "block",
+              "correct": true,
+              "rationale": "conservative aggregation: correction_strawman_baseline\u2192warn, correction_no_overclaim_eval\u2192block"
+            },
+            "3": {
+              "action": "block",
+              "correct": true,
+              "rationale": "conservative aggregation: correction_strawman_baseline\u2192warn, correction_no_overclaim_eval\u2192block, access_policy_rules\u2192answer"
+            },
+            "5": {
+              "action": "block",
+              "correct": true,
+              "rationale": "conservative aggregation: correction_strawman_baseline\u2192warn, correction_no_overclaim_eval\u2192block, access_policy_rules\u2192answer, current_system_overview\u2192answer, correction_external_rewrite_not_authorship\u2192warn"
+            }
+          }
+        },
+        "s03_public_private_claim": {
+          "query": "Should we publish private agent-history claims as public proof now?",
+          "expected_action": "verify_first",
+          "correct_memory_id": "uncertainty_public_claims",
+          "top5_ranked": [
+            {
+              "rank": 1,
+              "id": "uncertainty_public_claims",
+              "score": 14.403338
+            },
+            {
+              "rank": 2,
+              "id": "policy_public_claims_tests_required",
+              "score": 10.09796
+            },
+            {
+              "rank": 3,
+              "id": "state_agent_dashboard",
+              "score": 4.921936
+            },
+            {
+              "rank": 4,
+              "id": "authority_agent_dialogue_conflict",
+              "score": 4.803775
+            },
+            {
+              "rank": 5,
+              "id": "uncertainty_speculative_theory",
+              "score": 3.023383
+            }
+          ],
+          "recall_at_k": {
+            "1": true,
+            "2": true,
+            "3": true,
+            "5": true
+          },
+          "conservative_at_k": {
+            "1": {
+              "action": "verify_first",
+              "correct": true,
+              "rationale": "conservative aggregation: uncertainty_public_claims\u2192verify_first"
+            },
+            "2": {
+              "action": "verify_first",
+              "correct": true,
+              "rationale": "conservative aggregation: uncertainty_public_claims\u2192verify_first, policy_public_claims_tests_required\u2192answer"
+            },
+            "3": {
+              "action": "verify_first",
+              "correct": true,
+              "rationale": "conservative aggregation: uncertainty_public_claims\u2192verify_first, policy_public_claims_tests_required\u2192answer, state_agent_dashboard\u2192answer"
+            },
+            "5": {
+              "action": "verify_first",
+              "correct": true,
+              "rationale": "conservative aggregation: uncertainty_public_claims\u2192verify_first, policy_public_claims_tests_required\u2192answer, state_agent_dashboard\u2192answer, authority_agent_dialogue_conflict\u2192answer, uncertainty_speculative_theory\u2192verify_first"
+            }
+          }
+        },
+        "s04_start_after_crash": {
+          "query": "What should the agent do first after a crash recovery?",
+          "expected_action": "answer",
+          "correct_memory_id": "recovery_startup_order",
+          "top5_ranked": [
+            {
+              "rank": 1,
+              "id": "recovery_startup_order",
+              "score": 11.502992
+            },
+            {
+              "rank": 2,
+              "id": "state_agent_dashboard",
+              "score": 5.242244
+            },
+            {
+              "rank": 3,
+              "id": "correction_deploy_not_verified",
+              "score": 4.896962
+            },
+            {
+              "rank": 4,
+              "id": "authority_agent_dialogue_conflict",
+              "score": 3.442287
+            },
+            {
+              "rank": 5,
+              "id": "authority_live_files_first",
+              "score": 3.274569
+            }
+          ],
+          "recall_at_k": {
+            "1": true,
+            "2": true,
+            "3": true,
+            "5": true
+          },
+          "conservative_at_k": {
+            "1": {
+              "action": "answer",
+              "correct": true,
+              "rationale": "conservative aggregation: recovery_startup_order\u2192answer"
+            },
+            "2": {
+              "action": "answer",
+              "correct": true,
+              "rationale": "conservative aggregation: recovery_startup_order\u2192answer, state_agent_dashboard\u2192answer"
+            },
+            "3": {
+              "action": "warn",
+              "correct": false,
+              "rationale": "conservative aggregation: recovery_startup_order\u2192answer, state_agent_dashboard\u2192answer, correction_deploy_not_verified\u2192warn"
+            },
+            "5": {
+              "action": "warn",
+              "correct": false,
+              "rationale": "conservative aggregation: recovery_startup_order\u2192answer, state_agent_dashboard\u2192answer, correction_deploy_not_verified\u2192warn, authority_agent_dialogue_conflict\u2192answer, authority_live_files_first\u2192answer"
+            }
+          }
+        },
+        "s05_live_file_conflict": {
+          "query": "If a summary and live file disagree, which source governs a posting decision?",
+          "expected_action": "answer",
+          "correct_memory_id": "authority_live_files_first",
+          "top5_ranked": [
+            {
+              "rank": 1,
+              "id": "authority_live_files_first",
+              "score": 12.707397
+            },
+            {
+              "rank": 2,
+              "id": "recovery_live_file_beats_summary",
+              "score": 9.574206
+            },
+            {
+              "rank": 3,
+              "id": "recovery_tool_unavailable",
+              "score": 8.373085
+            },
+            {
+              "rank": 4,
+              "id": "authority_agent_dialogue_conflict",
+              "score": 5.951796
+            },
+            {
+              "rank": 5,
+              "id": "correction_strawman_baseline",
+              "score": 4.247022
+            }
+          ],
+          "recall_at_k": {
+            "1": true,
+            "2": true,
+            "3": true,
+            "5": true
+          },
+          "conservative_at_k": {
+            "1": {
+              "action": "answer",
+              "correct": true,
+              "rationale": "conservative aggregation: authority_live_files_first\u2192answer"
+            },
+            "2": {
+              "action": "answer",
+              "correct": true,
+              "rationale": "conservative aggregation: authority_live_files_first\u2192answer, recovery_live_file_beats_summary\u2192answer"
+            },
+            "3": {
+              "action": "answer",
+              "correct": true,
+              "rationale": "conservative aggregation: authority_live_files_first\u2192answer, recovery_live_file_beats_summary\u2192answer, recovery_tool_unavailable\u2192answer"
+            },
+            "5": {
+              "action": "warn",
+              "correct": false,
+              "rationale": "conservative aggregation: authority_live_files_first\u2192answer, recovery_live_file_beats_summary\u2192answer, recovery_tool_unavailable\u2192answer, authority_agent_dialogue_conflict\u2192answer, correction_strawman_baseline\u2192warn"
+            }
+          }
+        },
+        "s06_external_rewrite": {
+          "query": "Should we publish an external model's full rewrite as the author's own article?",
+          "expected_action": "warn",
+          "correct_memory_id": "correction_external_rewrite_not_authorship",
+          "top5_ranked": [
+            {
+              "rank": 1,
+              "id": "correction_external_rewrite_not_authorship",
+              "score": 15.348063
+            },
+            {
+              "rank": 2,
+              "id": "uncertainty_speculative_theory",
+              "score": 4.60179
+            },
+            {
+              "rank": 3,
+              "id": "uncertainty_pricing_model",
+              "score": 4.284883
+            },
+            {
+              "rank": 4,
+              "id": "authority_live_files_first",
+              "score": 4.044696
+            },
+            {
+              "rank": 5,
+              "id": "state_agent_dashboard",
+              "score": 3.256854
+            }
+          ],
+          "recall_at_k": {
+            "1": true,
+            "2": true,
+            "3": true,
+            "5": true
+          },
+          "conservative_at_k": {
+            "1": {
+              "action": "warn",
+              "correct": true,
+              "rationale": "conservative aggregation: correction_external_rewrite_not_authorship\u2192warn"
+            },
+            "2": {
+              "action": "verify_first",
+              "correct": false,
+              "rationale": "conservative aggregation: correction_external_rewrite_not_authorship\u2192warn, uncertainty_speculative_theory\u2192verify_first"
+            },
+            "3": {
+              "action": "verify_first",
+              "correct": false,
+              "rationale": "conservative aggregation: correction_external_rewrite_not_authorship\u2192warn, uncertainty_speculative_theory\u2192verify_first, uncertainty_pricing_model\u2192warn"
+            },
+            "5": {
+              "action": "verify_first",
+              "correct": false,
+              "rationale": "conservative aggregation: correction_external_rewrite_not_authorship\u2192warn, uncertainty_speculative_theory\u2192verify_first, uncertainty_pricing_model\u2192warn, authority_live_files_first\u2192answer, state_agent_dashboard\u2192answer"
+            }
+          }
+        },
+        "s07_next_artifact": {
+          "query": "What is the next planned artifact for the memory framework?",
+          "expected_action": "answer",
+          "correct_memory_id": "next_artifact_public_harness",
+          "top5_ranked": [
+            {
+              "rank": 1,
+              "id": "next_artifact_public_harness",
+              "score": 9.872522
+            },
+            {
+              "rank": 2,
+              "id": "correction_strawman_baseline",
+              "score": 6.110285
+            },
+            {
+              "rank": 3,
+              "id": "current_system_overview",
+              "score": 5.034474
+            },
+            {
+              "rank": 4,
+              "id": "authority_live_files_first",
+              "score": 4.533859
+            },
+            {
+              "rank": 5,
+              "id": "correction_deploy_not_verified",
+              "score": 3.977603
+            }
+          ],
+          "recall_at_k": {
+            "1": true,
+            "2": true,
+            "3": true,
+            "5": true
+          },
+          "conservative_at_k": {
+            "1": {
+              "action": "answer",
+              "correct": true,
+              "rationale": "conservative aggregation: next_artifact_public_harness\u2192answer"
+            },
+            "2": {
+              "action": "warn",
+              "correct": false,
+              "rationale": "conservative aggregation: next_artifact_public_harness\u2192answer, correction_strawman_baseline\u2192warn"
+            },
+            "3": {
+              "action": "warn",
+              "correct": false,
+              "rationale": "conservative aggregation: next_artifact_public_harness\u2192answer, correction_strawman_baseline\u2192warn, current_system_overview\u2192answer"
+            },
+            "5": {
+              "action": "warn",
+              "correct": false,
+              "rationale": "conservative aggregation: next_artifact_public_harness\u2192answer, correction_strawman_baseline\u2192warn, current_system_overview\u2192answer, authority_live_files_first\u2192answer, correction_deploy_not_verified\u2192warn"
+            }
+          }
+        },
+        "s08_speculative_theory": {
+          "query": "Can we present the speculative theory as established science?",
+          "expected_action": "verify_first",
+          "correct_memory_id": "uncertainty_speculative_theory",
+          "top5_ranked": [
+            {
+              "rank": 1,
+              "id": "uncertainty_speculative_theory",
+              "score": 15.759092
+            },
+            {
+              "rank": 2,
+              "id": "correction_external_rewrite_not_authorship",
+              "score": 3.140697
+            },
+            {
+              "rank": 3,
+              "id": "correction_no_overclaim_eval",
+              "score": 2.284292
+            },
+            {
+              "rank": 4,
+              "id": "access_policy_rules",
+              "score": 1.838675
+            },
+            {
+              "rank": 5,
+              "id": "authority_agent_dialogue_conflict",
+              "score": 1.494212
+            }
+          ],
+          "recall_at_k": {
+            "1": true,
+            "2": true,
+            "3": true,
+            "5": true
+          },
+          "conservative_at_k": {
+            "1": {
+              "action": "verify_first",
+              "correct": true,
+              "rationale": "conservative aggregation: uncertainty_speculative_theory\u2192verify_first"
+            },
+            "2": {
+              "action": "verify_first",
+              "correct": true,
+              "rationale": "conservative aggregation: uncertainty_speculative_theory\u2192verify_first, correction_external_rewrite_not_authorship\u2192warn"
+            },
+            "3": {
+              "action": "block",
+              "correct": false,
+              "rationale": "conservative aggregation: uncertainty_speculative_theory\u2192verify_first, correction_external_rewrite_not_authorship\u2192warn, correction_no_overclaim_eval\u2192block"
+            },
+            "5": {
+              "action": "block",
+              "correct": false,
+              "rationale": "conservative aggregation: uncertainty_speculative_theory\u2192verify_first, correction_external_rewrite_not_authorship\u2192warn, correction_no_overclaim_eval\u2192block, access_policy_rules\u2192answer, authority_agent_dialogue_conflict\u2192answer"
+            }
+          }
+        },
+        "s09_latest_instruction": {
+          "query": "If the user changes direction from the old plan, should the latest instruction steer?",
+          "expected_action": "answer",
+          "correct_memory_id": "authority_user_latest_steers",
+          "top5_ranked": [
+            {
+              "rank": 1,
+              "id": "authority_user_latest_steers",
+              "score": 11.584395
+            },
+            {
+              "rank": 2,
+              "id": "correction_external_rewrite_not_authorship",
+              "score": 5.356786
+            },
+            {
+              "rank": 3,
+              "id": "recovery_tool_unavailable",
+              "score": 4.452089
+            },
+            {
+              "rank": 4,
+              "id": "next_artifact_public_harness",
+              "score": 3.860388
+            },
+            {
+              "rank": 5,
+              "id": "state_agent_dashboard",
+              "score": 3.608162
+            }
+          ],
+          "recall_at_k": {
+            "1": true,
+            "2": true,
+            "3": true,
+            "5": true
+          },
+          "conservative_at_k": {
+            "1": {
+              "action": "answer",
+              "correct": true,
+              "rationale": "conservative aggregation: authority_user_latest_steers\u2192answer"
+            },
+            "2": {
+              "action": "warn",
+              "correct": false,
+              "rationale": "conservative aggregation: authority_user_latest_steers\u2192answer, correction_external_rewrite_not_authorship\u2192warn"
+            },
+            "3": {
+              "action": "warn",
+              "correct": false,
+              "rationale": "conservative aggregation: authority_user_latest_steers\u2192answer, correction_external_rewrite_not_authorship\u2192warn, recovery_tool_unavailable\u2192answer"
+            },
+            "5": {
+              "action": "warn",
+              "correct": false,
+              "rationale": "conservative aggregation: authority_user_latest_steers\u2192answer, correction_external_rewrite_not_authorship\u2192warn, recovery_tool_unavailable\u2192answer, next_artifact_public_harness\u2192answer, state_agent_dashboard\u2192answer"
+            }
+          }
+        },
+        "s10_policy_definition": {
+          "query": "What action classes can access policy assign to a retrieved memory?",
+          "expected_action": "answer",
+          "correct_memory_id": "access_policy_rules",
+          "top5_ranked": [
+            {
+              "rank": 1,
+              "id": "access_policy_rules",
+              "score": 17.89107
+            },
+            {
+              "rank": 2,
+              "id": "current_system_overview",
+              "score": 3.525398
+            },
+            {
+              "rank": 3,
+              "id": "state_agent_dashboard",
+              "score": 2.987597
+            },
+            {
+              "rank": 4,
+              "id": "public_post_live_url",
+              "score": 2.95731
+            },
+            {
+              "rank": 5,
+              "id": "correction_strawman_baseline",
+              "score": 2.644483
+            }
+          ],
+          "recall_at_k": {
+            "1": true,
+            "2": true,
+            "3": true,
+            "5": true
+          },
+          "conservative_at_k": {
+            "1": {
+              "action": "answer",
+              "correct": true,
+              "rationale": "conservative aggregation: access_policy_rules\u2192answer"
+            },
+            "2": {
+              "action": "answer",
+              "correct": true,
+              "rationale": "conservative aggregation: access_policy_rules\u2192answer, current_system_overview\u2192answer"
+            },
+            "3": {
+              "action": "answer",
+              "correct": true,
+              "rationale": "conservative aggregation: access_policy_rules\u2192answer, current_system_overview\u2192answer, state_agent_dashboard\u2192answer"
+            },
+            "5": {
+              "action": "warn",
+              "correct": false,
+              "rationale": "conservative aggregation: access_policy_rules\u2192answer, current_system_overview\u2192answer, state_agent_dashboard\u2192answer, public_post_live_url\u2192answer, correction_strawman_baseline\u2192warn"
+            }
+          }
+        }
+      }
+    },
+    "bm25_keyword_expanded": {
+      "scenarios": {
+        "s01_public_post_url": {
+          "query": "What is the live URL for the technical post?",
+          "expected_action": "answer",
+          "correct_memory_id": "public_post_live_url",
+          "top5_ranked": [
+            {
+              "rank": 1,
+              "id": "public_post_live_url",
+              "score": 17.325828
+            },
+            {
+              "rank": 2,
+              "id": "authority_live_files_first",
+              "score": 5.458865
+            },
+            {
+              "rank": 3,
+              "id": "correction_deploy_not_verified",
+              "score": 3.791093
+            },
+            {
+              "rank": 4,
+              "id": "recovery_live_file_beats_summary",
+              "score": 3.264592
+            },
+            {
+              "rank": 5,
+              "id": "current_system_overview",
+              "score": 2.761136
+            }
+          ],
+          "recall_at_k": {
+            "1": true,
+            "2": true,
+            "3": true,
+            "5": true
+          },
+          "conservative_at_k": {
+            "1": {
+              "action": "answer",
+              "correct": true,
+              "rationale": "conservative aggregation: public_post_live_url\u2192answer"
+            },
+            "2": {
+              "action": "answer",
+              "correct": true,
+              "rationale": "conservative aggregation: public_post_live_url\u2192answer, authority_live_files_first\u2192answer"
+            },
+            "3": {
+              "action": "warn",
+              "correct": false,
+              "rationale": "conservative aggregation: public_post_live_url\u2192answer, authority_live_files_first\u2192answer, correction_deploy_not_verified\u2192warn"
+            },
+            "5": {
+              "action": "warn",
+              "correct": false,
+              "rationale": "conservative aggregation: public_post_live_url\u2192answer, authority_live_files_first\u2192answer, correction_deploy_not_verified\u2192warn, recovery_live_file_beats_summary\u2192answer, current_system_overview\u2192answer"
+            }
+          }
+        },
+        "s02_overclaim_eval_results": {
+          "query": "Can we say this eval proves the structured memory framework works?",
+          "expected_action": "block",
+          "correct_memory_id": "correction_no_overclaim_eval",
+          "top5_ranked": [
+            {
+              "rank": 1,
+              "id": "correction_strawman_baseline",
+              "score": 7.958077
+            },
+            {
+              "rank": 2,
+              "id": "correction_no_overclaim_eval",
+              "score": 4.126131
+            },
+            {
+              "rank": 3,
+              "id": "current_system_overview",
+              "score": 3.790044
+            },
+            {
+              "rank": 4,
+              "id": "access_policy_rules",
+              "score": 3.455799
+            },
+            {
+              "rank": 5,
+              "id": "correction_external_rewrite_not_authorship",
+              "score": 2.071721
+            }
+          ],
+          "recall_at_k": {
+            "1": false,
+            "2": true,
+            "3": true,
+            "5": true
+          },
+          "conservative_at_k": {
+            "1": {
+              "action": "warn",
+              "correct": false,
+              "rationale": "conservative aggregation: correction_strawman_baseline\u2192warn"
+            },
+            "2": {
+              "action": "block",
+              "correct": true,
+              "rationale": "conservative aggregation: correction_strawman_baseline\u2192warn, correction_no_overclaim_eval\u2192block"
+            },
+            "3": {
+              "action": "block",
+              "correct": true,
+              "rationale": "conservative aggregation: correction_strawman_baseline\u2192warn, correction_no_overclaim_eval\u2192block, current_system_overview\u2192answer"
+            },
+            "5": {
+              "action": "block",
+              "correct": true,
+              "rationale": "conservative aggregation: correction_strawman_baseline\u2192warn, correction_no_overclaim_eval\u2192block, current_system_overview\u2192answer, access_policy_rules\u2192answer, correction_external_rewrite_not_authorship\u2192warn"
+            }
+          }
+        },
+        "s03_public_private_claim": {
+          "query": "Should we publish private agent-history claims as public proof now?",
+          "expected_action": "verify_first",
+          "correct_memory_id": "uncertainty_public_claims",
+          "top5_ranked": [
+            {
+              "rank": 1,
+              "id": "uncertainty_public_claims",
+              "score": 18.644648
+            },
+            {
+              "rank": 2,
+              "id": "policy_public_claims_tests_required",
+              "score": 11.049129
+            },
+            {
+              "rank": 3,
+              "id": "state_agent_dashboard",
+              "score": 5.316292
+            },
+            {
+              "rank": 4,
+              "id": "authority_agent_dialogue_conflict",
+              "score": 5.224633
+            },
+            {
+              "rank": 5,
+              "id": "correction_no_overclaim_eval",
+              "score": 3.372173
+            }
+          ],
+          "recall_at_k": {
+            "1": true,
+            "2": true,
+            "3": true,
+            "5": true
+          },
+          "conservative_at_k": {
+            "1": {
+              "action": "verify_first",
+              "correct": true,
+              "rationale": "conservative aggregation: uncertainty_public_claims\u2192verify_first"
+            },
+            "2": {
+              "action": "verify_first",
+              "correct": true,
+              "rationale": "conservative aggregation: uncertainty_public_claims\u2192verify_first, policy_public_claims_tests_required\u2192answer"
+            },
+            "3": {
+              "action": "verify_first",
+              "correct": true,
+              "rationale": "conservative aggregation: uncertainty_public_claims\u2192verify_first, policy_public_claims_tests_required\u2192answer, state_agent_dashboard\u2192answer"
+            },
+            "5": {
+              "action": "block",
+              "correct": false,
+              "rationale": "conservative aggregation: uncertainty_public_claims\u2192verify_first, policy_public_claims_tests_required\u2192answer, state_agent_dashboard\u2192answer, authority_agent_dialogue_conflict\u2192answer, correction_no_overclaim_eval\u2192block"
+            }
+          }
+        },
+        "s04_start_after_crash": {
+          "query": "What should the agent do first after a crash recovery?",
+          "expected_action": "answer",
+          "correct_memory_id": "recovery_startup_order",
+          "top5_ranked": [
+            {
+              "rank": 1,
+              "id": "recovery_startup_order",
+              "score": 13.0171
+            },
+            {
+              "rank": 2,
+              "id": "state_agent_dashboard",
+              "score": 5.637174
+            },
+            {
+              "rank": 3,
+              "id": "correction_deploy_not_verified",
+              "score": 4.91494
+            },
+            {
+              "rank": 4,
+              "id": "authority_live_files_first",
+              "score": 4.191417
+            },
+            {
+              "rank": 5,
+              "id": "authority_agent_dialogue_conflict",
+              "score": 3.847431
+            }
+          ],
+          "recall_at_k": {
+            "1": true,
+            "2": true,
+            "3": true,
+            "5": true
+          },
+          "conservative_at_k": {
+            "1": {
+              "action": "answer",
+              "correct": true,
+              "rationale": "conservative aggregation: recovery_startup_order\u2192answer"
+            },
+            "2": {
+              "action": "answer",
+              "correct": true,
+              "rationale": "conservative aggregation: recovery_startup_order\u2192answer, state_agent_dashboard\u2192answer"
+            },
+            "3": {
+              "action": "warn",
+              "correct": false,
+              "rationale": "conservative aggregation: recovery_startup_order\u2192answer, state_agent_dashboard\u2192answer, correction_deploy_not_verified\u2192warn"
+            },
+            "5": {
+              "action": "warn",
+              "correct": false,
+              "rationale": "conservative aggregation: recovery_startup_order\u2192answer, state_agent_dashboard\u2192answer, correction_deploy_not_verified\u2192warn, authority_live_files_first\u2192answer, authority_agent_dialogue_conflict\u2192answer"
+            }
+          }
+        },
+        "s05_live_file_conflict": {
+          "query": "If a summary and live file disagree, which source governs a posting decision?",
+          "expected_action": "answer",
+          "correct_memory_id": "authority_live_files_first",
+          "top5_ranked": [
+            {
+              "rank": 1,
+              "id": "authority_live_files_first",
+              "score": 15.574184
+            },
+            {
+              "rank": 2,
+              "id": "recovery_live_file_beats_summary",
+              "score": 10.748915
+            },
+            {
+              "rank": 3,
+              "id": "recovery_tool_unavailable",
+              "score": 8.58064
+            },
+            {
+              "rank": 4,
+              "id": "authority_agent_dialogue_conflict",
+              "score": 6.008118
+            },
+            {
+              "rank": 5,
+              "id": "correction_strawman_baseline",
+              "score": 4.996466
+            }
+          ],
+          "recall_at_k": {
+            "1": true,
+            "2": true,
+            "3": true,
+            "5": true
+          },
+          "conservative_at_k": {
+            "1": {
+              "action": "answer",
+              "correct": true,
+              "rationale": "conservative aggregation: authority_live_files_first\u2192answer"
+            },
+            "2": {
+              "action": "answer",
+              "correct": true,
+              "rationale": "conservative aggregation: authority_live_files_first\u2192answer, recovery_live_file_beats_summary\u2192answer"
+            },
+            "3": {
+              "action": "answer",
+              "correct": true,
+              "rationale": "conservative aggregation: authority_live_files_first\u2192answer, recovery_live_file_beats_summary\u2192answer, recovery_tool_unavailable\u2192answer"
+            },
+            "5": {
+              "action": "warn",
+              "correct": false,
+              "rationale": "conservative aggregation: authority_live_files_first\u2192answer, recovery_live_file_beats_summary\u2192answer, recovery_tool_unavailable\u2192answer, authority_agent_dialogue_conflict\u2192answer, correction_strawman_baseline\u2192warn"
+            }
+          }
+        },
+        "s06_external_rewrite": {
+          "query": "Should we publish an external model's full rewrite as the author's own article?",
+          "expected_action": "warn",
+          "correct_memory_id": "correction_external_rewrite_not_authorship",
+          "top5_ranked": [
+            {
+              "rank": 1,
+              "id": "correction_external_rewrite_not_authorship",
+              "score": 18.991681
+            },
+            {
+              "rank": 2,
+              "id": "uncertainty_pricing_model",
+              "score": 4.606442
+            },
+            {
+              "rank": 3,
+              "id": "uncertainty_speculative_theory",
+              "score": 4.570299
+            },
+            {
+              "rank": 4,
+              "id": "public_post_live_url",
+              "score": 4.356811
+            },
+            {
+              "rank": 5,
+              "id": "authority_live_files_first",
+              "score": 4.027498
+            }
+          ],
+          "recall_at_k": {
+            "1": true,
+            "2": true,
+            "3": true,
+            "5": true
+          },
+          "conservative_at_k": {
+            "1": {
+              "action": "warn",
+              "correct": true,
+              "rationale": "conservative aggregation: correction_external_rewrite_not_authorship\u2192warn"
+            },
+            "2": {
+              "action": "warn",
+              "correct": true,
+              "rationale": "conservative aggregation: correction_external_rewrite_not_authorship\u2192warn, uncertainty_pricing_model\u2192warn"
+            },
+            "3": {
+              "action": "verify_first",
+              "correct": false,
+              "rationale": "conservative aggregation: correction_external_rewrite_not_authorship\u2192warn, uncertainty_pricing_model\u2192warn, uncertainty_speculative_theory\u2192verify_first"
+            },
+            "5": {
+              "action": "verify_first",
+              "correct": false,
+              "rationale": "conservative aggregation: correction_external_rewrite_not_authorship\u2192warn, uncertainty_pricing_model\u2192warn, uncertainty_speculative_theory\u2192verify_first, public_post_live_url\u2192answer, authority_live_files_first\u2192answer"
+            }
+          }
+        },
+        "s07_next_artifact": {
+          "query": "What is the next planned artifact for the memory framework?",
+          "expected_action": "answer",
+          "correct_memory_id": "next_artifact_public_harness",
+          "top5_ranked": [
+            {
+              "rank": 1,
+              "id": "next_artifact_public_harness",
+              "score": 10.237748
+            },
+            {
+              "rank": 2,
+              "id": "current_system_overview",
+              "score": 6.12039
+            },
+            {
+              "rank": 3,
+              "id": "correction_strawman_baseline",
+              "score": 6.041457
+            },
+            {
+              "rank": 4,
+              "id": "authority_live_files_first",
+              "score": 4.912524
+            },
+            {
+              "rank": 5,
+              "id": "correction_deploy_not_verified",
+              "score": 3.791093
+            }
+          ],
+          "recall_at_k": {
+            "1": true,
+            "2": true,
+            "3": true,
+            "5": true
+          },
+          "conservative_at_k": {
+            "1": {
+              "action": "answer",
+              "correct": true,
+              "rationale": "conservative aggregation: next_artifact_public_harness\u2192answer"
+            },
+            "2": {
+              "action": "answer",
+              "correct": true,
+              "rationale": "conservative aggregation: next_artifact_public_harness\u2192answer, current_system_overview\u2192answer"
+            },
+            "3": {
+              "action": "warn",
+              "correct": false,
+              "rationale": "conservative aggregation: next_artifact_public_harness\u2192answer, current_system_overview\u2192answer, correction_strawman_baseline\u2192warn"
+            },
+            "5": {
+              "action": "warn",
+              "correct": false,
+              "rationale": "conservative aggregation: next_artifact_public_harness\u2192answer, current_system_overview\u2192answer, correction_strawman_baseline\u2192warn, authority_live_files_first\u2192answer, correction_deploy_not_verified\u2192warn"
+            }
+          }
+        },
+        "s08_speculative_theory": {
+          "query": "Can we present the speculative theory as established science?",
+          "expected_action": "verify_first",
+          "correct_memory_id": "uncertainty_speculative_theory",
+          "top5_ranked": [
+            {
+              "rank": 1,
+              "id": "uncertainty_speculative_theory",
+              "score": 19.246651
+            },
+            {
+              "rank": 2,
+              "id": "correction_external_rewrite_not_authorship",
+              "score": 3.223591
+            },
+            {
+              "rank": 3,
+              "id": "correction_no_overclaim_eval",
+              "score": 2.343557
+            },
+            {
+              "rank": 4,
+              "id": "access_policy_rules",
+              "score": 1.785696
+            },
+            {
+              "rank": 5,
+              "id": "authority_agent_dialogue_conflict",
+              "score": 1.505522
+            }
+          ],
+          "recall_at_k": {
+            "1": true,
+            "2": true,
+            "3": true,
+            "5": true
+          },
+          "conservative_at_k": {
+            "1": {
+              "action": "verify_first",
+              "correct": true,
+              "rationale": "conservative aggregation: uncertainty_speculative_theory\u2192verify_first"
+            },
+            "2": {
+              "action": "verify_first",
+              "correct": true,
+              "rationale": "conservative aggregation: uncertainty_speculative_theory\u2192verify_first, correction_external_rewrite_not_authorship\u2192warn"
+            },
+            "3": {
+              "action": "block",
+              "correct": false,
+              "rationale": "conservative aggregation: uncertainty_speculative_theory\u2192verify_first, correction_external_rewrite_not_authorship\u2192warn, correction_no_overclaim_eval\u2192block"
+            },
+            "5": {
+              "action": "block",
+              "correct": false,
+              "rationale": "conservative aggregation: uncertainty_speculative_theory\u2192verify_first, correction_external_rewrite_not_authorship\u2192warn, correction_no_overclaim_eval\u2192block, access_policy_rules\u2192answer, authority_agent_dialogue_conflict\u2192answer"
+            }
+          }
+        },
+        "s09_latest_instruction": {
+          "query": "If the user changes direction from the old plan, should the latest instruction steer?",
+          "expected_action": "answer",
+          "correct_memory_id": "authority_user_latest_steers",
+          "top5_ranked": [
+            {
+              "rank": 1,
+              "id": "authority_user_latest_steers",
+              "score": 18.809772
+            },
+            {
+              "rank": 2,
+              "id": "correction_external_rewrite_not_authorship",
+              "score": 5.50834
+            },
+            {
+              "rank": 3,
+              "id": "recovery_tool_unavailable",
+              "score": 4.442656
+            },
+            {
+              "rank": 4,
+              "id": "state_agent_dashboard",
+              "score": 3.619951
+            },
+            {
+              "rank": 5,
+              "id": "next_artifact_public_harness",
+              "score": 3.381797
+            }
+          ],
+          "recall_at_k": {
+            "1": true,
+            "2": true,
+            "3": true,
+            "5": true
+          },
+          "conservative_at_k": {
+            "1": {
+              "action": "answer",
+              "correct": true,
+              "rationale": "conservative aggregation: authority_user_latest_steers\u2192answer"
+            },
+            "2": {
+              "action": "warn",
+              "correct": false,
+              "rationale": "conservative aggregation: authority_user_latest_steers\u2192answer, correction_external_rewrite_not_authorship\u2192warn"
+            },
+            "3": {
+              "action": "warn",
+              "correct": false,
+              "rationale": "conservative aggregation: authority_user_latest_steers\u2192answer, correction_external_rewrite_not_authorship\u2192warn, recovery_tool_unavailable\u2192answer"
+            },
+            "5": {
+              "action": "warn",
+              "correct": false,
+              "rationale": "conservative aggregation: authority_user_latest_steers\u2192answer, correction_external_rewrite_not_authorship\u2192warn, recovery_tool_unavailable\u2192answer, state_agent_dashboard\u2192answer, next_artifact_public_harness\u2192answer"
+            }
+          }
+        },
+        "s10_policy_definition": {
+          "query": "What action classes can access policy assign to a retrieved memory?",
+          "expected_action": "answer",
+          "correct_memory_id": "access_policy_rules",
+          "top5_ranked": [
+            {
+              "rank": 1,
+              "id": "access_policy_rules",
+              "score": 25.372105
+            },
+            {
+              "rank": 2,
+              "id": "current_system_overview",
+              "score": 4.619136
+            },
+            {
+              "rank": 3,
+              "id": "state_agent_dashboard",
+              "score": 2.856087
+            },
+            {
+              "rank": 4,
+              "id": "public_post_live_url",
+              "score": 2.845574
+            },
+            {
+              "rank": 5,
+              "id": "correction_strawman_baseline",
+              "score": 2.492622
+            }
+          ],
+          "recall_at_k": {
+            "1": true,
+            "2": true,
+            "3": true,
+            "5": true
+          },
+          "conservative_at_k": {
+            "1": {
+              "action": "answer",
+              "correct": true,
+              "rationale": "conservative aggregation: access_policy_rules\u2192answer"
+            },
+            "2": {
+              "action": "answer",
+              "correct": true,
+              "rationale": "conservative aggregation: access_policy_rules\u2192answer, current_system_overview\u2192answer"
+            },
+            "3": {
+              "action": "answer",
+              "correct": true,
+              "rationale": "conservative aggregation: access_policy_rules\u2192answer, current_system_overview\u2192answer, state_agent_dashboard\u2192answer"
+            },
+            "5": {
+              "action": "warn",
+              "correct": false,
+              "rationale": "conservative aggregation: access_policy_rules\u2192answer, current_system_overview\u2192answer, state_agent_dashboard\u2192answer, public_post_live_url\u2192answer, correction_strawman_baseline\u2192warn"
+            }
+          }
+        }
+      }
+    }
+  }
+}
