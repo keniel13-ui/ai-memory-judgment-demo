@@ -88,7 +88,7 @@ Aggregation rule:
 
 > Only elevate to `block` when a top-k `block` memory is query-aligned; otherwise retain the top-1 action.
 
-Alignment is computed from structured metadata, retrieval terms, memory ID terms, and correction-target terms. It does not use full memory body text for the alignment gate.
+Alignment is computed from structured metadata, retrieval terms, memory ID terms, and correction-target terms after stopword filtering. It does not use full memory body text for the alignment gate.
 
 | Strategy | Top-3 recall | Top-1 retrieval | Action correct | Downgrade misses | FC errors | Overblocking |
 |---|---:|---:|---:|---:|---:|---:|
@@ -118,4 +118,4 @@ Unsafe:
 
 Next:
 
-> Pre-register adversarial scenarios designed to break the alignment gate, especially cases where an unrelated `block` memory shares superficial metadata with the query.
+> Pre-register adversarial scenarios designed to break the alignment gate, especially cases where an unrelated `block` memory shares meaningful but misleading metadata with the query.

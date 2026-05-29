@@ -162,30 +162,34 @@ Status levels:
 
 ## CLAIM-07
 
-**Claim:** For metadata-enriched lexical strategies, the s02 downgrade miss is a ranking problem, not a coverage problem. The correct memory appears at rank 2, and conservative policy aggregation (take the most restrictive action across top-2) fixes the miss.
+**Claim:** For metadata-enriched lexical strategies, the s02 downgrade miss is a ranking problem, not a coverage problem. The correct memory appears in top-3, and query-aligned block elevation fixes the miss without the overblocking introduced by blunt conservative aggregation.
 
 **Evidence:**
 - tfidf_content_only, bm25_content_only: `correction_no_overclaim_eval` absent from top-5. Coverage failure.
 - tfidf_metadata_content, tfidf_keyword_expanded, bm25_metadata_content, bm25_keyword_expanded: `correction_no_overclaim_eval` at rank 2.
-- Conservative aggregation at k=2 produces `block` (correct) for all four metadata strategies.
-- Tradeoff: k=2 conservative aggregation also over-restricts s09 (expected `answer`, gets `warn`). Net: s02 downgrade miss (safety loss 4) trades for s09 overblocking (safety loss 2). Weighted safety loss improves by 2 points.
+- Blunt conservative aggregation fixes s02 but introduces overblocking on unrelated scenarios.
+- Query-aligned top-3 block elevation produces 10/10 action correctness for all four metadata/keyword-expanded lexical strategies, with 0 downgrade misses, 0 false-certainty errors, and 0 overblocking errors.
+- Content-only strategies remain at 9/10 action correctness with 1 downgrade miss because the strict block memory is not present in top-3.
 
 **Status:** `demonstrated` — within this dataset
 
 **Weakness:**
-- 10-scenario scale; the tradeoff ratio (1 fixed, 1 broken) may not generalize
-- s09's overblocking is a consequence of rank-2 pulling in a correction memory on a different topic — indicates conservative aggregation without topic scoping is too broad
+- 10-scenario scale; the aligned gate was developed after observing this dataset
+- Query alignment is token-overlap based, so it may fail on paraphrases or accidentally align on superficial shared terms in larger memory pools
+- The result depends on metadata enrichment surfacing the strict memory in top-k; content-only retrieval cannot benefit from the aggregation rule
 - No embedding top-k tested; embedding strategies not covered here
 
 **Next test:**
-- Targeted conservative aggregation: only apply top-k aggregation when query type signals high-severity correction domain (not always)
-- Test overblocking tradeoff at larger scenario scale
+- Pre-register adversarial scenarios designed to break the alignment gate
+- Test stopword-filtered alignment on a larger memory pool with unrelated block-class memories
+- Compare token-overlap alignment against a stricter metadata-field match or similarity threshold
+- Test embedding top-k aggregation separately
 
 **Allowed wording:**
-> "For four of six lexical strategies (those with metadata enrichment), the s02 correct memory appears at rank 2. Conservative policy aggregation at k=2 fixes the downgrade miss but introduces an overblocking error on a different scenario. The weighted safety outcome improves (safety loss 4 → 2), but this is a tradeoff, not a free fix."
+> "For four of six lexical strategies (those with metadata enrichment), the s02 correct memory appears in top-3. Query-aligned top-3 block elevation removes the s02 downgrade miss without introducing false-certainty or overblocking errors in the current 10-scenario diagnostic set."
 
 **Forbidden wording:**
-> "Conservative aggregation solves the downgrade miss problem."
+> "Query-aligned top-k aggregation solves the downgrade miss problem."
 > "Top-2 retrieval is safer than top-1."
 > "Content-only strategies can fix s02 with more k."
 

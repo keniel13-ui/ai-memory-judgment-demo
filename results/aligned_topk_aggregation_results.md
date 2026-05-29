@@ -8,6 +8,8 @@ Rule:
 
 > Only elevate to `block` when a top-k `block` memory is query-aligned; otherwise retain the top-1 action.
 
+Alignment uses structured metadata, retrieval terms, memory ID terms, and correction-target terms after stopword filtering. It does not use full memory body text.
+
 ## Strategy Summary
 
 | Strategy | Top-3 recall | Top-1 retrieval | Action correct | End-to-end | Benign misses | Downgrade misses | FC errors | Overblocking |

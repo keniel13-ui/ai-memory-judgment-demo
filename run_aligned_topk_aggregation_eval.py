@@ -38,10 +38,51 @@ from run_topk_inspection import ranked_bm25, ranked_tfidf
 TOP_K = 3
 RESULTS_MD = ROOT / "results" / "aligned_topk_aggregation_results.md"
 RESULTS_JSON = ROOT / "results" / "aligned_topk_aggregation_results.json"
+STOPWORDS = {
+    "a",
+    "an",
+    "and",
+    "are",
+    "as",
+    "at",
+    "be",
+    "by",
+    "can",
+    "do",
+    "does",
+    "for",
+    "from",
+    "has",
+    "have",
+    "if",
+    "in",
+    "is",
+    "it",
+    "its",
+    "of",
+    "on",
+    "or",
+    "our",
+    "should",
+    "that",
+    "the",
+    "their",
+    "this",
+    "to",
+    "we",
+    "what",
+    "when",
+    "which",
+    "with",
+}
+
+
+def meaningful_tokens(text: str) -> set[str]:
+    return {token for token in tokenize(text) if token not in STOPWORDS}
 
 
 def alignment_terms(memory_id: str, memory: dict[str, Any]) -> set[str]:
-    terms = set(tokenize(memory_id.replace("_", " ")))
+    terms = meaningful_tokens(memory_id.replace("_", " "))
     for key in [
         "memory_type",
         "status",
@@ -54,14 +95,14 @@ def alignment_terms(memory_id: str, memory: dict[str, Any]) -> set[str]:
     ]:
         value = memory.get(key)
         if value:
-            terms.update(tokenize(str(value).replace("_", " ")))
+            terms.update(meaningful_tokens(str(value).replace("_", " ")))
     for term in memory.get("retrieval_terms", []):
-        terms.update(tokenize(str(term).replace("_", " ")))
+        terms.update(meaningful_tokens(str(term).replace("_", " ")))
     return terms
 
 
 def is_query_aligned(query: str, memory_id: str, memory: dict[str, Any]) -> bool:
-    query_terms = set(tokenize(query))
+    query_terms = meaningful_tokens(query)
     terms = alignment_terms(memory_id, memory)
     return bool(query_terms & terms)
 
@@ -163,6 +204,8 @@ def main() -> None:
         "Rule:",
         "",
         "> Only elevate to `block` when a top-k `block` memory is query-aligned; otherwise retain the top-1 action.",
+        "",
+        "Alignment uses structured metadata, retrieval terms, memory ID terms, and correction-target terms after stopword filtering. It does not use full memory body text.",
         "",
         "## Strategy Summary",
         "",
