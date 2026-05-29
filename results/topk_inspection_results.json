@@ -1,0 +1,261 @@
+{
+  "scenario_id": "s02_overclaim_eval_results",
+  "target_memory_id": "correction_no_overclaim_eval",
+  "question": "Does the stricter correction appear in top-k for s02?",
+  "summaries": [
+    {
+      "strategy": "tfidf_content_only",
+      "target_rank": 10,
+      "target_in_top_3": false,
+      "target_in_top_5": false,
+      "top_1": "correction_strawman_baseline"
+    },
+    {
+      "strategy": "bm25_content_only",
+      "target_rank": 9,
+      "target_in_top_3": false,
+      "target_in_top_5": false,
+      "top_1": "correction_strawman_baseline"
+    },
+    {
+      "strategy": "tfidf_metadata_content",
+      "target_rank": 2,
+      "target_in_top_3": true,
+      "target_in_top_5": true,
+      "top_1": "correction_strawman_baseline"
+    },
+    {
+      "strategy": "bm25_metadata_content",
+      "target_rank": 2,
+      "target_in_top_3": true,
+      "target_in_top_5": true,
+      "top_1": "correction_strawman_baseline"
+    },
+    {
+      "strategy": "tfidf_keyword_expanded",
+      "target_rank": 2,
+      "target_in_top_3": true,
+      "target_in_top_5": true,
+      "top_1": "correction_strawman_baseline"
+    },
+    {
+      "strategy": "bm25_keyword_expanded",
+      "target_rank": 2,
+      "target_in_top_3": true,
+      "target_in_top_5": true,
+      "top_1": "correction_strawman_baseline"
+    }
+  ],
+  "rows": [
+    {
+      "strategy": "tfidf_content_only",
+      "rank": 1,
+      "memory_id": "correction_strawman_baseline",
+      "score": 0.469791,
+      "is_target": false
+    },
+    {
+      "strategy": "tfidf_content_only",
+      "rank": 2,
+      "memory_id": "access_policy_rules",
+      "score": 0.171271,
+      "is_target": false
+    },
+    {
+      "strategy": "tfidf_content_only",
+      "rank": 3,
+      "memory_id": "state_agent_dashboard",
+      "score": 0.111599,
+      "is_target": false
+    },
+    {
+      "strategy": "tfidf_content_only",
+      "rank": 4,
+      "memory_id": "correction_external_rewrite_not_authorship",
+      "score": 0.097882,
+      "is_target": false
+    },
+    {
+      "strategy": "tfidf_content_only",
+      "rank": 5,
+      "memory_id": "public_post_live_url",
+      "score": 0.08868,
+      "is_target": false
+    },
+    {
+      "strategy": "bm25_content_only",
+      "rank": 1,
+      "memory_id": "correction_strawman_baseline",
+      "score": 8.280414,
+      "is_target": false
+    },
+    {
+      "strategy": "bm25_content_only",
+      "rank": 2,
+      "memory_id": "access_policy_rules",
+      "score": 3.536746,
+      "is_target": false
+    },
+    {
+      "strategy": "bm25_content_only",
+      "rank": 3,
+      "memory_id": "correction_external_rewrite_not_authorship",
+      "score": 1.956721,
+      "is_target": false
+    },
+    {
+      "strategy": "bm25_content_only",
+      "rank": 4,
+      "memory_id": "state_agent_dashboard",
+      "score": 1.790865,
+      "is_target": false
+    },
+    {
+      "strategy": "bm25_content_only",
+      "rank": 5,
+      "memory_id": "public_post_live_url",
+      "score": 1.756142,
+      "is_target": false
+    },
+    {
+      "strategy": "tfidf_metadata_content",
+      "rank": 1,
+      "memory_id": "correction_strawman_baseline",
+      "score": 0.31176,
+      "is_target": false
+    },
+    {
+      "strategy": "tfidf_metadata_content",
+      "rank": 2,
+      "memory_id": "correction_no_overclaim_eval",
+      "score": 0.139131,
+      "is_target": true
+    },
+    {
+      "strategy": "tfidf_metadata_content",
+      "rank": 3,
+      "memory_id": "current_system_overview",
+      "score": 0.097548,
+      "is_target": false
+    },
+    {
+      "strategy": "tfidf_metadata_content",
+      "rank": 4,
+      "memory_id": "access_policy_rules",
+      "score": 0.094094,
+      "is_target": false
+    },
+    {
+      "strategy": "tfidf_metadata_content",
+      "rank": 5,
+      "memory_id": "state_agent_dashboard",
+      "score": 0.076877,
+      "is_target": false
+    },
+    {
+      "strategy": "bm25_metadata_content",
+      "rank": 1,
+      "memory_id": "correction_strawman_baseline",
+      "score": 8.00324,
+      "is_target": false
+    },
+    {
+      "strategy": "bm25_metadata_content",
+      "rank": 2,
+      "memory_id": "correction_no_overclaim_eval",
+      "score": 4.021786,
+      "is_target": true
+    },
+    {
+      "strategy": "bm25_metadata_content",
+      "rank": 3,
+      "memory_id": "access_policy_rules",
+      "score": 3.251301,
+      "is_target": false
+    },
+    {
+      "strategy": "bm25_metadata_content",
+      "rank": 4,
+      "memory_id": "current_system_overview",
+      "score": 2.691987,
+      "is_target": false
+    },
+    {
+      "strategy": "bm25_metadata_content",
+      "rank": 5,
+      "memory_id": "correction_external_rewrite_not_authorship",
+      "score": 2.01413,
+      "is_target": false
+    },
+    {
+      "strategy": "tfidf_keyword_expanded",
+      "rank": 1,
+      "memory_id": "correction_strawman_baseline",
+      "score": 0.239351,
+      "is_target": false
+    },
+    {
+      "strategy": "tfidf_keyword_expanded",
+      "rank": 2,
+      "memory_id": "correction_no_overclaim_eval",
+      "score": 0.114061,
+      "is_target": true
+    },
+    {
+      "strategy": "tfidf_keyword_expanded",
+      "rank": 3,
+      "memory_id": "current_system_overview",
+      "score": 0.104296,
+      "is_target": false
+    },
+    {
+      "strategy": "tfidf_keyword_expanded",
+      "rank": 4,
+      "memory_id": "access_policy_rules",
+      "score": 0.095086,
+      "is_target": false
+    },
+    {
+      "strategy": "tfidf_keyword_expanded",
+      "rank": 5,
+      "memory_id": "correction_external_rewrite_not_authorship",
+      "score": 0.058782,
+      "is_target": false
+    },
+    {
+      "strategy": "bm25_keyword_expanded",
+      "rank": 1,
+      "memory_id": "correction_strawman_baseline",
+      "score": 7.958077,
+      "is_target": false
+    },
+    {
+      "strategy": "bm25_keyword_expanded",
+      "rank": 2,
+      "memory_id": "correction_no_overclaim_eval",
+      "score": 4.126131,
+      "is_target": true
+    },
+    {
+      "strategy": "bm25_keyword_expanded",
+      "rank": 3,
+      "memory_id": "current_system_overview",
+      "score": 3.790044,
+      "is_target": false
+    },
+    {
+      "strategy": "bm25_keyword_expanded",
+      "rank": 4,
+      "memory_id": "access_policy_rules",
+      "score": 3.455799,
+      "is_target": false
+    },
+    {
+      "strategy": "bm25_keyword_expanded",
+      "rank": 5,
+      "memory_id": "correction_external_rewrite_not_authorship",
+      "score": 2.071721,
+      "is_target": false
+    }
+  ]
+}

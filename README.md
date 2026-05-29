@@ -34,9 +34,12 @@ Supporting files:
 - `scenarios/retrieval_scenarios.json` — 10 scenario labels.
 - `run_retrieval_eval.py` — deterministic TF-IDF evaluator.
 - `run_embedding_eval.py` — local Ollama embedding evaluator.
+- `run_topk_inspection.py` — deterministic top-k inspection for the s02 downgrade miss.
+- `run_topk_aggregation_eval.py` — conservative top-k action aggregation evaluator.
 - `SCORING_RUBRIC.md` — action classes and metrics.
 - `RESEARCH_PROTOCOL.md` — formal research question, variables, metrics, validity threats, and reproducibility notes.
 - `RELATED_WORK.md` — honest map of closest prior work and contribution boundary.
+- `POSITIONING_NOTES.md` — public-framing guardrails that separate empirical results, framework claims, and speculation.
 - `VALIDITY_THREATS.md` — explicit risk register for the current demo and next experiments.
 - `FULL_FRAMEWORK_BASELINE.md` — separates the full-framework baseline from the retrieval-baseline article.
 - `METRICS.md` — current and planned metrics for comparison.
@@ -48,6 +51,7 @@ Supporting files:
 - `REVIEWER_PANEL.md` — reviewer personas used to pressure-test the work.
 - `EMBEDDING_FINDINGS.md` — first local embedding run and interpretation.
 - `V0_3_FINDINGS.md` — preregistered `nomic-embed-text` run and claim updates.
+- `TOPK_FINDINGS.md` — top-k inspection and conservative aggregation results for the s02 downgrade miss.
 - `PAPER_OUTLINE.md` — paper-style report structure for future writeup.
 - `baseline_summary.md` — plain-language summary, not scored by this evaluator.
 - `results/retrieval_eval_results.md` — generated Markdown results.
