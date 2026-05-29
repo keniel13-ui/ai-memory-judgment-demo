@@ -76,6 +76,11 @@ Success criteria:
 - scoring rubric unchanged before run,
 - results reported separately from internal scenario set.
 
+Current preregistered artifacts:
+
+- `PREREGISTRATION_v0.4_ADVERSARIAL.md`
+- `EXTERNAL_SCENARIO_REQUEST.md`
+
 ## v0.5 Model-In-The-Loop Generation
 
 Goal:

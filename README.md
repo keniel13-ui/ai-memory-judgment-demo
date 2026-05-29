@@ -47,6 +47,8 @@ Supporting files:
 - `EXPERIMENT_PLAN.md` — staged upgrades from demo to stronger evaluation.
 - `v0.2_experiment_plan.md` — next semantic-retrieval comparison plan.
 - `PREREGISTRATION_v0.3.md` — frozen hypotheses before dedicated embedding/top-k experiments.
+- `PREREGISTRATION_v0.4_ADVERSARIAL.md` — frozen adversarial/external scenario plan.
+- `EXTERNAL_SCENARIO_REQUEST.md` — packet for collecting scenarios from outside reviewers.
 - `CLAIM_LEDGER.md` — claim status, evidence, weaknesses, and allowed/forbidden wording.
 - `AUDIT_RUBRIC.md` — adversarial objections and evidence needed to change claims.
 - `REVIEWER_PANEL.md` — reviewer personas used to pressure-test the work.
