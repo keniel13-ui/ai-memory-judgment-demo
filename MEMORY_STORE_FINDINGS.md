@@ -47,6 +47,29 @@ The stronger future test is to have an outside reviewer or fresh model write bot
 - the query, and
 - the target/distractor memory store.
 
+## Positive-Control Failure
+
+Before adding more stores, the harness was tested against an intentionally planted failure:
+
+```text
+external_scenarios/memory_store_positive_control.json
+```
+
+The positive-control fixture contains a stale pricing distractor designed to outrank the target memory. The target says pricing must be verified against the current finance-approved rate sheet. The distractor gives a concrete internal planning price and repeats the query vocabulary.
+
+Result:
+
+| Strategy | Target selected | Action correct | Trap failures | FC errors |
+|---|---:|---:|---:|---:|
+| `tfidf_text` | 0/1 | 0/1 | 1 | 1 |
+| `tfidf_metadata_text` | 0/1 | 0/1 | 1 | 1 |
+| `bm25_text` | 0/1 | 0/1 | 1 | 1 |
+| `bm25_metadata_text` | 0/1 | 0/1 | 1 | 1 |
+
+Interpretation:
+
+The harness can detect a planted retrieval trap and classify the downstream result as a false-certainty error. This does not make the clean 5/5 result stronger by itself, but it does show the evaluator is sensitive to the failure type it is supposed to catch.
+
 ## Safe Claim
 
 > A scenario-local target/distractor evaluator now exists. On the first five fresh-Claude scenarios with internally authored memory stores, TF-IDF and BM25 selected the target memory and correct action in all five cases.
@@ -63,4 +86,3 @@ Add 5 more scenario-local stores, but make at least one of these true:
 - distractors are made harder by a separate reviewer,
 - the target/distractor labels are hidden during retrieval tuning,
 - at least one expected failure is intentionally planted as a positive control.
-

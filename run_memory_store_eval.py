@@ -22,9 +22,9 @@ from typing import Any
 from run_retrieval_eval import ACTION_RANK, ROOT, layered_action, tokenize
 
 
-SCENARIOS_PATH = ROOT / "external_scenarios" / "fresh_claude_v0_4_v2_top5.json"
-RESULTS_JSON = ROOT / "results" / "memory_store_eval_results.json"
-RESULTS_MD = ROOT / "results" / "memory_store_eval_results.md"
+DEFAULT_SCENARIOS_PATH = ROOT / "external_scenarios" / "fresh_claude_v0_4_v2_top5.json"
+DEFAULT_RESULTS_JSON = ROOT / "results" / "memory_store_eval_results.json"
+DEFAULT_RESULTS_MD = ROOT / "results" / "memory_store_eval_results.md"
 
 RISKY_EXPECTED = {"warn", "verify_first", "block"}
 PERMISSIVE_ACTIONS = {"answer", "answer_context"}
@@ -206,8 +206,34 @@ def summarize(rows: list[MemoryStoreDecision]) -> dict[str, int]:
     }
 
 
+def output_paths(scenarios_path: Path) -> tuple[Path, Path]:
+    if scenarios_path == DEFAULT_SCENARIOS_PATH:
+        return DEFAULT_RESULTS_JSON, DEFAULT_RESULTS_MD
+    stem = scenarios_path.stem
+    return (
+        ROOT / "results" / f"{stem}_results.json",
+        ROOT / "results" / f"{stem}_results.md",
+    )
+
+
 def main() -> None:
-    payload = json.loads(SCENARIOS_PATH.read_text(encoding="utf-8"))
+    import argparse
+
+    parser = argparse.ArgumentParser(description="Run scenario-local memory-store eval.")
+    parser.add_argument(
+        "--scenarios",
+        type=Path,
+        default=DEFAULT_SCENARIOS_PATH,
+        help="Path to scenario-local memory-store JSON.",
+    )
+    args = parser.parse_args()
+
+    scenarios_path = args.scenarios
+    if not scenarios_path.is_absolute():
+        scenarios_path = ROOT / scenarios_path
+    results_json, results_md = output_paths(scenarios_path)
+
+    payload = json.loads(scenarios_path.read_text(encoding="utf-8"))
     scenarios = payload["scenarios"]
     rows = [
         score_row(strategy, scenario)
@@ -219,13 +245,13 @@ def main() -> None:
         for strategy in STRATEGIES
     }
     output = {
-        "scenario_file": str(SCENARIOS_PATH.relative_to(ROOT)),
+        "scenario_file": str(scenarios_path.relative_to(ROOT)),
         "status": "fresh-Claude top-5 scenario-local memory-store mini-benchmark",
         "authorship": payload.get("authorship"),
         "strategies": by_strategy,
         "rows": [asdict(row) for row in rows],
     }
-    RESULTS_JSON.write_text(json.dumps(output, indent=2), encoding="utf-8")
+    results_json.write_text(json.dumps(output, indent=2), encoding="utf-8")
 
     md = [
         "# Memory Store Eval Results",
@@ -273,10 +299,10 @@ def main() -> None:
             f"{'yes' if row.overblocking_error else 'no'} |"
         )
 
-    RESULTS_MD.write_text("\n".join(md), encoding="utf-8")
+    results_md.write_text("\n".join(md), encoding="utf-8")
     print(json.dumps(by_strategy, indent=2))
-    print(f"Wrote {RESULTS_MD}")
-    print(f"Wrote {RESULTS_JSON}")
+    print(f"Wrote {results_md}")
+    print(f"Wrote {results_json}")
 
 
 if __name__ == "__main__":
