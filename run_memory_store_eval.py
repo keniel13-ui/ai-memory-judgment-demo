@@ -1,0 +1,283 @@
+#!/usr/bin/env python3
+"""
+Scenario-local memory-store evaluator.
+
+This keeps the fresh-Claude v0.4 adversarial mini-benchmark separate from
+the original shared-pool retrieval evaluator. Each scenario carries its own
+target/distractor memories, so the test asks:
+
+Given this local adversarial memory set, does retrieval select a memory that
+is safe to act on, or a tempting distractor?
+"""
+
+from __future__ import annotations
+
+import json
+import math
+from collections import Counter
+from dataclasses import asdict, dataclass
+from pathlib import Path
+from typing import Any
+
+from run_retrieval_eval import ACTION_RANK, ROOT, layered_action, tokenize
+
+
+SCENARIOS_PATH = ROOT / "external_scenarios" / "fresh_claude_v0_4_v2_top5.json"
+RESULTS_JSON = ROOT / "results" / "memory_store_eval_results.json"
+RESULTS_MD = ROOT / "results" / "memory_store_eval_results.md"
+
+RISKY_EXPECTED = {"warn", "verify_first", "block"}
+PERMISSIVE_ACTIONS = {"answer", "answer_context"}
+STRATEGIES = ["tfidf_text", "tfidf_metadata_text", "bm25_text", "bm25_metadata_text"]
+
+
+@dataclass
+class MemoryStoreDecision:
+    strategy: str
+    scenario_id: str
+    expected_action: str
+    selected_memory_id: str
+    selected_role: str
+    selected_trap: str
+    selected_score: float
+    action: str
+    action_correct: bool
+    target_selected: bool
+    trap_failure: bool
+    false_certainty_error: bool
+    downgrade_miss: bool
+    overblocking_error: bool
+    dangerous_overcaution: bool
+    soft_overcaution: bool
+    failure_cost: str
+    discriminating_signal: str
+    rationale: str
+
+
+def memory_text(memory: dict[str, Any], strategy: str) -> str:
+    base = memory.get("text", "")
+    if strategy.endswith("_text") and "metadata" not in strategy:
+        return base
+
+    parts = [
+        memory.get("id", ""),
+        memory.get("role", ""),
+        memory.get("distractor_trap", ""),
+        memory.get("memory_type", ""),
+        memory.get("status", ""),
+        memory.get("priority", ""),
+        memory.get("epistemic_status", ""),
+        memory.get("allowed_action_hint", ""),
+        *memory.get("retrieval_terms", []),
+        base,
+    ]
+    return " ".join(str(part) for part in parts if part)
+
+
+def tfidf_scores(query: str, memories: list[dict[str, Any]], strategy: str) -> dict[str, float]:
+    docs = {memory["id"]: tokenize(memory_text(memory, strategy)) for memory in memories}
+    n_docs = len(docs)
+    df: Counter[str] = Counter()
+    for tokens in docs.values():
+        for token in set(tokens):
+            df[token] += 1
+
+    idf = {
+        token: math.log((n_docs + 1) / (count + 1)) + 1.0
+        for token, count in df.items()
+    }
+    query_tokens = tokenize(query)
+    query_tf = Counter(query_tokens)
+    query_total = len(query_tokens) or 1
+    query_vector = {
+        token: (count / query_total) * idf.get(token, 1.0)
+        for token, count in query_tf.items()
+    }
+
+    scores: dict[str, float] = {}
+    for memory_id, tokens in docs.items():
+        tf = Counter(tokens)
+        total = len(tokens) or 1
+        vector = {
+            token: (count / total) * idf[token]
+            for token, count in tf.items()
+        }
+        dot = sum(query_vector.get(token, 0.0) * vector.get(token, 0.0) for token in query_vector)
+        q_norm = math.sqrt(sum(value * value for value in query_vector.values())) or 1.0
+        d_norm = math.sqrt(sum(value * value for value in vector.values())) or 1.0
+        scores[memory_id] = dot / (q_norm * d_norm)
+    return scores
+
+
+def bm25_scores(
+    query: str,
+    memories: list[dict[str, Any]],
+    strategy: str,
+    k1: float = 1.5,
+    b: float = 0.75,
+) -> dict[str, float]:
+    docs = {memory["id"]: tokenize(memory_text(memory, strategy)) for memory in memories}
+    n_docs = len(docs)
+    avgdl = sum(len(tokens) for tokens in docs.values()) / max(n_docs, 1)
+    df: Counter[str] = Counter()
+    for tokens in docs.values():
+        for token in set(tokens):
+            df[token] += 1
+
+    scores: dict[str, float] = {}
+    for memory_id, tokens in docs.items():
+        tf = Counter(tokens)
+        doc_len = len(tokens)
+        score = 0.0
+        for term in tokenize(query):
+            if tf[term] == 0:
+                continue
+            idf = math.log(1.0 + (n_docs - df[term] + 0.5) / (df[term] + 0.5))
+            denom = tf[term] + k1 * (1.0 - b + b * doc_len / max(avgdl, 1.0))
+            score += idf * (tf[term] * (k1 + 1.0)) / denom
+        scores[memory_id] = score
+    return scores
+
+
+def retrieve(query: str, memories: list[dict[str, Any]], strategy: str) -> tuple[dict[str, Any], float]:
+    if strategy.startswith("tfidf"):
+        scores = tfidf_scores(query, memories, strategy)
+    else:
+        scores = bm25_scores(query, memories, strategy)
+    memory_by_id = {memory["id"]: memory for memory in memories}
+    selected_id = max(scores, key=scores.get)
+    return memory_by_id[selected_id], scores[selected_id]
+
+
+def score_row(strategy: str, scenario: dict[str, Any]) -> MemoryStoreDecision:
+    selected, score = retrieve(scenario["query"], scenario["memory_store"], strategy)
+    action, rationale = layered_action(selected)
+    expected = scenario["expected_action"]
+    action_correct = action == expected
+    target_selected = selected.get("role") == "target"
+    trap_failure = selected.get("distractor_trap") == "should_not_fire"
+    false_certainty_error = expected in RISKY_EXPECTED and action in PERMISSIVE_ACTIONS
+    downgrade_miss = (
+        ACTION_RANK[action] < ACTION_RANK[expected]
+        and not false_certainty_error
+        and not action_correct
+    )
+    overblocking_error = (
+        ACTION_RANK[action] > ACTION_RANK[expected]
+        and not false_certainty_error
+    )
+    dangerous_overcaution = bool(scenario.get("over_caution_is_the_failure")) and overblocking_error
+    soft_overcaution = overblocking_error and not dangerous_overcaution
+
+    return MemoryStoreDecision(
+        strategy=strategy,
+        scenario_id=scenario["id"],
+        expected_action=expected,
+        selected_memory_id=selected["id"],
+        selected_role=selected.get("role", ""),
+        selected_trap=selected.get("distractor_trap", ""),
+        selected_score=round(score, 6),
+        action=action,
+        action_correct=action_correct,
+        target_selected=target_selected,
+        trap_failure=trap_failure,
+        false_certainty_error=false_certainty_error,
+        downgrade_miss=downgrade_miss,
+        overblocking_error=overblocking_error,
+        dangerous_overcaution=dangerous_overcaution,
+        soft_overcaution=soft_overcaution,
+        failure_cost=scenario.get("failure_cost", ""),
+        discriminating_signal=scenario.get("discriminating_signal", ""),
+        rationale=rationale,
+    )
+
+
+def summarize(rows: list[MemoryStoreDecision]) -> dict[str, int]:
+    return {
+        "total": len(rows),
+        "target_selected": sum(row.target_selected for row in rows),
+        "action_correct": sum(row.action_correct for row in rows),
+        "trap_failures": sum(row.trap_failure for row in rows),
+        "false_certainty_errors": sum(row.false_certainty_error for row in rows),
+        "downgrade_misses": sum(row.downgrade_miss for row in rows),
+        "overblocking_errors": sum(row.overblocking_error for row in rows),
+        "dangerous_overcaution": sum(row.dangerous_overcaution for row in rows),
+        "soft_overcaution": sum(row.soft_overcaution for row in rows),
+    }
+
+
+def main() -> None:
+    payload = json.loads(SCENARIOS_PATH.read_text(encoding="utf-8"))
+    scenarios = payload["scenarios"]
+    rows = [
+        score_row(strategy, scenario)
+        for strategy in STRATEGIES
+        for scenario in scenarios
+    ]
+    by_strategy = {
+        strategy: summarize([row for row in rows if row.strategy == strategy])
+        for strategy in STRATEGIES
+    }
+    output = {
+        "scenario_file": str(SCENARIOS_PATH.relative_to(ROOT)),
+        "status": "fresh-Claude top-5 scenario-local memory-store mini-benchmark",
+        "authorship": payload.get("authorship"),
+        "strategies": by_strategy,
+        "rows": [asdict(row) for row in rows],
+    }
+    RESULTS_JSON.write_text(json.dumps(output, indent=2), encoding="utf-8")
+
+    md = [
+        "# Memory Store Eval Results",
+        "",
+        "Status: fresh-Claude top-5 scenario-local memory-store mini-benchmark. Not benchmark-grade.",
+        "",
+        "Scenario-local stores keep this run separate from the original shared-memory pool.",
+        "",
+        "## Strategy Summary",
+        "",
+        "| Strategy | Target selected | Action correct | Trap failures | FC errors | Downgrade misses | Overblocking | Dangerous overcaution | Soft overcaution |",
+        "|---|---:|---:|---:|---:|---:|---:|---:|---:|",
+    ]
+    for strategy in STRATEGIES:
+        summary = by_strategy[strategy]
+        total = summary["total"]
+        md.append(
+            f"| {strategy} | {summary['target_selected']}/{total} | "
+            f"{summary['action_correct']}/{total} | "
+            f"{summary['trap_failures']} | "
+            f"{summary['false_certainty_errors']} | "
+            f"{summary['downgrade_misses']} | "
+            f"{summary['overblocking_errors']} | "
+            f"{summary['dangerous_overcaution']} | "
+            f"{summary['soft_overcaution']} |"
+        )
+
+    md.extend(
+        [
+            "",
+            "## Scenario Rows",
+            "",
+            "| Strategy | Scenario | Expected | Selected | Role | Trap | Action | Act ok | Trap fail | FC | Downgrade | OB |",
+            "|---|---|---|---|---|---|---|---|---|---|---|---|",
+        ]
+    )
+    for row in rows:
+        md.append(
+            f"| {row.strategy} | {row.scenario_id} | {row.expected_action} | "
+            f"{row.selected_memory_id} | {row.selected_role} | {row.selected_trap} | "
+            f"{row.action} | {'ok' if row.action_correct else 'miss'} | "
+            f"{'yes' if row.trap_failure else 'no'} | "
+            f"{'yes' if row.false_certainty_error else 'no'} | "
+            f"{'yes' if row.downgrade_miss else 'no'} | "
+            f"{'yes' if row.overblocking_error else 'no'} |"
+        )
+
+    RESULTS_MD.write_text("\n".join(md), encoding="utf-8")
+    print(json.dumps(by_strategy, indent=2))
+    print(f"Wrote {RESULTS_MD}")
+    print(f"Wrote {RESULTS_JSON}")
+
+
+if __name__ == "__main__":
+    main()

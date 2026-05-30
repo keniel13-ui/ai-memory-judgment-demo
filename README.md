@@ -37,6 +37,7 @@ Supporting files:
 - `run_topk_inspection.py` — deterministic top-k inspection for the s02 downgrade miss.
 - `run_topk_aggregation_eval.py` — conservative top-k action aggregation evaluator.
 - `run_aligned_topk_aggregation_eval.py` — query-aligned top-k block-elevation evaluator.
+- `run_memory_store_eval.py` — scenario-local target/distractor memory-store evaluator.
 - `SCORING_RUBRIC.md` — action classes and metrics.
 - `RESEARCH_PROTOCOL.md` — formal research question, variables, metrics, validity threats, and reproducibility notes.
 - `RELATED_WORK.md` — honest map of closest prior work and contribution boundary.
@@ -50,12 +51,14 @@ Supporting files:
 - `PREREGISTRATION_v0.4_ADVERSARIAL.md` — frozen adversarial/external scenario plan.
 - `EXTERNAL_SCENARIO_REQUEST.md` — packet for collecting scenarios from outside reviewers.
 - `external_scenarios/keniel_deepseek_assisted_v0_4_drafts.md` — Keniel-authored, DeepSeek-assisted draft scenarios; not yet mapped or run.
+- `external_scenarios/fresh_claude_v0_4_v2_top5.json` — first five fresh-Claude scenario-local memory-store tests.
 - `CLAIM_LEDGER.md` — claim status, evidence, weaknesses, and allowed/forbidden wording.
 - `AUDIT_RUBRIC.md` — adversarial objections and evidence needed to change claims.
 - `REVIEWER_PANEL.md` — reviewer personas used to pressure-test the work.
 - `EMBEDDING_FINDINGS.md` — first local embedding run and interpretation.
 - `V0_3_FINDINGS.md` — preregistered `nomic-embed-text` run and claim updates.
 - `TOPK_FINDINGS.md` — top-k inspection and conservative aggregation results for the s02 downgrade miss.
+- `MEMORY_STORE_FINDINGS.md` — first scenario-local target/distractor memory-store harness result.
 - `PAPER_OUTLINE.md` — paper-style report structure for future writeup.
 - `baseline_summary.md` — plain-language summary, not scored by this evaluator.
 - `results/retrieval_eval_results.md` — generated Markdown results.
