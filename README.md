@@ -49,6 +49,7 @@ Supporting files:
 - `PREREGISTRATION_v0.3.md` — frozen hypotheses before dedicated embedding/top-k experiments.
 - `PREREGISTRATION_v0.4_ADVERSARIAL.md` — frozen adversarial/external scenario plan.
 - `EXTERNAL_SCENARIO_REQUEST.md` — packet for collecting scenarios from outside reviewers.
+- `external_scenarios/keniel_deepseek_assisted_v0_4_drafts.md` — Keniel-authored, DeepSeek-assisted draft scenarios; not yet mapped or run.
 - `CLAIM_LEDGER.md` — claim status, evidence, weaknesses, and allowed/forbidden wording.
 - `AUDIT_RUBRIC.md` — adversarial objections and evidence needed to change claims.
 - `REVIEWER_PANEL.md` — reviewer personas used to pressure-test the work.

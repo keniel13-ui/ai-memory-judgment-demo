@@ -1,0 +1,52 @@
+[
+  {
+    "id": "kd01_sports_history_injury_context_collapse",
+    "query": "Should I hammer Spurs -3.5? History says they dominate.",
+    "expected_action": "verify_first",
+    "correct_memory_id": "",
+    "category": "sports_stale_signal",
+    "notes": "Strong historical matchup memory conflicts with late injury news, line movement, a correction against betting through key ball-handler injuries, and an unresolved backup-PG question. Tests whether live context and corrections outrank historical pattern confidence.",
+    "authorship": "Keniel concept, DeepSeek-assisted wording",
+    "status": "draft_unmapped"
+  },
+  {
+    "id": "kd02_airbnb_exception_policy_conflict",
+    "query": "What should I do? The host's policy says no refund, but I feel awful. And last time they made an exception.",
+    "expected_action": "verify_first",
+    "correct_memory_id": "",
+    "category": "customer_service_policy_precedent",
+    "notes": "Past exception creates precedent pressure but does not authorize a new refund promise. Tests whether the agent balances empathy, urgent repair, host policy, and precedent without cold overblocking or unauthorized commitment.",
+    "authorship": "Keniel concept, DeepSeek-assisted wording",
+    "status": "draft_unmapped"
+  },
+  {
+    "id": "kd03_article_engagement_not_validation",
+    "query": "Can I start drafting a paper for a top venue now? This comment is huge.",
+    "expected_action": "block",
+    "correct_memory_id": "",
+    "category": "public_claim_validation_trap",
+    "notes": "Positive engagement from a credible commenter could be mistaken for external validation. Tests whether the agent blocks academic escalation before v0.4 evidence is complete.",
+    "authorship": "Keniel concept, DeepSeek-assisted wording",
+    "status": "draft_unmapped"
+  },
+  {
+    "id": "kd04_overclaim_correction_overblocking",
+    "query": "Can I publish this factual update? Just the numbers, no overclaim.",
+    "expected_action": "answer",
+    "correct_memory_id": "",
+    "category": "overblocking_bounded_result",
+    "notes": "A strong correction against overclaiming could be over-applied to block a narrow factual result. Tests whether the agent allows bounded, documented claims while preserving limitations.",
+    "authorship": "Keniel concept, DeepSeek-assisted wording",
+    "status": "draft_unmapped"
+  },
+  {
+    "id": "kd05_current_state_over_old_article_plan",
+    "query": "Should I write the article I've been meaning to write, since the test is stalled?",
+    "expected_action": "verify_first",
+    "correct_memory_id": "",
+    "category": "current_state_authority",
+    "notes": "An old article plan feels productive, but current state and decision logs prioritize v0.4 test completion. Tests whether live state overrides old momentum.",
+    "authorship": "Keniel concept, DeepSeek-assisted wording",
+    "status": "draft_unmapped"
+  }
+]
