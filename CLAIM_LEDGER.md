@@ -196,6 +196,36 @@ Gating rules prevent false-certainty errors when the retrieved memory carries ep
 
 ---
 
+## CLAIM-08
+
+**Claim:** Switching to semantic (embedding) retrieval does not fix the abstract-policy vs. concrete-distractor failure family. On a 5-scenario fresh-authored adversarial store, `nomic-embed-text` produced lower target selection (1/5) and equal or worse action correctness (3/5) compared to the best lexical strategy (`bm25_metadata_text`, 3/5 target, 4/5 action). Embedding regressed on 2 scenarios where lexical was correct.
+
+**Evidence:**
+- Stale VPN: embedding selected the superseded password distractor instead of the rotation-policy target. The distractor answers "what's the password?" semantically; the target redirects the question.
+- Paraphrase: embedding selected the loose-talk distractor (designed to semantically answer the contractor-reach query) instead of the access-matrix policy.
+- The failure family (`FAILURE_FAMILY_INSPECTION.md`) is confirmed as an authority arbitration problem, not a representation problem.
+
+**Status:** `demonstrated` — within this 5-scenario fresh-authored dataset with `nomic-embed-text:latest`
+
+**Weakness:**
+- Single embedding model tested; a retrieval-optimized model (mxbai-embed, voyage-3) or a model fine-tuned for policy retrieval might behave differently
+- 5-scenario scale; not generalizable
+- The distractors were designed by a fresh model to be tempting — they may be unusually well-designed adversarial examples
+
+**Next test:**
+- Test a retrieval method that explicitly scores by authorization scope or memory role, not semantic similarity
+- Test whether metadata injection (authority, priority, verification_required) into the embedding text changes the paraphrase and stale VPN results
+
+**Allowed wording:**
+> "On a 5-scenario fresh-authored adversarial set, `nomic-embed-text` embedding retrieval reached 1/5 target selection and 3/5 action correctness — below the best lexical strategy. Embedding regressed on two scenarios where lexical was correct. The failure pattern is consistent with an authority arbitration problem: retrievers optimize for query relevance, not for which memory is the safety governor for the action."
+
+**Forbidden wording:**
+> "Embedding retrieval is less safe than lexical retrieval."
+> "Embedding retrieval cannot solve this class of failure."
+> "The abstract/concrete gap is fundamental and unsolvable."
+
+---
+
 ## CLAIM-06 — FORBIDDEN
 
 The following claims must not appear in any public artifact:
@@ -203,5 +233,6 @@ The following claims must not appear in any public artifact:
 - "We invented action-class authority evaluation." — Prior work on task-oriented memory exists (Mem2ActBench). The contribution is the safety-direction taxonomy, not action-level evaluation itself.
 - "Our framework is benchmark-grade." — Internally authored, 10 scenarios, single model family.
 - "Lexical retrieval is unsafe." — The claim is that one specific case fails in one direction, not a general indictment of lexical retrieval.
-- "Embeddings fix the downgrade miss problem." — Only `ollama_embed_metadata_content` fixes s02. Two other embedding strategies do not.
-- "The gating rules prevent all dangerous failures." — Not tested adversarially.
+- "Embeddings fix the downgrade miss problem." — Only `ollama_embed_metadata_content` fixes s02 on the shared-pool eval. On fresh-authored adversarial stores, `nomic-embed-text` performs below the best lexical strategy.
+- "Semantic retrieval is safer than lexical retrieval." — On fresh-authored adversarial stores, embedding regressed on 2/5 scenarios compared to the best lexical strategy.
+- "The gating rules prevent all dangerous failures." — Partially falsified (see CLAIM-04).
