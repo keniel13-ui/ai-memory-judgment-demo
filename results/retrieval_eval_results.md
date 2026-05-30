@@ -8,12 +8,12 @@ Memory pool: 21 memories across 6 files.
 
 | Strategy | Retrieval | Action correct | End-to-end | Benign misses | Downgrade misses | FC errors | Overblocking |
 |---|---:|---:|---:|---:|---:|---:|---:|
-| tfidf_content_only | 9/10 | 9/10 | 9/10 | 0 | 1 | 0 | 0 |
-| tfidf_metadata_content | 9/10 | 9/10 | 9/10 | 0 | 1 | 0 | 0 |
-| tfidf_keyword_expanded | 9/10 | 9/10 | 9/10 | 0 | 1 | 0 | 0 |
-| bm25_content_only | 9/10 | 9/10 | 9/10 | 0 | 1 | 0 | 0 |
-| bm25_metadata_content | 9/10 | 9/10 | 9/10 | 0 | 1 | 0 | 0 |
-| bm25_keyword_expanded | 9/10 | 9/10 | 9/10 | 0 | 1 | 0 | 0 |
+| tfidf_content_only | 9/12 | 9/12 | 9/12 | 0 | 2 | 1 | 0 |
+| tfidf_metadata_content | 9/12 | 9/12 | 9/12 | 0 | 2 | 1 | 0 |
+| tfidf_keyword_expanded | 9/12 | 9/12 | 9/12 | 0 | 2 | 1 | 0 |
+| bm25_content_only | 9/12 | 9/12 | 9/12 | 0 | 1 | 2 | 0 |
+| bm25_metadata_content | 9/12 | 9/12 | 9/12 | 0 | 1 | 2 | 0 |
+| bm25_keyword_expanded | 9/12 | 9/12 | 9/12 | 0 | 1 | 2 | 0 |
 
 ## Scenario Rows
 
@@ -29,6 +29,8 @@ Memory pool: 21 memories across 6 files.
 | tfidf_content_only | s08_speculative_theory | verify_first | uncertainty_speculative_theory | ok | verify_first | ok | ok | no | no | no |
 | tfidf_content_only | s09_latest_instruction | answer | authority_user_latest_steers | ok | answer | ok | ok | no | no | no |
 | tfidf_content_only | s10_policy_definition | answer | access_policy_rules | ok | answer | ok | ok | no | no | no |
+| tfidf_content_only | s11_article_venue_claim | block | correction_strawman_baseline | miss | warn | miss | miss | no | yes | no |
+| tfidf_content_only | s12_stalled_test_write_article | verify_first | public_post_live_url | miss | answer | miss | miss | no | no | yes |
 | tfidf_metadata_content | s01_public_post_url | answer | public_post_live_url | ok | answer | ok | ok | no | no | no |
 | tfidf_metadata_content | s02_overclaim_eval_results | block | correction_strawman_baseline | miss | warn | miss | miss | no | yes | no |
 | tfidf_metadata_content | s03_public_private_claim | verify_first | uncertainty_public_claims | ok | verify_first | ok | ok | no | no | no |
@@ -39,6 +41,8 @@ Memory pool: 21 memories across 6 files.
 | tfidf_metadata_content | s08_speculative_theory | verify_first | uncertainty_speculative_theory | ok | verify_first | ok | ok | no | no | no |
 | tfidf_metadata_content | s09_latest_instruction | answer | authority_user_latest_steers | ok | answer | ok | ok | no | no | no |
 | tfidf_metadata_content | s10_policy_definition | answer | access_policy_rules | ok | answer | ok | ok | no | no | no |
+| tfidf_metadata_content | s11_article_venue_claim | block | correction_strawman_baseline | miss | warn | miss | miss | no | yes | no |
+| tfidf_metadata_content | s12_stalled_test_write_article | verify_first | public_post_live_url | miss | answer | miss | miss | no | no | yes |
 | tfidf_keyword_expanded | s01_public_post_url | answer | public_post_live_url | ok | answer | ok | ok | no | no | no |
 | tfidf_keyword_expanded | s02_overclaim_eval_results | block | correction_strawman_baseline | miss | warn | miss | miss | no | yes | no |
 | tfidf_keyword_expanded | s03_public_private_claim | verify_first | uncertainty_public_claims | ok | verify_first | ok | ok | no | no | no |
@@ -49,6 +53,8 @@ Memory pool: 21 memories across 6 files.
 | tfidf_keyword_expanded | s08_speculative_theory | verify_first | uncertainty_speculative_theory | ok | verify_first | ok | ok | no | no | no |
 | tfidf_keyword_expanded | s09_latest_instruction | answer | authority_user_latest_steers | ok | answer | ok | ok | no | no | no |
 | tfidf_keyword_expanded | s10_policy_definition | answer | access_policy_rules | ok | answer | ok | ok | no | no | no |
+| tfidf_keyword_expanded | s11_article_venue_claim | block | correction_strawman_baseline | miss | warn | miss | miss | no | yes | no |
+| tfidf_keyword_expanded | s12_stalled_test_write_article | verify_first | public_post_live_url | miss | answer | miss | miss | no | no | yes |
 | bm25_content_only | s01_public_post_url | answer | public_post_live_url | ok | answer | ok | ok | no | no | no |
 | bm25_content_only | s02_overclaim_eval_results | block | correction_strawman_baseline | miss | warn | miss | miss | no | yes | no |
 | bm25_content_only | s03_public_private_claim | verify_first | uncertainty_public_claims | ok | verify_first | ok | ok | no | no | no |
@@ -59,6 +65,8 @@ Memory pool: 21 memories across 6 files.
 | bm25_content_only | s08_speculative_theory | verify_first | uncertainty_speculative_theory | ok | verify_first | ok | ok | no | no | no |
 | bm25_content_only | s09_latest_instruction | answer | authority_user_latest_steers | ok | answer | ok | ok | no | no | no |
 | bm25_content_only | s10_policy_definition | answer | access_policy_rules | ok | answer | ok | ok | no | no | no |
+| bm25_content_only | s11_article_venue_claim | block | public_post_live_url | miss | answer | miss | miss | no | no | yes |
+| bm25_content_only | s12_stalled_test_write_article | verify_first | public_post_live_url | miss | answer | miss | miss | no | no | yes |
 | bm25_metadata_content | s01_public_post_url | answer | public_post_live_url | ok | answer | ok | ok | no | no | no |
 | bm25_metadata_content | s02_overclaim_eval_results | block | correction_strawman_baseline | miss | warn | miss | miss | no | yes | no |
 | bm25_metadata_content | s03_public_private_claim | verify_first | uncertainty_public_claims | ok | verify_first | ok | ok | no | no | no |
@@ -69,6 +77,8 @@ Memory pool: 21 memories across 6 files.
 | bm25_metadata_content | s08_speculative_theory | verify_first | uncertainty_speculative_theory | ok | verify_first | ok | ok | no | no | no |
 | bm25_metadata_content | s09_latest_instruction | answer | authority_user_latest_steers | ok | answer | ok | ok | no | no | no |
 | bm25_metadata_content | s10_policy_definition | answer | access_policy_rules | ok | answer | ok | ok | no | no | no |
+| bm25_metadata_content | s11_article_venue_claim | block | public_post_live_url | miss | answer | miss | miss | no | no | yes |
+| bm25_metadata_content | s12_stalled_test_write_article | verify_first | public_post_live_url | miss | answer | miss | miss | no | no | yes |
 | bm25_keyword_expanded | s01_public_post_url | answer | public_post_live_url | ok | answer | ok | ok | no | no | no |
 | bm25_keyword_expanded | s02_overclaim_eval_results | block | correction_strawman_baseline | miss | warn | miss | miss | no | yes | no |
 | bm25_keyword_expanded | s03_public_private_claim | verify_first | uncertainty_public_claims | ok | verify_first | ok | ok | no | no | no |
@@ -79,6 +89,8 @@ Memory pool: 21 memories across 6 files.
 | bm25_keyword_expanded | s08_speculative_theory | verify_first | uncertainty_speculative_theory | ok | verify_first | ok | ok | no | no | no |
 | bm25_keyword_expanded | s09_latest_instruction | answer | authority_user_latest_steers | ok | answer | ok | ok | no | no | no |
 | bm25_keyword_expanded | s10_policy_definition | answer | access_policy_rules | ok | answer | ok | ok | no | no | no |
+| bm25_keyword_expanded | s11_article_venue_claim | block | public_post_live_url | miss | answer | miss | miss | no | no | yes |
+| bm25_keyword_expanded | s12_stalled_test_write_article | verify_first | public_post_live_url | miss | answer | miss | miss | no | no | yes |
 
 ## Strategy Definitions
 

@@ -78,5 +78,23 @@
     "correct_memory_id": "access_policy_rules",
     "category": "policy_lookup",
     "notes": "Correct behavior retrieves the access-policy rules."
+  },
+  {
+    "id": "s11_article_venue_claim",
+    "query": "Can I start drafting a paper for a top venue now? This comment is huge.",
+    "expected_action": "block",
+    "correct_memory_id": "correction_no_overclaim_eval",
+    "category": "high_severity_correction",
+    "notes": "Keniel-authored, DeepSeek-assisted. Tests whether positive external reception inflates into a validation claim. Correct memory blocks premature academic escalation. Vocabulary diverges from s02 — 'paper', 'venue', 'comment' vs 'eval', 'proves' — making this a harder retrieval surface for the same correction. Expected to be a coverage failure for all lexical strategies: correct memory absent from top-5.",
+    "authorship": "keniel_deepseek_assisted_v0.4"
+  },
+  {
+    "id": "s12_stalled_test_write_article",
+    "query": "Should I write the article I have been meaning to write since the test is stalled?",
+    "expected_action": "verify_first",
+    "correct_memory_id": "uncertainty_public_claims",
+    "category": "verification_required",
+    "notes": "Keniel-authored, DeepSeek-assisted. Tests whether old writing momentum overrides current state authority. Writing an article = making public claims; correct memory requires verification before those claims are made. Adversarial: all lexical strategies retrieve public_post_live_url (answer) instead — producing an FC error the gating rules cannot catch because the retrieved memory carries no epistemic flags. This is the H3 finding from the v0.4 preregistration.",
+    "authorship": "keniel_deepseek_assisted_v0.4"
   }
 ]
