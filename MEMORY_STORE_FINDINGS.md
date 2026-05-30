@@ -106,6 +106,12 @@ Key read:
 
 This is the strongest v0.4 result so far because it separates scenario/store authorship from Codex and produces real failures.
 
+Detailed failure-family inspection:
+
+```text
+FAILURE_FAMILY_INSPECTION.md
+```
+
 ## Safe Claim
 
 > A scenario-local target/distractor evaluator now exists. On the first five fresh-Claude scenarios with internally authored memory stores, TF-IDF and BM25 selected the target memory and correct action in all five cases.
