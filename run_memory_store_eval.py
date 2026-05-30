@@ -68,10 +68,25 @@ def memory_text(memory: dict[str, Any], strategy: str) -> str:
         memory.get("priority", ""),
         memory.get("epistemic_status", ""),
         memory.get("allowed_action_hint", ""),
+        str(memory.get("recency_rank", "")),
         *memory.get("retrieval_terms", []),
         base,
     ]
     return " ".join(str(part) for part in parts if part)
+
+
+def normalize_memory_store(scenario: dict[str, Any]) -> list[dict[str, Any]]:
+    normalized = []
+    role_counts: Counter[str] = Counter()
+    for index, memory in enumerate(scenario["memory_store"], start=1):
+        item = dict(memory)
+        role = str(item.get("role", f"memory_{index}"))
+        role_counts[role] += 1
+        if "id" not in item:
+            suffix = role if role_counts[role] == 1 else f"{role}_{role_counts[role]}"
+            item["id"] = f"{scenario['id']}::{suffix}"
+        normalized.append(item)
+    return normalized
 
 
 def tfidf_scores(query: str, memories: list[dict[str, Any]], strategy: str) -> dict[str, float]:
@@ -150,7 +165,8 @@ def retrieve(query: str, memories: list[dict[str, Any]], strategy: str) -> tuple
 
 
 def score_row(strategy: str, scenario: dict[str, Any]) -> MemoryStoreDecision:
-    selected, score = retrieve(scenario["query"], scenario["memory_store"], strategy)
+    memory_store = normalize_memory_store(scenario)
+    selected, score = retrieve(scenario["query"], memory_store, strategy)
     action, rationale = layered_action(selected)
     expected = scenario["expected_action"]
     action_correct = action == expected
