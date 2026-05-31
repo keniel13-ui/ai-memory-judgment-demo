@@ -1,4 +1,4 @@
-# Semantic Retrieval Wasn't The Fix. Authority Was.
+# In This Memory Test, Relevance Wasn't Authority
 
 I ran the next set of tests on my AI memory judgment demo, and the result changed the shape of the problem.
 
@@ -18,6 +18,8 @@ It needed to find the memory that was allowed to govern the action.
 
 Those are not the same objective.
 
+This is not a validation claim. It is a research note about a small failure-to-architecture progression: find a failure, build the smallest architecture that addresses it, then keep the boundaries visible.
+
 Repo:
 
 https://github.com/keniel13-ui/ai-memory-judgment-demo
@@ -31,9 +33,19 @@ Key files:
 - `CLAIM_LEDGER.md`
 - `CLAIM_14_PRECEDENCE_PLAN.md`
 
-This is still a small research artifact, not a benchmark. The scenario count is small. The packets are controlled. Some later stress cases are internally designed. The fresh authors here are fresh model instances, not a human reviewer panel.
+This is still a small research artifact, not a benchmark. The scenario count is small. The packets are controlled. Some later stress cases are internally designed. The fresh authors here are separate fresh model instances, not statistically independent samples and not a human reviewer panel.
 
 But the failure pattern is real enough to study.
+
+With `n=5`, each scenario moves a result by 20 percentage points. The tables below are not effect-size estimates. They are diagnostic traces of failure modes.
+
+Quick metric glossary:
+
+- `target selected`: the selected memory was the hidden expected governing memory.
+- `action correct`: the selected memory produced the expected action class.
+- `trap failure`: the selected memory was one of the known distractors that should not govern.
+- `downgrade miss`: the action was less protective than required.
+- `overblocking`: the action was more restrictive than required.
 
 ## The Harder Test
 
@@ -118,7 +130,7 @@ That is why I track both:
 - target selected,
 - action correct.
 
-## Semantic Retrieval Did Not Fix It
+## One Embedding Model Did Not Fix It
 
 The next hypothesis was obvious:
 
@@ -137,7 +149,7 @@ It performed worse than the best lexical strategy:
 
 This one embedding model regressed on two cases where lexical retrieval passed.
 
-The reason is the key finding.
+My interpretation is that the model found memories that answered the surface question, while safety required the memory that governed the action. That is an interpretation of these row-level failures, not a general claim about embedding retrieval.
 
 In the Wi-Fi scenario, the user asked:
 
@@ -149,13 +161,15 @@ The stale password memory is semantically close to that query because it directl
 
 The correct memory says the password was rotated and the current value lives with IT.
 
-Semantic retrieval found the memory that answered the surface question.
+The embedding run selected the memory that answered the surface question.
 
 Safety required the memory that governed the action.
 
 Same thing happened in the contractor-access scenario. The loose-talk distractor was semantically close to "what reach does this seat get?" The governing memory was the policy requiring confirmation against the current access matrix.
 
-This is why I do not think the failure is only a representation problem.
+This is why I do not think this packet's failure is only a representation problem.
+
+I only tested one embedding model here. I did not test a second dense model, a cross-encoder reranker, hybrid retrieval, threshold tuning, or a model trained for policy retrieval. A retrieval researcher should read this as a counterexample to "just use embeddings" on this packet, not as a category-level result about semantic retrieval.
 
 The retriever is doing what retrievers do:
 
@@ -185,11 +199,13 @@ On the same five-scenario packet:
 | `nomic_embed_metadata_text` | 1/5 | 3/5 | 4 |
 | `role_filter_bm25_metadata_text` | 5/5 | 5/5 | 0 |
 
-That is the first major architecture result.
+That is the first clean architecture result on this packet.
 
 But it is not a solved-problem result.
 
 The role filter depends on metadata quality. If a governing policy is not tagged as a policy, credential, correction, high-priority memory, or verification-required memory, the filter has nothing reliable to grab.
+
+There is also a confound here: the winning strategies use structured governance metadata that the vanilla BM25 and embedding baselines do not exploit in the same way. So the result may be partly "governance metadata helps," not only "this particular authority-lane architecture is best."
 
 So the next question was:
 
@@ -229,11 +245,13 @@ In controlled noise tests, scope-aware filtering removed the unrelated-policy an
 
 But controlled scope fields are not enough. I wrote those after seeing the failures.
 
+That means this stage is explicitly post-hoc architecture work, not held-out validation.
+
 The honest next test was whether fresh authors could write useful `governs` metadata without knowing the evaluator result.
 
 ## Fresh-Authored Scope Worked On The First Packet
 
-I ran three independent fresh-author passes on the same five-scenario packet.
+I ran three separate fresh-author passes on the same five-scenario packet.
 
 The authors saw the request and the memory stores, but not hidden target labels or expected actions.
 
@@ -328,7 +346,7 @@ This directly targets the two clutter failures:
 - Wi-Fi credential beats general device enrollment for a Wi-Fi password query;
 - a write/execute reconciliation policy does not govern a read-only invoice total lookup.
 
-Then I ran two independent fresh action-type authoring passes.
+Then I ran two separate fresh action-type authoring passes.
 
 Both were clean:
 
@@ -341,7 +359,7 @@ That is the current strongest result.
 
 The safe claim is:
 
-> On a five-scenario clutter packet, adding specificity precedence and fresh-authored action-type tags restored 5/5 target selection and 5/5 action correctness in two independent fresh-author passes.
+> On a five-scenario clutter packet, adding specificity precedence and fresh-authored action-type tags restored 5/5 target selection and 5/5 action correctness in two separate fresh model passes.
 
 The unsafe claim would be:
 
@@ -350,6 +368,8 @@ The unsafe claim would be:
 It does not.
 
 It removes the observed failure modes in this packet.
+
+The biggest remaining validity threat is the held-out-packet gap. The clutter packet exposed the scope failures, and `scope_precedence` plus `action_types` was designed after seeing those failures. The next stronger test would design the strategy on this packet, freeze it, then run it on a new clutter packet authored without knowing the fix.
 
 ## Why I Separated Fresh Authoring From Audit
 
@@ -376,6 +396,8 @@ If a model knows the prior failure, it can optimize around it.
 
 That may improve the system, but it no longer proves that the metadata is naturally authorable from the packet alone.
 
+This is also why I treat "separate fresh model instances" carefully. They reduce immediate chat-context leakage, but they may share model priors and systematic habits. They are not statistically independent human annotators.
+
 ## What This Work Shows
 
 The current evidence supports a narrow progression:
@@ -388,7 +410,7 @@ The current evidence supports a narrow progression:
 6. A harder clutter packet exposed two new failures: jurisdiction-adjacent policies and read-vs-process overblocking.
 7. Specificity precedence plus `action_types` removed those two failures in two fresh-author passes on the clutter packet.
 
-That is real progress.
+That is progress, but only within the boundary of these packets.
 
 But the boundary is just as important:
 
@@ -399,6 +421,7 @@ But the boundary is just as important:
 - no human external panel yet,
 - token-based scope matching,
 - keyword-based action type detection.
+- no held-out clutter packet yet after designing the CLAIM-14 strategy.
 
 This is not validation.
 

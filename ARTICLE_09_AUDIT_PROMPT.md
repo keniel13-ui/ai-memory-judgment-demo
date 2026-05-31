@@ -2,6 +2,8 @@
 
 Use this before posting `ARTICLE_09_AUTHORITY_ARBITRATION_DEV_READY.md`.
 
+First audit pass completed: the title was narrowed, metric definitions were added, and the held-out-packet / one-embedding-model / non-independent-fresh-model caveats were added. Use this prompt again only if a final cold review is needed.
+
 This is an audit pass, not a fresh-author evidence pass.
 
 ```text
@@ -25,4 +27,3 @@ Return:
 
 Do not rewrite the whole article unless asked.
 ```
-
