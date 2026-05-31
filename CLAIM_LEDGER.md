@@ -243,10 +243,11 @@ Gating rules prevent false-certainty errors when the retrieved memory carries ep
 - The stores are tiny scenario-local packets, not a realistic mixed memory base.
 - The strategy currently has no query-alignment threshold beyond candidate type/signals plus BM25 selection inside the authority lane.
 - A naive version overblocked the invoice scenario, which shows role filtering can create its own failure mode if authority-lane eligibility is too broad.
+- Metadata-noise stress testing showed the role filter can overblock when broad unrelated or directly competing policies pollute the authority lane.
 
 **Next test:**
-- Add metadata-noise scenarios with missing, wrong, or adversarial `memory_type` and `priority` tags.
-- Add unrelated block/policy memories to test overblocking pressure.
+- Add query-scope matching and authority-lane conflict resolution.
+- Distinguish broad safety policies from task-specific governing policies.
 - Compare this Direction B result against a Direction A score-blend baseline without tuning to the test set.
 
 **Allowed wording:**
@@ -256,6 +257,39 @@ Gating rules prevent false-certainty errors when the retrieved memory carries ep
 > "Role filtering solves authority arbitration."
 > "The authority-aware reranker is validated."
 > "Metadata tags are enough to make memory safe."
+
+---
+
+## CLAIM-10
+
+**Claim:** The first metadata-noise stress test identifies the role filter's metadata quality floor and failure mode. The role filter stayed clean when only target `memory_type` or `priority` was missing/wrong, but degraded when all target authority signals were corrupted and overblocked under broad unrelated or directly competing authority-lane policies.
+
+**Evidence:**
+- `run_role_filter_noise_eval.py` derives seven variants from the same v2.2 stores: clean, missing target type, wrong target type, missing target priority, target metadata corrupt, unrelated block policy, and competing policy.
+- Role filter remained `5/5` action correct with `0` trap failures for clean, missing target type, wrong target type, and missing target priority.
+- When target authority metadata was fully corrupted, role filter fell to BM25 behavior: `3/5` target selected, `4/5` action correct, `2` trap failures, `1` downgrade miss.
+- With an unrelated block policy, role filter was `4/5` action correct with `1` overblocking error.
+- With a direct competing policy, both BM25 and role filter collapsed to `1/5` action correct with `4` overblocking errors.
+
+**Status:** `preliminary` — controlled synthetic noise variants on the same five-scenario packet
+
+**Weakness:**
+- The noise variants are internally authored and intentionally harsh.
+- The competing-policy variant uses direct query overlap, so it tests worst-case authority-lane pollution rather than ordinary metadata drift.
+- The current strategy has no scope-fit model, so broad policies can outrank task-specific policies.
+
+**Next test:**
+- Add scope matching for authority-lane candidates.
+- Require policy memories to declare governed action/domain/scope fields.
+- Test whether scope-aware authority filtering preserves the clean 5/5 result while reducing unrelated-policy overblocking.
+
+**Allowed wording:**
+> "The first metadata-noise stress test suggests the role filter is robust to isolated missing or wrong type/priority tags, but not to fully corrupted target authority metadata or polluted authority lanes. The next problem is scope-aware conflict resolution inside the authority lane."
+
+**Forbidden wording:**
+> "The role filter is robust to noisy metadata."
+> "Metadata quality is solved."
+> "Authority-lane conflict resolution works."
 
 ---
 

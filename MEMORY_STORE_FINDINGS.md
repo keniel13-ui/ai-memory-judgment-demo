@@ -177,6 +177,34 @@ This is a stronger result than Direction A would have tested because the strateg
 
 Do not overstate it. This result depends on clean metadata tags in the five scenario-local stores. It should be treated as a metadata-hygiene-sensitive diagnostic pass, not proof that role filtering generalizes.
 
+## Metadata-Noise Stress Result
+
+The next run derived controlled noisy variants from the same v2.2 stores:
+
+```text
+run_role_filter_noise_eval.py
+```
+
+Result summary:
+
+| Variant | BM25 metadata action | Role filter action | Role filter trap failures | Role filter overblocking |
+|---|---:|---:|---:|---:|
+| clean | 4/5 | 5/5 | 0 | 0 |
+| missing target type | 4/5 | 5/5 | 0 | 0 |
+| wrong target type | 4/5 | 5/5 | 0 | 0 |
+| missing target priority | 4/5 | 5/5 | 0 | 0 |
+| target metadata corrupt | 4/5 | 4/5 | 2 | 0 |
+| unrelated block policy | 3/5 | 4/5 | 1 | 1 |
+| competing policy | 1/5 | 1/5 | 5 | 4 |
+
+Key read:
+
+- The role filter does not require perfect `memory_type` or `priority` tags if other authority signals survive.
+- `verification_required` and `allowed_action_hint` are load-bearing metadata fields.
+- If target authority metadata is fully corrupted, the role filter collapses back to BM25 behavior.
+- If the authority lane is polluted with broad unrelated or directly overlapping policies, role filtering can overblock.
+- The next architectural requirement is not "more role filtering"; it is authority-lane conflict resolution and query-scope matching.
+
 ## Safe Claim
 
 > A scenario-local target/distractor evaluator now exists. On the first five fresh-Claude scenarios with internally authored memory stores, TF-IDF and BM25 selected the target memory and correct action in all five cases.
@@ -187,6 +215,8 @@ Do not overstate it. This result depends on clean metadata tags in the five scen
 
 > A first role-filter strategy that gives active policy/credential/correction memories a priority lane reached 5/5 target selection and 5/5 action correctness on the same five fresh-authored stores, with 0 trap failures. This is preliminary and depends on correct metadata tags.
 
+> In controlled metadata-noise tests, the role filter stayed clean when only target `memory_type` or `priority` was missing/wrong, but degraded when all target authority signals were corrupted and overblocked when the authority lane contained broad unrelated or competing policies.
+
 ## Unsafe Claim
 
 > The framework passed an external-domain benchmark.
@@ -195,12 +225,13 @@ Do not overstate it. This result depends on clean metadata tags in the five scen
 
 > Role filtering solves authority arbitration.
 
+> Memory type and priority tags alone are the metadata quality floor.
+
 ## Next Step
 
-The first authority-lane result is clean on this five-scenario packet. The next test is to stress it with metadata-noise cases:
+The first metadata-noise stress test shows the next problem: authority-lane conflict resolution. Next tests:
 
-- missing or wrong `memory_type` on target policies,
-- high-priority but non-governing directives,
-- multiple competing policy memories,
-- unrelated block policies in the same local store,
-- fresh scenario stores not authored with the role filter in mind.
+- add query-scope matching before authority-lane override,
+- rank multiple authority candidates by scope fit, not only BM25 overlap,
+- distinguish broad safety policy from task-specific governing policy,
+- test fresh scenario stores not authored with the role filter in mind.

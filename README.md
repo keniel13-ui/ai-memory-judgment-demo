@@ -38,6 +38,7 @@ Supporting files:
 - `run_topk_aggregation_eval.py` — conservative top-k action aggregation evaluator.
 - `run_aligned_topk_aggregation_eval.py` — query-aligned top-k block-elevation evaluator.
 - `run_memory_store_eval.py` — scenario-local target/distractor memory-store evaluator.
+- `run_role_filter_noise_eval.py` — metadata-noise stress test for the role-filter strategy.
 - `SCORING_RUBRIC.md` — action classes and metrics.
 - `RESEARCH_PROTOCOL.md` — formal research question, variables, metrics, validity threats, and reproducibility notes.
 - `RELATED_WORK.md` — honest map of closest prior work and contribution boundary.
@@ -167,6 +168,21 @@ On that packet, the first authority-lane strategy produced:
 
 This supports the authority-arbitration hypothesis, but it is not a validation claim. The role filter depends on clean metadata tags and needs metadata-noise stress tests.
 
+The metadata-noise stress test is:
+
+```bash
+python3 run_role_filter_noise_eval.py
+```
+
+It shows the first quality floor:
+
+- missing/wrong target `memory_type` alone did not break the role filter,
+- missing target `priority` alone did not break it,
+- fully corrupted target authority metadata degraded it back to BM25 behavior,
+- unrelated or directly competing authority-lane policies introduced overblocking.
+
+The next problem is scope-aware conflict resolution inside the authority lane.
+
 ## Not Claimed
 
 Do not treat this as:
@@ -177,6 +193,7 @@ Do not treat this as:
 - proof that TF-IDF is enough
 - proof that retrieval terms solve semantic retrieval
 - proof that role filtering solves authority arbitration
+- proof that the role filter is robust to noisy metadata
 - evidence about LLM generation behavior
 
 ## Known Limitations
