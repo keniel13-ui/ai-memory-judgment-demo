@@ -211,6 +211,16 @@ run:
 python3 run_fresh_governs_eval.py
 ```
 
+First fresh-author result:
+
+| Strategy | Target selected | Action correct | Trap failures | FC errors | Downgrade misses | Overblocking |
+|---|---:|---:|---:|---:|---:|---:|
+| bm25_metadata_text | 3/5 | 4/5 | 2 | 0 | 1 | 0 |
+| role_filter_bm25_metadata_text | 5/5 | 5/5 | 0 | 0 | 0 | 0 |
+| scope_role_filter_bm25_metadata_text | 5/5 | 5/5 | 0 | 0 | 0 | 0 |
+
+This is one fresh-author pass, not a reliability claim.
+
 ## Not Claimed
 
 Do not treat this as:

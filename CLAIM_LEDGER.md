@@ -328,6 +328,42 @@ Gating rules prevent false-certainty errors when the retrieved memory carries ep
 
 ---
 
+## CLAIM-12
+
+**Claim:** In the first fresh-authored `governs` test, an outside/fresh author produced usable jurisdiction metadata for the five v2.2 scenario-local stores. Applying those annotations preserved the role-filter result: `scope_role_filter_bm25_metadata_text` reached 5/5 target selection and 5/5 action correctness with 0 trap failures, 0 false-certainty errors, 0 downgrade misses, and 0 overblocking.
+
+**Evidence:**
+- Fresh annotations saved in `external_scenarios/fresh_governs_annotations_v0_1.json`.
+- The authoring packet hid target/distractor roles and expected actions.
+- `run_fresh_governs_eval.py` applied 5 annotations.
+- `results/fresh_governs_eval_results.md` shows:
+  - `bm25_metadata_text`: 3/5 target, 4/5 action, 2 trap failures, 1 downgrade.
+  - `role_filter_bm25_metadata_text`: 5/5 target, 5/5 action.
+  - `scope_role_filter_bm25_metadata_text`: 5/5 target, 5/5 action.
+
+**Status:** `preliminary` — one fresh-author pass on the same five-scenario packet
+
+**Weakness:**
+- The fresh author saw the authoring instructions and the memory metadata, but not the hidden role labels or expected actions.
+- The packet is still only five scenarios.
+- The annotations were not independently blind-scored by multiple authors.
+- The author selected only the governing memories, which is promising but may reflect obvious metadata cues in this small packet.
+
+**Next test:**
+- Collect at least two more independent governs annotation passes.
+- Test fresh-authored governs on a larger packet with unrelated and competing policies already present.
+- Add severity arbitration among multiple in-scope policies.
+
+**Allowed wording:**
+> "In one fresh-author pass, an outside author wrote jurisdiction metadata that preserved the scoped role-filter 5/5 result on the five v2.2 stores. This suggests the `governs` concept is authorable in this packet, but it needs more authors and harder stores before any reliability claim."
+
+**Forbidden wording:**
+> "Fresh authors can reliably write governs metadata."
+> "The jurisdiction layer is externally validated."
+> "The scope-authoring problem is solved."
+
+---
+
 ## CLAIM-06 — FORBIDDEN
 
 The following claims must not appear in any public artifact:
