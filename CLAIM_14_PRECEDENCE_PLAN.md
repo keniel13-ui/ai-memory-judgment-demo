@@ -1,6 +1,6 @@
 # CLAIM-14 Precedence Plan
 
-Status: implementation scaffold and probe. Not a validated result.
+Status: two-pass fresh-author result on the clutter packet. Not a general reliability claim.
 
 ## Why This Exists
 
@@ -85,4 +85,27 @@ Read:
 - Scope plus specificity precedence selected the target in all five scenarios.
 - The invoice overblock did not recur in this pass because the bank-reconciliation policy was tagged as `write`, while the invoice-total query is read-like.
 
-Status: one fresh action-type pass. This is a strong directional result, not a repeatability claim yet.
+## Second Action-Type Authoring Result
+
+Fresh action-type annotations:
+
+```text
+external_scenarios/fresh_governs_clutter_action_types_annotations_v0_2.json
+results/fresh_governs_clutter_action_types_results_v0_2.md
+```
+
+| Strategy | Target selected | Action correct | Trap failures | Downgrade | Overblocking |
+|---|---:|---:|---:|---:|---:|
+| `bm25_metadata_text` | 1/5 | 4/5 | 4 | 1 | 0 |
+| `role_filter_bm25_metadata_text` | 2/5 | 3/5 | 3 | 1 | 1 |
+| `scope_role_filter_bm25_metadata_text` | 4/5 | 5/5 | 1 | 0 | 0 |
+| `scope_precedence_role_filter_bm25_metadata_text` | 5/5 | 5/5 | 0 | 0 | 0 |
+
+Read:
+
+- The second fresh author also used `action_types` to separate read, write, and execute jurisdictions.
+- Scope alone again preserved action correctness but left one wrong target selection.
+- Scope plus specificity precedence and action-type gating again selected the target in all five scenarios.
+- The result repeated the first pass: `5/5` target selected, `5/5` action correct, `0` trap failures, and `0` overblocking.
+
+Status: two independent fresh action-type passes on the same clutter packet. This supports CLAIM-14 on this packet only; it is not a general reliability claim.

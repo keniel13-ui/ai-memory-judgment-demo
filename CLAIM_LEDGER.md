@@ -365,6 +365,89 @@ Gating rules prevent false-certainty errors when the retrieved memory carries ep
 
 ---
 
+## CLAIM-13
+
+**Claim:** Fresh-authored `governs` metadata improves performance under semantically tempting authority clutter, but scope matching alone does not fully resolve jurisdiction-adjacent conflicts. On the clutter packet, Author A reached 4/5 target selection and 5/5 action correctness with scope filtering, while Author B reached 3/5 target selection and 4/5 action correctness. Both authors reproduced the Wi-Fi/device ambiguity, and Author B introduced a read-vs-process overblock.
+
+**Evidence:**
+- `external_scenarios/fresh_governs_clutter_v0_1_source.json` adds five cluttered scenario-local stores with semantically close competing policies.
+- Baselines on the clutter source:
+  - `bm25_metadata_text`: 1/5 target, 4/5 action, 4 trap failures.
+  - `role_filter_bm25_metadata_text`: 2/5 target, 3/5 action, 3 trap failures, 1 dangerous overblock.
+- Fresh Author A:
+  - `external_scenarios/fresh_governs_clutter_annotations_v0_1_author_a.json`
+  - `results/fresh_governs_clutter_results_v0_1_author_a.md`
+  - `scope_role_filter_bm25_metadata_text`: 4/5 target, 5/5 action, 1 trap, 0 overblocking.
+- Fresh Author B:
+  - `external_scenarios/fresh_governs_clutter_annotations_v0_2_author_b.json`
+  - `results/fresh_governs_clutter_results_v0_2_author_b.md`
+  - `scope_role_filter_bm25_metadata_text`: 3/5 target, 4/5 action, 2 traps, 1 overblock.
+
+**Status:** `preliminary` — two fresh-author passes on one clutter packet
+
+**Weakness:**
+- The clutter packet is internally designed.
+- The same five scenario families are reused from prior tests.
+- The authoring instructions may lead authors toward useful scope fields.
+- Scope matching is still token-based and cannot always distinguish adjacent jurisdictions.
+
+**Next test:**
+- Add specificity precedence after scope matching.
+- Add `action_types` (`read`, `write`, `execute`) so process policies do not govern read-only lookups.
+- Test those additions with fresh-authored action-type annotations.
+
+**Allowed wording:**
+> "In a harder clutter packet, fresh-authored scope metadata recovered significant action correctness compared with baselines, but two systematic failures remained: jurisdiction-adjacent policies with the same action class, and read-vs-process overblocking. This motivates specificity precedence and action-type gating."
+
+**Forbidden wording:**
+> "Fresh-authored scope metadata solves clutter."
+> "Scope matching alone resolves jurisdiction conflict."
+> "The clutter problem is solved."
+
+---
+
+## CLAIM-14
+
+**Claim:** Adding specificity precedence after scope matching plus optional `governs.action_types` resolved the two CLAIM-13 failure modes in two independent fresh-author passes on the same clutter packet. In both action-type passes, `scope_precedence_role_filter_bm25_metadata_text` reached 5/5 target selection and 5/5 action correctness with 0 trap failures and 0 overblocking.
+
+**Evidence:**
+- `run_memory_store_eval.py` includes `scope_precedence_role_filter_bm25_metadata_text`.
+- `EXTERNAL_GOVERNS_REQUEST.md` now documents optional `action_types`: `read`, `write`, and `execute`.
+- `external_scenarios/fresh_governs_clutter_authoring_packet_v0_2_action_types.json` is the fresh-author packet with the expanded schema.
+- Existing Author A/B probes without `action_types` showed specificity precedence alone fixed the Wi-Fi/device ambiguity for both authors.
+- Fresh action-type pass 1:
+  - `external_scenarios/fresh_governs_clutter_action_types_annotations_v0_1.json`
+  - `results/fresh_governs_clutter_action_types_results_v0_1.md`
+  - `scope_precedence_role_filter_bm25_metadata_text`: 5/5 target, 5/5 action, 0 trap failures, 0 overblocking.
+- Fresh action-type pass 2:
+  - `external_scenarios/fresh_governs_clutter_action_types_annotations_v0_2.json`
+  - `results/fresh_governs_clutter_action_types_results_v0_2.md`
+  - `scope_precedence_role_filter_bm25_metadata_text`: 5/5 target, 5/5 action, 0 trap failures, 0 overblocking.
+
+**Status:** `demonstrated` — two-pass repeat on this five-scenario clutter packet only; not general reliability
+
+**Weakness:**
+- Still only five clutter scenarios.
+- The action-type classifier is a deterministic keyword heuristic, not semantic action understanding.
+- The same internally designed packet is reused across both fresh authors.
+- The result depends on authors supplying useful `action_types` and on target memories retaining authority metadata.
+- Specificity precedence may fail when the wrong policy is more term-specific than the correct one.
+
+**Next test:**
+- Build a larger clutter packet with more adjacent policies and more ambiguous action wording.
+- Add action-type ambiguity cases where read/write/execute are not obvious from keywords.
+- Test non-Claude fresh authors or human reviewers.
+
+**Allowed wording:**
+> "On the five-scenario clutter packet, adding specificity precedence and fresh-authored action-type tags restored 5/5 target selection and 5/5 action correctness in two independent fresh-author passes. This addresses the two observed CLAIM-13 failure modes in this packet, but it is not yet a general reliability result."
+
+**Forbidden wording:**
+> "Specificity precedence and action types solve jurisdiction arbitration."
+> "The architecture is validated."
+> "Fresh authors can reliably produce action-type scope metadata in general."
+
+---
+
 ## CLAIM-06 — FORBIDDEN
 
 The following claims must not appear in any public artifact:

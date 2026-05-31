@@ -59,6 +59,7 @@ Supporting files:
 - `external_scenarios/fresh_governs_clutter_v0_1_source.json` — CLAIM-13 source packet with semantically tempting authority clutter.
 - `external_scenarios/fresh_governs_clutter_authoring_packet_v0_1.json` — CLAIM-13 fresh-author packet with hidden roles/answer keys.
 - `external_scenarios/fresh_governs_clutter_authoring_packet_v0_2_action_types.json` — CLAIM-14 authoring packet with optional `action_types`.
+- `external_scenarios/fresh_governs_clutter_action_types_annotations_v0_1.json` and `_v0_2.json` — CLAIM-14 fresh-authored action-type scope passes.
 - `external_scenarios/keniel_deepseek_assisted_v0_4_drafts.md` — Keniel-authored, DeepSeek-assisted draft scenarios; not yet mapped or run.
 - `external_scenarios/fresh_claude_v0_4_v2_top5.json` — first five fresh-Claude scenario-local memory-store tests.
 - `external_scenarios/fresh_claude_v0_4_v2_2_external_stores.json` — fresh-authored target/distractor memory-store packet.
@@ -225,6 +226,23 @@ Fresh-author results so far:
 | scope_role_filter_bm25_metadata_text | 5/5 | 5/5 | 0 | 0 | 0 | 0 |
 
 The first three independent fresh-author passes produced the same summary. This supports authorability on this packet, but it is still not a general reliability claim.
+
+The harder clutter packet adds semantically tempting competing policies. Its baselines are intentionally poor:
+
+| Strategy | Target selected | Action correct | Trap failures | Overblocking |
+|---|---:|---:|---:|---:|
+| bm25_metadata_text | 1/5 | 4/5 | 4 | 0 |
+| role_filter_bm25_metadata_text | 2/5 | 3/5 | 3 | 1 |
+
+Fresh-authored scope metadata recovered action correctness but exposed two remaining failure modes: Wi-Fi/device jurisdiction ambiguity and read-vs-process overblocking. The CLAIM-14 strategy adds specificity precedence after scope matching plus optional `governs.action_types`.
+
+Across two independent fresh action-type passes on the clutter packet:
+
+| Strategy | Target selected | Action correct | Trap failures | Overblocking |
+|---|---:|---:|---:|---:|
+| scope_precedence_role_filter_bm25_metadata_text | 5/5 | 5/5 | 0 | 0 |
+
+This is a two-pass result on one five-scenario clutter packet, not a general reliability claim.
 
 For the replication procedure, see:
 
