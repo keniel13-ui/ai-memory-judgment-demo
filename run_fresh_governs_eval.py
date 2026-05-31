@@ -226,10 +226,14 @@ def main() -> None:
     parser.add_argument("--write-packet", action="store_true", help="Write the authoring packet and exit.")
     parser.add_argument("--packet", type=Path, default=DEFAULT_PACKET)
     parser.add_argument("--governs", type=Path, default=DEFAULT_GOVERNS)
+    parser.add_argument("--results-json", type=Path, default=RESULTS_JSON)
+    parser.add_argument("--results-md", type=Path, default=RESULTS_MD)
     args = parser.parse_args()
 
     packet_path = args.packet if args.packet.is_absolute() else ROOT / args.packet
     governs_path = args.governs if args.governs.is_absolute() else ROOT / args.governs
+    results_json = args.results_json if args.results_json.is_absolute() else ROOT / args.results_json
+    results_md = args.results_md if args.results_md.is_absolute() else ROOT / args.results_md
 
     if args.write_packet:
         write_authoring_packet(packet_path)
@@ -245,11 +249,13 @@ def main() -> None:
     annotations = load_annotations(governs_path)
     scoped_payload = apply_annotations(payload, annotations)
     output = evaluate(scoped_payload, governs_path)
-    RESULTS_JSON.write_text(json.dumps(output, indent=2), encoding="utf-8")
-    RESULTS_MD.write_text(render_markdown(output), encoding="utf-8")
+    results_json.parent.mkdir(parents=True, exist_ok=True)
+    results_md.parent.mkdir(parents=True, exist_ok=True)
+    results_json.write_text(json.dumps(output, indent=2), encoding="utf-8")
+    results_md.write_text(render_markdown(output), encoding="utf-8")
     print(json.dumps(output["summary"], indent=2))
-    print(f"Wrote {RESULTS_MD}")
-    print(f"Wrote {RESULTS_JSON}")
+    print(f"Wrote {results_md}")
+    print(f"Wrote {results_json}")
 
 
 if __name__ == "__main__":

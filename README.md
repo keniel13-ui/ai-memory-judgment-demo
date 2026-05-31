@@ -221,6 +221,12 @@ First fresh-author result:
 
 This is one fresh-author pass, not a reliability claim.
 
+For replication passes, keep each independent author output separate instead of overwriting the first result. See:
+
+```text
+FRESH_GOVERNS_REPLICATION_PLAN.md
+```
+
 ## Not Claimed
 
 Do not treat this as:
