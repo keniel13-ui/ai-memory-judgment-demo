@@ -209,6 +209,13 @@ def embedding_scores(query: str, memories: list[dict[str, Any]], strategy: str) 
 def retrieve(query: str, memories: list[dict[str, Any]], strategy: str) -> tuple[dict[str, Any], float]:
     if strategy == "role_filter_bm25_metadata_text":
         return retrieve_with_role_filter(query, memories, "bm25_metadata_text")
+    if strategy == "scope_role_filter_bm25_metadata_text":
+        return retrieve_with_role_filter(
+            query,
+            memories,
+            "bm25_metadata_text",
+            scope_aware=True,
+        )
 
     if strategy.startswith("tfidf"):
         scores = tfidf_scores(query, memories, strategy)
@@ -244,6 +251,7 @@ def retrieve_with_role_filter(
     query: str,
     memories: list[dict[str, Any]],
     base_strategy: str,
+    scope_aware: bool = False,
 ) -> tuple[dict[str, Any], float]:
     scores = bm25_scores(query, memories, base_strategy)
     memory_by_id = {memory["id"]: memory for memory in memories}
@@ -252,13 +260,48 @@ def retrieve_with_role_filter(
         for memory in memories
         if is_authority_lane_candidate(memory)
     ]
+    fallback_memories = memories
+    if scope_aware:
+        authority_candidate_ids = {memory["id"] for memory in candidates}
+        scoped_candidates = [
+            memory
+            for memory in candidates
+            if scope_matches_query(memory, query)
+        ]
+        candidates = scoped_candidates
+        if not candidates:
+            fallback_memories = [
+                memory
+                for memory in memories
+                if memory["id"] not in authority_candidate_ids
+            ] or memories
 
     if candidates:
         selected = max(candidates, key=lambda memory: scores[memory["id"]])
         return selected, scores[selected["id"]]
 
-    selected_id = max(scores, key=scores.get)
+    fallback_ids = {memory["id"] for memory in fallback_memories}
+    selected_id = max(fallback_ids, key=scores.get)
     return memory_by_id[selected_id], scores[selected_id]
+
+
+def scope_matches_query(memory: dict[str, Any], query: str) -> bool:
+    governs = memory.get("governs")
+    if not isinstance(governs, dict):
+        return False
+
+    query_tokens = set(tokenize(query))
+    any_terms = set(str(term).lower() for term in governs.get("any_terms", []))
+    all_terms = set(str(term).lower() for term in governs.get("all_terms", []))
+    excluded_terms = set(str(term).lower() for term in governs.get("excluded_terms", []))
+
+    if excluded_terms and query_tokens & excluded_terms:
+        return False
+    if all_terms and not all_terms <= query_tokens:
+        return False
+    if any_terms and not query_tokens & any_terms:
+        return False
+    return bool(any_terms or all_terms)
 
 
 def score_row(strategy: str, scenario: dict[str, Any]) -> MemoryStoreDecision:

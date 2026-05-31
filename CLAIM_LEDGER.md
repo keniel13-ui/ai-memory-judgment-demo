@@ -279,9 +279,9 @@ Gating rules prevent false-certainty errors when the retrieved memory carries ep
 - The current strategy has no scope-fit model, so broad policies can outrank task-specific policies.
 
 **Next test:**
-- Add scope matching for authority-lane candidates.
-- Require policy memories to declare governed action/domain/scope fields.
-- Test whether scope-aware authority filtering preserves the clean 5/5 result while reducing unrelated-policy overblocking.
+- Add scope matching for authority-lane candidates. Completed in CLAIM-11 as a controlled synthetic result.
+- Require policy memories to declare governed action/domain/scope fields in fresh-authored stores rather than injecting them internally.
+- Test missing/wrong `governs` metadata.
 
 **Allowed wording:**
 > "The first metadata-noise stress test suggests the role filter is robust to isolated missing or wrong type/priority tags, but not to fully corrupted target authority metadata or polluted authority lanes. The next problem is scope-aware conflict resolution inside the authority lane."
@@ -290,6 +290,41 @@ Gating rules prevent false-certainty errors when the retrieved memory carries ep
 > "The role filter is robust to noisy metadata."
 > "Metadata quality is solved."
 > "Authority-lane conflict resolution works."
+
+---
+
+## CLAIM-11
+
+**Claim:** Scope-aware authority-lane filtering fixes the controlled unrelated-policy and competing-policy overblocking failures introduced in CLAIM-10. In the metadata-noise harness, `scope_role_filter_bm25_metadata_text` reached 5/5 action correctness with 0 trap failures and 0 overblocking on clean, isolated metadata damage, unrelated block policy, and competing policy variants. It still degraded to 4/5 when target authority metadata was fully corrupted.
+
+**Evidence:**
+- `run_memory_store_eval.py` now includes `scope_role_filter_bm25_metadata_text`.
+- `run_role_filter_noise_eval.py` injects explicit `governs` scope metadata into target policies and synthetic noise policies.
+- Scope-aware filtering chooses in-scope authority candidates first. If no authority candidate has jurisdiction, it falls back to ordinary retrieval while excluding out-of-scope authority candidates.
+- In `unrelated_block_policy`, unscoped role filtering had 1 overblock; scoped role filtering had 0.
+- In `competing_policy`, unscoped role filtering had 4 overblocks; scoped role filtering had 0.
+- In `target_metadata_corrupt`, scoped role filtering still failed where the target lost all authority signals.
+
+**Status:** `preliminary` — controlled synthetic scope metadata on the same five-scenario packet
+
+**Weakness:**
+- Scope metadata was injected internally after seeing the noise failures.
+- Scope matching is currently token-based (`any_terms`, `all_terms`, `excluded_terms`), not semantic or externally authored.
+- It has not been tested on fresh stores where the author provides `governs` fields from the start.
+- It does not solve fully corrupted target authority metadata.
+
+**Next test:**
+- Ask a fresh model or reviewer to author `governs` fields as part of the memory-store packet.
+- Add missing/wrong scope metadata variants.
+- Add multiple in-scope policies with different severity to test severity arbitration after scope match.
+
+**Allowed wording:**
+> "In a controlled metadata-noise stress test, adding explicit scope metadata to authority memories removed the overblocking failures caused by unrelated and competing policies while preserving the clean 5/5 role-filter result. This suggests the next architecture needs jurisdiction metadata, but the scope fields were internally injected and need external/fresh-authored testing."
+
+**Forbidden wording:**
+> "Scope-aware filtering solves policy conflict."
+> "The jurisdiction layer is validated."
+> "Token-based scope matching is enough."
 
 ---
 

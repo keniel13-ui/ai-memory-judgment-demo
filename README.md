@@ -179,9 +179,10 @@ It shows the first quality floor:
 - missing/wrong target `memory_type` alone did not break the role filter,
 - missing target `priority` alone did not break it,
 - fully corrupted target authority metadata degraded it back to BM25 behavior,
-- unrelated or directly competing authority-lane policies introduced overblocking.
+- unrelated or directly competing authority-lane policies introduced overblocking in the unscoped role filter,
+- adding explicit `governs` scope metadata removed that overblocking in the controlled test.
 
-The next problem is scope-aware conflict resolution inside the authority lane.
+The next problem is fresh-authored scope metadata: can another author provide usable `governs` fields before seeing the failures?
 
 ## Not Claimed
 
@@ -194,6 +195,7 @@ Do not treat this as:
 - proof that retrieval terms solve semantic retrieval
 - proof that role filtering solves authority arbitration
 - proof that the role filter is robust to noisy metadata
+- proof that scope-aware filtering solves policy conflict
 - evidence about LLM generation behavior
 
 ## Known Limitations

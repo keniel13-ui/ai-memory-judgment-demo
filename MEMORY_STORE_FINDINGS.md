@@ -187,23 +187,24 @@ run_role_filter_noise_eval.py
 
 Result summary:
 
-| Variant | BM25 metadata action | Role filter action | Role filter trap failures | Role filter overblocking |
-|---|---:|---:|---:|---:|
-| clean | 4/5 | 5/5 | 0 | 0 |
-| missing target type | 4/5 | 5/5 | 0 | 0 |
-| wrong target type | 4/5 | 5/5 | 0 | 0 |
-| missing target priority | 4/5 | 5/5 | 0 | 0 |
-| target metadata corrupt | 4/5 | 4/5 | 2 | 0 |
-| unrelated block policy | 3/5 | 4/5 | 1 | 1 |
-| competing policy | 1/5 | 1/5 | 5 | 4 |
+| Variant | BM25 metadata action | Role filter action | Scoped role filter action | Scoped trap failures | Scoped overblocking |
+|---|---:|---:|---:|---:|---:|
+| clean | 4/5 | 5/5 | 5/5 | 0 | 0 |
+| missing target type | 4/5 | 5/5 | 5/5 | 0 | 0 |
+| wrong target type | 4/5 | 5/5 | 5/5 | 0 | 0 |
+| missing target priority | 4/5 | 5/5 | 5/5 | 0 | 0 |
+| target metadata corrupt | 4/5 | 4/5 | 4/5 | 2 | 0 |
+| unrelated block policy | 3/5 | 4/5 | 5/5 | 0 | 0 |
+| competing policy | 1/5 | 1/5 | 5/5 | 0 | 0 |
 
 Key read:
 
 - The role filter does not require perfect `memory_type` or `priority` tags if other authority signals survive.
 - `verification_required` and `allowed_action_hint` are load-bearing metadata fields.
 - If target authority metadata is fully corrupted, the role filter collapses back to BM25 behavior.
-- If the authority lane is polluted with broad unrelated or directly overlapping policies, role filtering can overblock.
-- The next architectural requirement is not "more role filtering"; it is authority-lane conflict resolution and query-scope matching.
+- If the authority lane is polluted with broad unrelated or directly overlapping policies, unscoped role filtering can overblock.
+- Adding explicit `governs` scope metadata and filtering authority-lane candidates by jurisdiction before action selection fixed the unrelated-policy and competing-policy overblocking variants in this controlled test.
+- The remaining floor is fully corrupted target authority metadata: if the target no longer carries any usable authority signal, scope-aware filtering cannot recover it.
 
 ## Safe Claim
 
@@ -217,6 +218,8 @@ Key read:
 
 > In controlled metadata-noise tests, the role filter stayed clean when only target `memory_type` or `priority` was missing/wrong, but degraded when all target authority signals were corrupted and overblocked when the authority lane contained broad unrelated or competing policies.
 
+> Adding explicit `governs` scope metadata and filtering authority candidates by scope before action selection preserved 5/5 action correctness under unrelated-policy and competing-policy noise in this controlled packet. This is preliminary and depends on scope metadata being present and correctly assigned.
+
 ## Unsafe Claim
 
 > The framework passed an external-domain benchmark.
@@ -227,11 +230,13 @@ Key read:
 
 > Memory type and priority tags alone are the metadata quality floor.
 
+> Scope-aware filtering is validated.
+
 ## Next Step
 
-The first metadata-noise stress test shows the next problem: authority-lane conflict resolution. Next tests:
+The first scope-aware stress result is clean except when target authority metadata is fully corrupted. Next tests:
 
-- add query-scope matching before authority-lane override,
-- rank multiple authority candidates by scope fit, not only BM25 overlap,
-- distinguish broad safety policy from task-specific governing policy,
+- require explicit `governs` fields in fresh-authored stores instead of injecting them internally,
+- test missing/wrong `governs` metadata,
+- add multiple in-scope policies with different severity,
 - test fresh scenario stores not authored with the role filter in mind.
