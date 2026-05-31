@@ -34,15 +34,15 @@ STRATEGIES = [
 ]
 
 
-def load_source() -> dict[str, Any]:
-    return json.loads(SOURCE_SCENARIOS.read_text(encoding="utf-8"))
+def load_source(source_path: Path = SOURCE_SCENARIOS) -> dict[str, Any]:
+    return json.loads(source_path.read_text(encoding="utf-8"))
 
 
-def write_authoring_packet(path: Path) -> None:
-    payload = load_source()
+def write_authoring_packet(source_path: Path, path: Path) -> None:
+    payload = load_source(source_path)
     packet = {
         "schema_version": "governs_authoring_v0_1",
-        "source_scenario_file": str(SOURCE_SCENARIOS.relative_to(ROOT)),
+        "source_scenario_file": str(source_path.relative_to(ROOT)) if source_path.is_relative_to(ROOT) else str(source_path),
         "instructions": (
             "Add governs metadata for memories that should have jurisdiction over "
             "some class of user request. Do not use role/answer-key information."
@@ -134,7 +134,7 @@ def apply_annotations(payload: dict[str, Any], annotations: list[dict[str, Any]]
     return payload
 
 
-def evaluate(payload: dict[str, Any], governs_path: Path) -> dict[str, Any]:
+def evaluate(payload: dict[str, Any], source_path: Path, governs_path: Path) -> dict[str, Any]:
     decisions = []
     for scenario in payload["scenarios"]:
         for strategy in STRATEGIES:
@@ -149,7 +149,7 @@ def evaluate(payload: dict[str, Any], governs_path: Path) -> dict[str, Any]:
         for strategy, rows in grouped.items()
     }
     return {
-        "source_scenario_file": str(SOURCE_SCENARIOS.relative_to(ROOT)),
+        "source_scenario_file": str(source_path.relative_to(ROOT)) if source_path.is_relative_to(ROOT) else str(source_path),
         "governs_file": str(governs_path.relative_to(ROOT)) if governs_path.is_relative_to(ROOT) else str(governs_path),
         "governs_annotations_applied": payload.get("governs_annotations_applied", 0),
         "strategies": STRATEGIES,
@@ -224,19 +224,21 @@ def render_markdown(output: dict[str, Any]) -> str:
 def main() -> None:
     parser = argparse.ArgumentParser(description="Evaluate fresh-authored governs metadata.")
     parser.add_argument("--write-packet", action="store_true", help="Write the authoring packet and exit.")
+    parser.add_argument("--source-scenarios", type=Path, default=SOURCE_SCENARIOS)
     parser.add_argument("--packet", type=Path, default=DEFAULT_PACKET)
     parser.add_argument("--governs", type=Path, default=DEFAULT_GOVERNS)
     parser.add_argument("--results-json", type=Path, default=RESULTS_JSON)
     parser.add_argument("--results-md", type=Path, default=RESULTS_MD)
     args = parser.parse_args()
 
+    source_path = args.source_scenarios if args.source_scenarios.is_absolute() else ROOT / args.source_scenarios
     packet_path = args.packet if args.packet.is_absolute() else ROOT / args.packet
     governs_path = args.governs if args.governs.is_absolute() else ROOT / args.governs
     results_json = args.results_json if args.results_json.is_absolute() else ROOT / args.results_json
     results_md = args.results_md if args.results_md.is_absolute() else ROOT / args.results_md
 
     if args.write_packet:
-        write_authoring_packet(packet_path)
+        write_authoring_packet(source_path, packet_path)
         return
 
     if not governs_path.exists():
@@ -245,10 +247,10 @@ def main() -> None:
             f"Run with --write-packet first, then have a fresh author fill annotations."
         )
 
-    payload = load_source()
+    payload = load_source(source_path)
     annotations = load_annotations(governs_path)
     scoped_payload = apply_annotations(payload, annotations)
-    output = evaluate(scoped_payload, governs_path)
+    output = evaluate(scoped_payload, source_path, governs_path)
     results_json.parent.mkdir(parents=True, exist_ok=True)
     results_md.parent.mkdir(parents=True, exist_ok=True)
     results_json.write_text(json.dumps(output, indent=2), encoding="utf-8")

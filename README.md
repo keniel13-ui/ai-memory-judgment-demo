@@ -40,6 +40,7 @@ Supporting files:
 - `run_memory_store_eval.py` — scenario-local target/distractor memory-store evaluator.
 - `run_role_filter_noise_eval.py` — metadata-noise stress test for the role-filter strategy.
 - `run_fresh_governs_eval.py` — writes a blind-ish `governs` authoring packet and evaluates fresh-authored scope metadata.
+- `CLAIM_13_CLUTTER_PLAN.md` — next stress plan for semantically tempting policy clutter.
 - `SCORING_RUBRIC.md` — action classes and metrics.
 - `RESEARCH_PROTOCOL.md` — formal research question, variables, metrics, validity threats, and reproducibility notes.
 - `RELATED_WORK.md` — honest map of closest prior work and contribution boundary.
@@ -54,6 +55,8 @@ Supporting files:
 - `EXTERNAL_SCENARIO_REQUEST.md` — packet for collecting scenarios from outside reviewers.
 - `EXTERNAL_GOVERNS_REQUEST.md` — packet for collecting fresh-authored jurisdiction metadata.
 - `external_scenarios/fresh_governs_authoring_packet_v0_1.json` — generated packet for the next external/fresh-author test.
+- `external_scenarios/fresh_governs_clutter_v0_1_source.json` — CLAIM-13 source packet with semantically tempting authority clutter.
+- `external_scenarios/fresh_governs_clutter_authoring_packet_v0_1.json` — CLAIM-13 fresh-author packet with hidden roles/answer keys.
 - `external_scenarios/keniel_deepseek_assisted_v0_4_drafts.md` — Keniel-authored, DeepSeek-assisted draft scenarios; not yet mapped or run.
 - `external_scenarios/fresh_claude_v0_4_v2_top5.json` — first five fresh-Claude scenario-local memory-store tests.
 - `external_scenarios/fresh_claude_v0_4_v2_2_external_stores.json` — fresh-authored target/distractor memory-store packet.
