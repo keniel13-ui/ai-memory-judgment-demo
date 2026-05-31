@@ -247,11 +247,11 @@ Fresh-authored `governs` test infrastructure now exists:
 - generated authoring packet: `external_scenarios/fresh_governs_authoring_packet_v0_1.json`,
 - evaluator: `run_fresh_governs_eval.py`.
 
-First fresh-author pass:
+Fresh-author passes so far:
 
-- annotations: `external_scenarios/fresh_governs_annotations_v0_1.json`,
-- result: `results/fresh_governs_eval_results.md`,
-- annotations applied: 5,
-- scoped role filter: 5/5 target selected, 5/5 action correct, 0 trap failures, 0 downgrade misses, 0 overblocking.
+| Pass | Annotations | Result | Non-empty annotations | Scoped role-filter result |
+|---|---|---|---:|---|
+| 1 | `external_scenarios/fresh_governs_annotations_v0_1.json` | `results/fresh_governs_eval_results.md` | 5 | 5/5 target selected, 5/5 action correct, 0 trap failures, 0 downgrade misses, 0 overblocking |
+| 2 | `external_scenarios/fresh_governs_annotations_v0_2.json` | `results/fresh_governs_eval_results_v0_2.md` | 5 | 5/5 target selected, 5/5 action correct, 0 trap failures, 0 downgrade misses, 0 overblocking |
 
-This is preliminary evidence that the `governs` concept is authorable in this packet. It is not yet evidence that fresh authors can write reliable scope metadata in general.
+This is preliminary evidence that the `governs` concept is repeatably authorable in this packet. It is not yet evidence that fresh authors can write reliable scope metadata in general.

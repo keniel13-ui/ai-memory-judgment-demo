@@ -6,12 +6,15 @@ Status: replication procedure for CLAIM-12. Not benchmark-grade.
 
 Test whether fresh authors independently produce usable `governs` jurisdiction metadata on the same five-scenario packet.
 
-The first pass is already saved:
+The first two passes are already saved:
 
 ```text
 external_scenarios/fresh_governs_annotations_v0_1.json
 results/fresh_governs_eval_results.md
 results/fresh_governs_eval_results.json
+external_scenarios/fresh_governs_annotations_v0_2.json
+results/fresh_governs_eval_results_v0_2.md
+results/fresh_governs_eval_results_v0_2.json
 ```
 
 ## Procedure
@@ -24,23 +27,13 @@ For each new pass:
 4. Ask for only the JSON annotations object.
 5. Save each independent output separately.
 
-Recommended filenames:
+Recommended remaining filename:
 
 ```text
-external_scenarios/fresh_governs_annotations_v0_2.json
 external_scenarios/fresh_governs_annotations_v0_3.json
 ```
 
 ## Evaluation Commands
-
-Pass 2:
-
-```bash
-python3 run_fresh_governs_eval.py \
-  --governs external_scenarios/fresh_governs_annotations_v0_2.json \
-  --results-md results/fresh_governs_eval_results_v0_2.md \
-  --results-json results/fresh_governs_eval_results_v0_2.json
-```
 
 Pass 3:
 
@@ -53,9 +46,9 @@ python3 run_fresh_governs_eval.py \
 
 ## Claim Upgrade Rule
 
-If two more independent passes also produce 5/5 scoped role-filter results, CLAIM-12 can be upgraded from:
+If one more independent pass also produces a 5/5 scoped role-filter result, CLAIM-12 can be upgraded from:
 
-> In one fresh-author pass...
+> In two fresh-author passes...
 
 to:
 

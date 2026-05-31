@@ -211,7 +211,7 @@ run:
 python3 run_fresh_governs_eval.py
 ```
 
-First fresh-author result:
+Fresh-author results so far:
 
 | Strategy | Target selected | Action correct | Trap failures | FC errors | Downgrade misses | Overblocking |
 |---|---:|---:|---:|---:|---:|---:|
@@ -219,7 +219,7 @@ First fresh-author result:
 | role_filter_bm25_metadata_text | 5/5 | 5/5 | 0 | 0 | 0 | 0 |
 | scope_role_filter_bm25_metadata_text | 5/5 | 5/5 | 0 | 0 | 0 | 0 |
 
-This is one fresh-author pass, not a reliability claim.
+The first two independent fresh-author passes produced the same summary. This is still not a general reliability claim.
 
 For replication passes, keep each independent author output separate instead of overwriting the first result. See:
 
