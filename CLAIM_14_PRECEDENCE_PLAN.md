@@ -61,3 +61,28 @@ external_scenarios/fresh_governs_clutter_authoring_packet_v0_2_action_types.json
 ```
 
 Next test: have fresh authors annotate the clutter packet again with `action_types`, then evaluate whether `scope_precedence_role_filter_bm25_metadata_text` removes both CLAIM-13 failure modes.
+
+## First Action-Type Authoring Result
+
+Fresh action-type annotations:
+
+```text
+external_scenarios/fresh_governs_clutter_action_types_annotations_v0_1.json
+results/fresh_governs_clutter_action_types_results_v0_1.md
+```
+
+| Strategy | Target selected | Action correct | Trap failures | Downgrade | Overblocking |
+|---|---:|---:|---:|---:|---:|
+| `bm25_metadata_text` | 1/5 | 4/5 | 4 | 1 | 0 |
+| `role_filter_bm25_metadata_text` | 2/5 | 3/5 | 3 | 1 | 1 |
+| `scope_role_filter_bm25_metadata_text` | 4/5 | 5/5 | 1 | 0 | 0 |
+| `scope_precedence_role_filter_bm25_metadata_text` | 5/5 | 5/5 | 0 | 0 | 0 |
+
+Read:
+
+- The fresh author used `action_types` on 22 non-empty annotations.
+- Scope alone again fixed action correctness but still selected the wrong Wi-Fi/device memory.
+- Scope plus specificity precedence selected the target in all five scenarios.
+- The invoice overblock did not recur in this pass because the bank-reconciliation policy was tagged as `write`, while the invoice-total query is read-like.
+
+Status: one fresh action-type pass. This is a strong directional result, not a repeatability claim yet.
