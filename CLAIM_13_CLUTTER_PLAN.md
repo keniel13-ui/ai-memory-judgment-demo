@@ -106,3 +106,26 @@ If the result misses target policy jurisdiction:
 > The `governs` authoring model is less stable under clutter than under the clean CLAIM-12 packet.
 
 Any of those outcomes is useful. The test is designed to locate the next architectural pressure point, not to force a clean result.
+
+## Author A Interim Result
+
+Author A:
+
+```text
+external_scenarios/fresh_governs_clutter_annotations_v0_1_author_a.json
+results/fresh_governs_clutter_results_v0_1_author_a.md
+```
+
+| Strategy | Target selected | Action correct | Trap failures | Downgrade | Overblocking |
+|---|---:|---:|---:|---:|---:|
+| `bm25_metadata_text` | 1/5 | 4/5 | 4 | 1 | 0 |
+| `role_filter_bm25_metadata_text` | 2/5 | 3/5 | 3 | 1 | 1 |
+| `scope_role_filter_bm25_metadata_text` | 4/5 | 5/5 | 1 | 0 | 0 |
+
+Read:
+
+- Fresh-authored scope restored action correctness to 5/5 and removed the dangerous invoice overblock.
+- It did not restore target selection to 5/5.
+- The remaining trap failure is `clutter_wifi_credential_v0_1`, where the scoped strategy selected `distractor_device_policy` instead of the active Wi-Fi credential memory. The action was still `verify_first`, but the governing memory was wrong.
+
+This is a real partial result: scope metadata fixed the most harmful clutter behavior, but semantic overlap between new-laptop onboarding and office-network credential policy still caused wrong-memory governance.
