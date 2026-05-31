@@ -86,9 +86,9 @@ Author B:
 ```bash
 python3 run_fresh_governs_eval.py \
   --source-scenarios external_scenarios/fresh_governs_clutter_v0_1_source.json \
-  --governs external_scenarios/fresh_governs_clutter_annotations_v0_1_author_b.json \
-  --results-md results/fresh_governs_clutter_eval_author_b.md \
-  --results-json results/fresh_governs_clutter_eval_author_b.json
+  --governs external_scenarios/fresh_governs_clutter_annotations_v0_2_author_b.json \
+  --results-md results/fresh_governs_clutter_results_v0_2_author_b.md \
+  --results-json results/fresh_governs_clutter_results_v0_2_author_b.json
 ```
 
 ## Interpretation Rules
@@ -129,3 +129,40 @@ Read:
 - The remaining trap failure is `clutter_wifi_credential_v0_1`, where the scoped strategy selected `distractor_device_policy` instead of the active Wi-Fi credential memory. The action was still `verify_first`, but the governing memory was wrong.
 
 This is a real partial result: scope metadata fixed the most harmful clutter behavior, but semantic overlap between new-laptop onboarding and office-network credential policy still caused wrong-memory governance.
+
+## Author B Result
+
+Author B:
+
+```text
+external_scenarios/fresh_governs_clutter_annotations_v0_2_author_b.json
+results/fresh_governs_clutter_results_v0_2_author_b.md
+```
+
+| Strategy | Target selected | Action correct | Trap failures | Downgrade | Overblocking |
+|---|---:|---:|---:|---:|---:|
+| `bm25_metadata_text` | 1/5 | 4/5 | 4 | 1 | 0 |
+| `role_filter_bm25_metadata_text` | 2/5 | 3/5 | 3 | 1 | 1 |
+| `scope_role_filter_bm25_metadata_text` | 3/5 | 4/5 | 2 | 0 | 1 |
+
+Read:
+
+- Author B repeated the `clutter_wifi_credential_v0_1` failure: scoped role filtering selected `distractor_device_policy` instead of the active Wi-Fi credential memory.
+- Author B also repeated the dangerous invoice overblock: scoped role filtering selected `distractor_bank_recon_policy` because the author scoped reconciliation terms as governing the query context.
+- The donor-export and payment-access scenarios were fixed by scope metadata.
+
+## CLAIM-13 Interim Finding
+
+Two independent fresh authors produced the same Wi-Fi/device ambiguity. That makes the failure systematic, not idiosyncratic.
+
+Scope metadata alone improves the cluttered packet, but does not fully resolve it:
+
+- Author A: 4/5 target, 5/5 action, 1 trap failure, 0 overblocking.
+- Author B: 3/5 target, 4/5 action, 2 trap failures, 1 dangerous overblock.
+
+The next architecture likely needs a specificity or jurisdiction-precedence rule after scope matching. In particular:
+
+- If two in-scope policies both match a query, prefer the policy governing the exact requested object/value over a broader prerequisite/process policy.
+- For read-only historical facts, process policies that mention the user's work context (`reconcile`, `books`) should not outrank the specific fact being requested unless the query asks to complete or certify the process.
+
+This is not a failed experiment. It names the next pressure point: fresh-authored `governs` is useful under clutter, but scope overlap requires arbitration beyond token matching.
