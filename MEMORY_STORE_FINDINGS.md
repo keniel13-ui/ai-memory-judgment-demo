@@ -240,3 +240,11 @@ The first scope-aware stress result is clean except when target authority metada
 - test missing/wrong `governs` metadata,
 - add multiple in-scope policies with different severity,
 - test fresh scenario stores not authored with the role filter in mind.
+
+Fresh-authored `governs` test infrastructure now exists:
+
+- request packet: `EXTERNAL_GOVERNS_REQUEST.md`,
+- generated authoring packet: `external_scenarios/fresh_governs_authoring_packet_v0_1.json`,
+- evaluator: `run_fresh_governs_eval.py`.
+
+The evaluator intentionally does not run until `external_scenarios/fresh_governs_annotations_v0_1.json` exists.

@@ -39,6 +39,7 @@ Supporting files:
 - `run_aligned_topk_aggregation_eval.py` — query-aligned top-k block-elevation evaluator.
 - `run_memory_store_eval.py` — scenario-local target/distractor memory-store evaluator.
 - `run_role_filter_noise_eval.py` — metadata-noise stress test for the role-filter strategy.
+- `run_fresh_governs_eval.py` — writes a blind-ish `governs` authoring packet and evaluates fresh-authored scope metadata.
 - `SCORING_RUBRIC.md` — action classes and metrics.
 - `RESEARCH_PROTOCOL.md` — formal research question, variables, metrics, validity threats, and reproducibility notes.
 - `RELATED_WORK.md` — honest map of closest prior work and contribution boundary.
@@ -51,6 +52,8 @@ Supporting files:
 - `PREREGISTRATION_v0.3.md` — frozen hypotheses before dedicated embedding/top-k experiments.
 - `PREREGISTRATION_v0.4_ADVERSARIAL.md` — frozen adversarial/external scenario plan.
 - `EXTERNAL_SCENARIO_REQUEST.md` — packet for collecting scenarios from outside reviewers.
+- `EXTERNAL_GOVERNS_REQUEST.md` — packet for collecting fresh-authored jurisdiction metadata.
+- `external_scenarios/fresh_governs_authoring_packet_v0_1.json` — generated packet for the next external/fresh-author test.
 - `external_scenarios/keniel_deepseek_assisted_v0_4_drafts.md` — Keniel-authored, DeepSeek-assisted draft scenarios; not yet mapped or run.
 - `external_scenarios/fresh_claude_v0_4_v2_top5.json` — first five fresh-Claude scenario-local memory-store tests.
 - `external_scenarios/fresh_claude_v0_4_v2_2_external_stores.json` — fresh-authored target/distractor memory-store packet.
@@ -184,6 +187,30 @@ It shows the first quality floor:
 
 The next problem is fresh-authored scope metadata: can another author provide usable `governs` fields before seeing the failures?
 
+To generate the authoring packet:
+
+```bash
+python3 run_fresh_governs_eval.py --write-packet
+```
+
+This writes:
+
+```text
+external_scenarios/fresh_governs_authoring_packet_v0_1.json
+```
+
+After a fresh author fills:
+
+```text
+external_scenarios/fresh_governs_annotations_v0_1.json
+```
+
+run:
+
+```bash
+python3 run_fresh_governs_eval.py
+```
+
 ## Not Claimed
 
 Do not treat this as:
@@ -196,6 +223,7 @@ Do not treat this as:
 - proof that role filtering solves authority arbitration
 - proof that the role filter is robust to noisy metadata
 - proof that scope-aware filtering solves policy conflict
+- proof that outside authors can reliably write jurisdiction metadata
 - evidence about LLM generation behavior
 
 ## Known Limitations
