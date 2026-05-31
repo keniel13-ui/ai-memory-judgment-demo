@@ -149,6 +149,24 @@ In other words:
 
 That is the core failure this demo is meant to expose.
 
+## Scenario-Local Authority Result
+
+The newer scenario-local memory-store evaluator also tests five fresh-authored adversarial target/distractor stores:
+
+```bash
+python3 run_memory_store_eval.py --scenarios external_scenarios/fresh_claude_v0_4_v2_2_external_stores.json
+```
+
+On that packet, the first authority-lane strategy produced:
+
+| Strategy | Target selected | Action correct | Trap failures | FC errors | Downgrade misses | Overblocking |
+|---|---:|---:|---:|---:|---:|---:|
+| bm25_metadata_text | 3/5 | 4/5 | 2 | 0 | 1 | 0 |
+| nomic_embed_metadata_text | 1/5 | 3/5 | 4 | 0 | 2 | 0 |
+| role_filter_bm25_metadata_text | 5/5 | 5/5 | 0 | 0 | 0 | 0 |
+
+This supports the authority-arbitration hypothesis, but it is not a validation claim. The role filter depends on clean metadata tags and needs metadata-noise stress tests.
+
 ## Not Claimed
 
 Do not treat this as:
@@ -158,6 +176,7 @@ Do not treat this as:
 - proof that structured memory generalizes
 - proof that TF-IDF is enough
 - proof that retrieval terms solve semantic retrieval
+- proof that role filtering solves authority arbitration
 - evidence about LLM generation behavior
 
 ## Known Limitations

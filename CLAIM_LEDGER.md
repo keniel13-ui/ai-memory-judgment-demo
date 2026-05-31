@@ -226,6 +226,39 @@ Gating rules prevent false-certainty errors when the retrieved memory carries ep
 
 ---
 
+## CLAIM-09
+
+**Claim:** A role-filter retrieval strategy that separates authority from relevance improves the five-scenario fresh-authored adversarial memory-store result. On the same v2.2 store packet, `role_filter_bm25_metadata_text` reached 5/5 target selection and 5/5 action correctness with 0 trap failures, 0 false-certainty errors, 0 downgrade misses, and 0 overblocking errors.
+
+**Evidence:**
+- `run_memory_store_eval.py` now includes `role_filter_bm25_metadata_text`.
+- The strategy gives active action-governing memory types (`policy`, `credential`, `correction`) a priority lane when they carry authority signals such as `verification_required`, `block`, `high`, or `critical`.
+- The role filter selected the dosage policy, stale VPN credential policy, donor-PII authorization policy, and access-matrix policy instead of their concrete operational distractors.
+- The invoice case fell back to ordinary retrieval and selected the settled paid-invoice fact, avoiding the naive overblocking failure from a critical but non-governing money-movement directive.
+
+**Status:** `preliminary` — demonstrated on this five-scenario packet only
+
+**Weakness:**
+- Depends on clean metadata tagging. If policy/critical memories are mislabeled, the role filter has nothing reliable to filter on.
+- The stores are tiny scenario-local packets, not a realistic mixed memory base.
+- The strategy currently has no query-alignment threshold beyond candidate type/signals plus BM25 selection inside the authority lane.
+- A naive version overblocked the invoice scenario, which shows role filtering can create its own failure mode if authority-lane eligibility is too broad.
+
+**Next test:**
+- Add metadata-noise scenarios with missing, wrong, or adversarial `memory_type` and `priority` tags.
+- Add unrelated block/policy memories to test overblocking pressure.
+- Compare this Direction B result against a Direction A score-blend baseline without tuning to the test set.
+
+**Allowed wording:**
+> "On the five fresh-authored adversarial scenario-local stores, a first role-filter strategy reached 5/5 target selection and 5/5 action correctness, while the best prior lexical strategy reached 3/5 target selection and 4/5 action correctness. This supports the authority-arbitration hypothesis, but the result depends on clean metadata tags and needs stress testing."
+
+**Forbidden wording:**
+> "Role filtering solves authority arbitration."
+> "The authority-aware reranker is validated."
+> "Metadata tags are enough to make memory safe."
+
+---
+
 ## CLAIM-06 — FORBIDDEN
 
 The following claims must not appear in any public artifact:

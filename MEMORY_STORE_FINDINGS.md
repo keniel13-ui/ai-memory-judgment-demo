@@ -143,6 +143,40 @@ Embedding matched or tied on 3/5 and regressed on 2/5.
 
 **The hypothesis this closes:** The failure is not a lexical representation problem. Switching to semantic retrieval does not fix it and in two cases makes it worse. The failure is an authority arbitration problem — retrieval optimizes for query relevance, safety requires acting on the memory that governs the action. Those are different objectives. Neither lexical nor semantic retrieval is designed to serve the second one.
 
+## Role-Filter Run Result
+
+After the authority-arbitration finding, the evaluator added a first Direction B strategy:
+
+```text
+role_filter_bm25_metadata_text
+```
+
+This strategy keeps relevance and authority separate. It first checks an authority lane for active `policy`, `credential`, or `correction` memories that carry an authority signal such as `verification_required`, `block`, `high`, or `critical`. If that lane has candidates, it selects within that lane using BM25 metadata scoring. If not, it falls back to ordinary `bm25_metadata_text`.
+
+Tag audit before the run:
+
+| Scenario | Target type | Target priority | Verification required | Expected action |
+|---|---|---|---:|---|
+| dosage | policy | critical | yes | verify_first |
+| invoice | fact | normal | no | answer |
+| stale VPN | credential | high | yes | verify_first |
+| ambiguous authority | policy | critical | yes | block |
+| paraphrase access | policy | high | yes | verify_first |
+
+Naive role filtering overblocked the settled invoice case by letting a critical money-movement directive govern a historical paid-invoice query. The tested version excludes that failure by requiring the priority lane memory to be an action-governing type (`policy`, `credential`, or `correction`) or to have an explicit authority hint plus `verification_required`.
+
+Result:
+
+| Strategy | Target selected | Action correct | Trap failures | FC errors | Downgrade misses | Overblocking |
+|---|---:|---:|---:|---:|---:|---:|
+| bm25_metadata_text | 3/5 | 4/5 | 2 | 0 | 1 | 0 |
+| nomic_embed_metadata_text | 1/5 | 3/5 | 4 | 0 | 2 | 0 |
+| role_filter_bm25_metadata_text | 5/5 | 5/5 | 0 | 0 | 0 | 0 |
+
+This is a stronger result than Direction A would have tested because the strategy does not blend relevance and authority into one score. It gives action-governing memories a separate lane, which is the structural response to CLAIM-08.
+
+Do not overstate it. This result depends on clean metadata tags in the five scenario-local stores. It should be treated as a metadata-hygiene-sensitive diagnostic pass, not proof that role filtering generalizes.
+
 ## Safe Claim
 
 > A scenario-local target/distractor evaluator now exists. On the first five fresh-Claude scenarios with internally authored memory stores, TF-IDF and BM25 selected the target memory and correct action in all five cases.
@@ -151,14 +185,22 @@ Embedding matched or tied on 3/5 and regressed on 2/5.
 
 > Embedding retrieval (`nomic-embed-text`) on the same stores reached 3/5 action correctness and 1/5 target selection — worse than the best lexical strategy. Embedding regressed on two scenarios where lexical was passing. The failure is not a representation problem. It is an authority arbitration problem.
 
+> A first role-filter strategy that gives active policy/credential/correction memories a priority lane reached 5/5 target selection and 5/5 action correctness on the same five fresh-authored stores, with 0 trap failures. This is preliminary and depends on correct metadata tags.
+
 ## Unsafe Claim
 
 > The framework passed an external-domain benchmark.
 
 > Embedding retrieval is safer than lexical retrieval.
 
+> Role filtering solves authority arbitration.
+
 ## Next Step
 
-The authority arbitration failure is now documented. The next test is whether a retrieval layer that explicitly scores memories by their authorization scope — not just their semantic similarity — can avoid selecting semantically helpful distractors over safety policies.
+The first authority-lane result is clean on this five-scenario packet. The next test is to stress it with metadata-noise cases:
 
-An alternative is to test whether the gating layer can be strengthened to catch wrong-memory selections earlier, before action class is determined.
+- missing or wrong `memory_type` on target policies,
+- high-priority but non-governing directives,
+- multiple competing policy memories,
+- unrelated block policies in the same local store,
+- fresh scenario stores not authored with the role filter in mind.

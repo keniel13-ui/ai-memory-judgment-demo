@@ -33,6 +33,9 @@ RISKY_EXPECTED = {"warn", "verify_first", "block"}
 PERMISSIVE_ACTIONS = {"answer", "answer_context"}
 LEXICAL_STRATEGIES = ["tfidf_text", "tfidf_metadata_text", "bm25_text", "bm25_metadata_text"]
 EMBEDDING_STRATEGIES = ["nomic_embed_text", "nomic_embed_metadata_text"]
+ROLE_FILTER_STRATEGIES = ["role_filter_bm25_metadata_text"]
+AUTHORITY_MEMORY_TYPES = {"policy", "credential", "correction"}
+AUTHORITY_ACTION_HINTS = {"block", "verify_first", "warn"}
 
 OLLAMA_BASE_URL = os.environ.get("OLLAMA_BASE_URL", "http://127.0.0.1:11434")
 OLLAMA_EMBED_MODEL = os.environ.get("OLLAMA_EMBED_MODEL", "nomic-embed-text:latest")
@@ -204,6 +207,9 @@ def embedding_scores(query: str, memories: list[dict[str, Any]], strategy: str) 
 
 
 def retrieve(query: str, memories: list[dict[str, Any]], strategy: str) -> tuple[dict[str, Any], float]:
+    if strategy == "role_filter_bm25_metadata_text":
+        return retrieve_with_role_filter(query, memories, "bm25_metadata_text")
+
     if strategy.startswith("tfidf"):
         scores = tfidf_scores(query, memories, strategy)
     elif strategy.startswith("bm25"):
@@ -211,6 +217,46 @@ def retrieve(query: str, memories: list[dict[str, Any]], strategy: str) -> tuple
     else:
         scores = embedding_scores(query, memories, strategy)
     memory_by_id = {memory["id"]: memory for memory in memories}
+    selected_id = max(scores, key=scores.get)
+    return memory_by_id[selected_id], scores[selected_id]
+
+
+def is_authority_lane_candidate(memory: dict[str, Any]) -> bool:
+    if memory.get("status") in {"superseded", "archived"}:
+        return False
+
+    memory_type = memory.get("memory_type")
+    action_hint = memory.get("allowed_action_hint")
+    priority = memory.get("priority")
+    governs_action = memory_type in AUTHORITY_MEMORY_TYPES or (
+        action_hint in AUTHORITY_ACTION_HINTS
+        and bool(memory.get("verification_required"))
+    )
+    has_authority_signal = (
+        bool(memory.get("verification_required"))
+        or action_hint == "block"
+        or priority in {"high", "critical"}
+    )
+    return governs_action and has_authority_signal
+
+
+def retrieve_with_role_filter(
+    query: str,
+    memories: list[dict[str, Any]],
+    base_strategy: str,
+) -> tuple[dict[str, Any], float]:
+    scores = bm25_scores(query, memories, base_strategy)
+    memory_by_id = {memory["id"]: memory for memory in memories}
+    candidates = [
+        memory
+        for memory in memories
+        if is_authority_lane_candidate(memory)
+    ]
+
+    if candidates:
+        selected = max(candidates, key=lambda memory: scores[memory["id"]])
+        return selected, scores[selected["id"]]
+
     selected_id = max(scores, key=scores.get)
     return memory_by_id[selected_id], scores[selected_id]
 
@@ -300,7 +346,7 @@ def main() -> None:
         scenarios_path = ROOT / scenarios_path
     results_json, results_md = output_paths(scenarios_path)
 
-    strategies = list(LEXICAL_STRATEGIES)
+    strategies = list(LEXICAL_STRATEGIES) + list(ROLE_FILTER_STRATEGIES)
     if ollama_available():
         strategies += EMBEDDING_STRATEGIES
         print(f"Ollama available — including embedding strategies with {OLLAMA_EMBED_MODEL}")

@@ -244,6 +244,9 @@ def layered_action(memory: dict[str, Any]) -> tuple[str, str]:
             return hint, f"active correction uses {hint}"
         return "block", "active correction blocks repeating known failure"
 
+    if memory.get("allowed_action_hint") == "block":
+        return "block", "settled memory hint: block"
+
     if memory.get("verification_required"):
         return "verify_first", "verification_required gate"
 
