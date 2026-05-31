@@ -4,6 +4,8 @@ Purpose: test whether an outside author can write useful jurisdiction metadata f
 
 This is not asking you to solve the scenarios. It is asking you to define what each memory is allowed to govern.
 
+This file is for fresh-author tests. If the author has seen prior results, failure analysis, or claim history, use `GOVERNS_AUDIT_PROTOCOL.md` instead and do not count that output as independent fresh-author evidence.
+
 ## Why This Exists
 
 The current architecture separates relevance from authority:

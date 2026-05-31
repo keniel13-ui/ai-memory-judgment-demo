@@ -55,6 +55,7 @@ Supporting files:
 - `PREREGISTRATION_v0.4_ADVERSARIAL.md` — frozen adversarial/external scenario plan.
 - `EXTERNAL_SCENARIO_REQUEST.md` — packet for collecting scenarios from outside reviewers.
 - `EXTERNAL_GOVERNS_REQUEST.md` — packet for collecting fresh-authored jurisdiction metadata.
+- `GOVERNS_AUDIT_PROTOCOL.md` — separates fresh-author evidence from skeptical post-hoc audit passes.
 - `external_scenarios/fresh_governs_authoring_packet_v0_1.json` — generated packet for the next external/fresh-author test.
 - `external_scenarios/fresh_governs_clutter_v0_1_source.json` — CLAIM-13 source packet with semantically tempting authority clutter.
 - `external_scenarios/fresh_governs_clutter_authoring_packet_v0_1.json` — CLAIM-13 fresh-author packet with hidden roles/answer keys.
