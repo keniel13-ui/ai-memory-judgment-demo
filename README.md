@@ -8,6 +8,24 @@ This folder is a small, inspectable demo for testing one idea:
 
 The demo uses six structured memory files, ten scenarios, and a deterministic evaluator. It does not use an LLM, embeddings, reranking, or generated answers.
 
+## Practical Offshoot: AI Memory Reliability Audits
+
+The same framework can be used as a manual review checklist for real agent/project memory files.
+
+If an agent reads files like `AGENTS.md`, `CLAUDE.md`, `.cursorrules`, `.hermes.md`, `MEMORY.md`, prompt files, or project SOPs before acting, the audit asks:
+
+- Which file should govern when instructions conflict?
+- Which memories are stale, superseded, provisional, or context-only?
+- Which actions should require verification before execution?
+- Where could a relevant memory override a more authoritative one?
+
+Starter files:
+
+- `AI_MEMORY_AUDIT_INTAKE.md` — public offer copy, what users should send, and what not to accept.
+- `AI_MEMORY_AUDIT_REPORT_TEMPLATE.md` — short report structure for manual audits.
+
+This is not a security audit, legal review, compliance review, or production safety certification. It is a memory/instruction reliability review.
+
 ## What This Is
 
 This is a public, sanitized version of a private diagnostic harness used while developing the article:
@@ -56,6 +74,8 @@ Supporting files:
 - `EXTERNAL_SCENARIO_REQUEST.md` — packet for collecting scenarios from outside reviewers.
 - `EXTERNAL_GOVERNS_REQUEST.md` — packet for collecting fresh-authored jurisdiction metadata.
 - `GOVERNS_AUDIT_PROTOCOL.md` — separates fresh-author evidence from skeptical post-hoc audit passes.
+- `AI_MEMORY_AUDIT_INTAKE.md` — practical intake copy for manual AI memory reliability audits.
+- `AI_MEMORY_AUDIT_REPORT_TEMPLATE.md` — report template for reviewing real agent instruction/memory files.
 - `external_scenarios/fresh_governs_authoring_packet_v0_1.json` — generated packet for the next external/fresh-author test.
 - `external_scenarios/fresh_governs_clutter_v0_1_source.json` — CLAIM-13 source packet with semantically tempting authority clutter.
 - `external_scenarios/fresh_governs_clutter_authoring_packet_v0_1.json` — CLAIM-13 fresh-author packet with hidden roles/answer keys.
