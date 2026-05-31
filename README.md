@@ -219,9 +219,9 @@ Fresh-author results so far:
 | role_filter_bm25_metadata_text | 5/5 | 5/5 | 0 | 0 | 0 | 0 |
 | scope_role_filter_bm25_metadata_text | 5/5 | 5/5 | 0 | 0 | 0 | 0 |
 
-The first two independent fresh-author passes produced the same summary. This is still not a general reliability claim.
+The first three independent fresh-author passes produced the same summary. This supports authorability on this packet, but it is still not a general reliability claim.
 
-For replication passes, keep each independent author output separate instead of overwriting the first result. See:
+For the replication procedure, see:
 
 ```text
 FRESH_GOVERNS_REPLICATION_PLAN.md

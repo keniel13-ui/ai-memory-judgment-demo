@@ -330,32 +330,33 @@ Gating rules prevent false-certainty errors when the retrieved memory carries ep
 
 ## CLAIM-12
 
-**Claim:** In the first two fresh-authored `governs` tests, outside/fresh authors produced usable jurisdiction metadata for the five v2.2 scenario-local stores. Applying each annotation pass preserved the role-filter result: `scope_role_filter_bm25_metadata_text` reached 5/5 target selection and 5/5 action correctness with 0 trap failures, 0 false-certainty errors, 0 downgrade misses, and 0 overblocking.
+**Claim:** In three independent fresh-authored `governs` tests, outside/fresh authors produced usable jurisdiction metadata for the five v2.2 scenario-local stores. Applying each annotation pass preserved the role-filter result: `scope_role_filter_bm25_metadata_text` reached 5/5 target selection and 5/5 action correctness with 0 trap failures, 0 false-certainty errors, 0 downgrade misses, and 0 overblocking.
 
 **Evidence:**
-- Fresh annotations saved in `external_scenarios/fresh_governs_annotations_v0_1.json` and `external_scenarios/fresh_governs_annotations_v0_2.json`.
+- Fresh annotations saved in `external_scenarios/fresh_governs_annotations_v0_1.json`, `external_scenarios/fresh_governs_annotations_v0_2.json`, and `external_scenarios/fresh_governs_annotations_v0_3.json`.
 - The authoring packet hid target/distractor roles and expected actions.
-- `run_fresh_governs_eval.py` applied 5 non-empty annotations for pass 1 and 5 non-empty annotations for pass 2.
-- `results/fresh_governs_eval_results.md` and `results/fresh_governs_eval_results_v0_2.md` both show:
+- `run_fresh_governs_eval.py` applied 5 non-empty annotations for pass 1, 5 non-empty annotations for pass 2, and 12 non-empty annotations for pass 3.
+- `results/fresh_governs_eval_results.md`, `results/fresh_governs_eval_results_v0_2.md`, and `results/fresh_governs_eval_results_v0_3.md` all show:
   - `bm25_metadata_text`: 3/5 target, 4/5 action, 2 trap failures, 1 downgrade.
   - `role_filter_bm25_metadata_text`: 5/5 target, 5/5 action.
   - `scope_role_filter_bm25_metadata_text`: 5/5 target, 5/5 action.
 
-**Status:** `preliminary` — two fresh-author passes on the same five-scenario packet
+**Status:** `demonstrated` — repeatability on this five-scenario packet only; not a general reliability claim
 
 **Weakness:**
-- The fresh author saw the authoring instructions and the memory metadata, but not the hidden role labels or expected actions.
+- Fresh authors saw the authoring instructions and the memory metadata, but not the hidden role labels or expected actions.
 - The packet is still only five scenarios.
 - The annotations were not independently blind-scored outside the evaluator.
-- Both authors selected the governing memories, which is promising but may reflect obvious metadata cues in this small packet.
+- Pass 3 assigned `governs` to several fact/context memories, so author style is not identical across passes; the current architecture still preserved the target selection because authority-lane filtering remains role/status constrained.
+- The clean result may still reflect obvious metadata cues in this small packet.
 
 **Next test:**
-- Collect at least one more independent governs annotation pass on the same packet.
 - Test fresh-authored governs on a larger packet with unrelated and competing policies already present.
 - Add severity arbitration among multiple in-scope policies.
+- Test whether broad or conflicting `governs` on non-authority memories can create failures under a less role-constrained architecture.
 
 **Allowed wording:**
-> "In two fresh-author passes, outside authors wrote jurisdiction metadata that preserved the scoped role-filter 5/5 result on the five v2.2 stores. This suggests the `governs` concept is repeatably authorable in this packet, but it still needs at least one more pass and harder stores before any general reliability claim."
+> "In three independent fresh-author passes on the same five-scenario packet, authored jurisdiction metadata preserved the scoped role-filter 5/5 result with zero trap failures. This supports the authorability of the `governs` concept in this packet, but not general reliability across harder stores."
 
 **Forbidden wording:**
 > "Fresh authors can reliably write governs metadata."

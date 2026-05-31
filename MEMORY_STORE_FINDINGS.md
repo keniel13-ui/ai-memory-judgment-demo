@@ -253,5 +253,8 @@ Fresh-author passes so far:
 |---|---|---|---:|---|
 | 1 | `external_scenarios/fresh_governs_annotations_v0_1.json` | `results/fresh_governs_eval_results.md` | 5 | 5/5 target selected, 5/5 action correct, 0 trap failures, 0 downgrade misses, 0 overblocking |
 | 2 | `external_scenarios/fresh_governs_annotations_v0_2.json` | `results/fresh_governs_eval_results_v0_2.md` | 5 | 5/5 target selected, 5/5 action correct, 0 trap failures, 0 downgrade misses, 0 overblocking |
+| 3 | `external_scenarios/fresh_governs_annotations_v0_3.json` | `results/fresh_governs_eval_results_v0_3.md` | 12 | 5/5 target selected, 5/5 action correct, 0 trap failures, 0 downgrade misses, 0 overblocking |
 
-This is preliminary evidence that the `governs` concept is repeatably authorable in this packet. It is not yet evidence that fresh authors can write reliable scope metadata in general.
+This supports the authorability of the `governs` concept in this packet. It is not yet evidence that fresh authors can write reliable scope metadata in general.
+
+Pass 3 is especially useful because it assigned `governs` to several fact/context memories rather than only target policy memories. The scoped role-filter still held because the architecture remains role/status constrained before scope matching.
