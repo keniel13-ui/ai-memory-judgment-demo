@@ -18,6 +18,8 @@ It needed to find the memory that was allowed to govern the action.
 
 Those are not the same objective.
 
+In this work, authority means the memory that is permitted to determine the action outcome, even when another memory looks more semantically relevant.
+
 This is not a validation claim. It is a research note about a small failure-to-architecture progression: find a failure, build the smallest architecture that addresses it, then keep the boundaries visible.
 
 Repo:
@@ -369,15 +371,11 @@ It does not.
 
 It removes the observed failure modes in this packet.
 
-The biggest remaining validity threat is the held-out-packet gap. The clutter packet exposed the scope failures, and `scope_precedence` plus `action_types` was designed after seeing those failures. The next stronger test would design the strategy on this packet, freeze it, then run it on a new clutter packet authored without knowing the fix.
+The biggest remaining validity threat is architecture-overfitting to the clutter packet family. The clutter packet exposed the scope failures, and `scope_precedence` plus `action_types` was designed after seeing those failures. The next meaningful test is not a larger packet from the same design process, but a genuinely new packet authored without knowledge of the observed failures or the resulting architecture.
 
 ## Why I Separated Fresh Authoring From Audit
 
-One more rigor point matters.
-
-After seeing the results, it is easy to ask a model for a stronger annotation pass. The output may be smarter, more detailed, and more convincing.
-
-But if that model has prior failure context, it is no longer fresh-author evidence.
+One more rigor point matters. After seeing the results, it is easy to ask a model for a stronger annotation pass. The output may be smarter, more detailed, and more convincing, but if that model has prior failure context, it is no longer fresh-author evidence.
 
 So I separated the workflows:
 
@@ -390,11 +388,7 @@ That protocol is now documented:
 GOVERNS_AUDIT_PROTOCOL.md
 ```
 
-This distinction matters because otherwise the work quietly becomes contaminated.
-
-If a model knows the prior failure, it can optimize around it.
-
-That may improve the system, but it no longer proves that the metadata is naturally authorable from the packet alone.
+This distinction matters because otherwise the work quietly becomes contaminated. If a model knows the prior failure, it can optimize around it. That may improve the system, but it no longer supports the claim that the metadata is naturally authorable from the packet alone.
 
 This is also why I treat "separate fresh model instances" carefully. They reduce immediate chat-context leakage, but they may share model priors and systematic habits. They are not statistically independent human annotators.
 
@@ -420,7 +414,7 @@ But the boundary is just as important:
 - no large mixed memory base,
 - no human external panel yet,
 - token-based scope matching,
-- keyword-based action type detection.
+- keyword-based action type detection,
 - no held-out clutter packet yet after designing the CLAIM-14 strategy.
 
 This is not validation.
