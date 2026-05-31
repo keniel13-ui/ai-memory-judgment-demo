@@ -34,6 +34,7 @@ PERMISSIVE_ACTIONS = {"answer", "answer_context"}
 LEXICAL_STRATEGIES = ["tfidf_text", "tfidf_metadata_text", "bm25_text", "bm25_metadata_text"]
 EMBEDDING_STRATEGIES = ["nomic_embed_text", "nomic_embed_metadata_text"]
 ROLE_FILTER_STRATEGIES = ["role_filter_bm25_metadata_text"]
+SCOPE_PRECEDENCE_STRATEGIES = ["scope_precedence_role_filter_bm25_metadata_text"]
 AUTHORITY_MEMORY_TYPES = {"policy", "credential", "correction"}
 AUTHORITY_ACTION_HINTS = {"block", "verify_first", "warn"}
 
@@ -216,6 +217,14 @@ def retrieve(query: str, memories: list[dict[str, Any]], strategy: str) -> tuple
             "bm25_metadata_text",
             scope_aware=True,
         )
+    if strategy == "scope_precedence_role_filter_bm25_metadata_text":
+        return retrieve_with_role_filter(
+            query,
+            memories,
+            "bm25_metadata_text",
+            scope_aware=True,
+            precedence_aware=True,
+        )
 
     if strategy.startswith("tfidf"):
         scores = tfidf_scores(query, memories, strategy)
@@ -252,6 +261,7 @@ def retrieve_with_role_filter(
     memories: list[dict[str, Any]],
     base_strategy: str,
     scope_aware: bool = False,
+    precedence_aware: bool = False,
 ) -> tuple[dict[str, Any], float]:
     scores = bm25_scores(query, memories, base_strategy)
     memory_by_id = {memory["id"]: memory for memory in memories}
@@ -267,6 +277,7 @@ def retrieve_with_role_filter(
             memory
             for memory in candidates
             if scope_matches_query(memory, query)
+            and (not precedence_aware or action_type_matches_query(memory, query))
         ]
         candidates = scoped_candidates
         if not candidates:
@@ -277,7 +288,16 @@ def retrieve_with_role_filter(
             ] or memories
 
     if candidates:
-        selected = max(candidates, key=lambda memory: scores[memory["id"]])
+        if precedence_aware:
+            selected = max(
+                candidates,
+                key=lambda memory: (
+                    scope_specificity_score(memory, query),
+                    scores[memory["id"]],
+                ),
+            )
+        else:
+            selected = max(candidates, key=lambda memory: scores[memory["id"]])
         return selected, scores[selected["id"]]
 
     fallback_ids = {memory["id"] for memory in fallback_memories}
@@ -302,6 +322,96 @@ def scope_matches_query(memory: dict[str, Any], query: str) -> bool:
     if any_terms and not query_tokens & any_terms:
         return False
     return bool(any_terms or all_terms)
+
+
+def normalize_govern_terms(values: Any) -> set[str]:
+    if not isinstance(values, list):
+        return set()
+    terms: set[str] = set()
+    for value in values:
+        terms.update(tokenize(str(value)))
+    return terms
+
+
+def scope_specificity_score(memory: dict[str, Any], query: str) -> int:
+    governs = memory.get("governs")
+    if not isinstance(governs, dict):
+        return 0
+
+    query_tokens = set(tokenize(query))
+    any_terms = normalize_govern_terms(governs.get("any_terms", []))
+    all_terms = normalize_govern_terms(governs.get("all_terms", []))
+    return len(query_tokens & any_terms) + (2 * len(query_tokens & all_terms))
+
+
+def query_action_types(query: str) -> set[str]:
+    tokens = set(tokenize(query))
+    action_types: set[str] = set()
+
+    read_terms = {
+        "what",
+        "which",
+        "who",
+        "when",
+        "where",
+        "remind",
+        "show",
+        "lookup",
+        "look",
+        "list",
+        "total",
+        "status",
+    }
+    write_terms = {
+        "update",
+        "change",
+        "edit",
+        "record",
+        "mark",
+        "create",
+        "add",
+        "remove",
+        "adjust",
+        "reverse",
+        "refund",
+    }
+    execute_terms = {
+        "send",
+        "release",
+        "export",
+        "initiate",
+        "transfer",
+        "wire",
+        "pay",
+        "move",
+        "provision",
+        "grant",
+        "allow",
+        "connect",
+        "connecting",
+        "fill",
+    }
+
+    if tokens & read_terms:
+        action_types.add("read")
+    if tokens & write_terms:
+        action_types.add("write")
+    if tokens & execute_terms:
+        action_types.add("execute")
+    return action_types or {"read"}
+
+
+def action_type_matches_query(memory: dict[str, Any], query: str) -> bool:
+    governs = memory.get("governs")
+    if not isinstance(governs, dict):
+        return True
+
+    action_types = governs.get("action_types")
+    if not isinstance(action_types, list) or not action_types:
+        return True
+
+    allowed = {str(action_type).strip().lower() for action_type in action_types if str(action_type).strip()}
+    return bool(allowed & query_action_types(query))
 
 
 def score_row(strategy: str, scenario: dict[str, Any]) -> MemoryStoreDecision:
@@ -389,7 +499,7 @@ def main() -> None:
         scenarios_path = ROOT / scenarios_path
     results_json, results_md = output_paths(scenarios_path)
 
-    strategies = list(LEXICAL_STRATEGIES) + list(ROLE_FILTER_STRATEGIES)
+    strategies = list(LEXICAL_STRATEGIES) + list(ROLE_FILTER_STRATEGIES) + list(SCOPE_PRECEDENCE_STRATEGIES)
     if ollama_available():
         strategies += EMBEDDING_STRATEGIES
         print(f"Ollama available — including embedding strategies with {OLLAMA_EMBED_MODEL}")

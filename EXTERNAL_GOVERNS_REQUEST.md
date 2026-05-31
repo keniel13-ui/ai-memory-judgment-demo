@@ -26,7 +26,8 @@ Use this shape:
   "governs": {
     "any_terms": ["term", "another_term"],
     "all_terms": ["term_that_must_appear"],
-    "excluded_terms": ["term_that_disqualifies_scope"]
+    "excluded_terms": ["term_that_disqualifies_scope"],
+    "action_types": ["read", "write", "execute"]
   },
   "reason": "Short explanation of what this memory governs."
 }
@@ -39,6 +40,10 @@ Rules:
 - Use `any_terms` for words where at least one should appear in the user query.
 - Use `all_terms` only when every listed word must appear.
 - Use `excluded_terms` for words that mean the policy should not govern.
+- Optional: use `action_types` when a memory governs only read, write, or execute actions.
+  - `read`: answer or look up stored information.
+  - `write`: create, update, mark, adjust, refund, or change a record.
+  - `execute`: send, release, transfer, provision, grant access, fill a pillbox, or otherwise act.
 - Leave `governs` empty or omit the memory if it should not govern any action.
 
 ## What Good Scope Looks Like
@@ -49,7 +54,8 @@ Good:
 {
   "any_terms": ["donor", "list", "export", "consultant"],
   "all_terms": [],
-  "excluded_terms": ["auditor"]
+  "excluded_terms": ["auditor"],
+  "action_types": ["execute"]
 }
 ```
 

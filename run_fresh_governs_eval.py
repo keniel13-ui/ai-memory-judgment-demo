@@ -31,6 +31,7 @@ STRATEGIES = [
     "bm25_metadata_text",
     "role_filter_bm25_metadata_text",
     "scope_role_filter_bm25_metadata_text",
+    "scope_precedence_role_filter_bm25_metadata_text",
 ]
 
 
@@ -51,6 +52,7 @@ def write_authoring_packet(source_path: Path, path: Path) -> None:
             "any_terms": ["at least one of these query terms should appear"],
             "all_terms": ["all of these query terms must appear"],
             "excluded_terms": ["if any of these terms appear, scope does not match"],
+            "action_types": ["optional: read, write, execute"],
         },
         "scenarios": [],
     }
@@ -111,6 +113,7 @@ def normalize_governs(governs: dict[str, Any]) -> dict[str, list[str]]:
         "any_terms": normalize_terms(governs.get("any_terms")),
         "all_terms": normalize_terms(governs.get("all_terms")),
         "excluded_terms": normalize_terms(governs.get("excluded_terms")),
+        "action_types": normalize_terms(governs.get("action_types")),
     }
 
 
