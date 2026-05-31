@@ -4,7 +4,11 @@ This is a submission for the [GitHub Finish-Up-A-Thon Challenge](https://dev.to/
 
 ## What I Built
 
-I built the **AI Memory Judgment Demo**, a public research framework for testing whether AI agent memory can govern actions correctly.
+I published an AI memory result. Then I added real retrieval and everything broke.
+
+This is what I built after I went back and finished it.
+
+The **AI Memory Judgment Demo** is a public research framework for testing whether AI agent memory can govern actions correctly.
 
 The question is not only:
 
@@ -100,6 +104,8 @@ Instead of asking retrieval to solve everything, I separated the problem:
 
 The first role-filter strategy created an authority lane for active policy, credential, and correction memories. On the five-scenario adversarial packet, it reached:
 
+Every prior strategy still selected trap memories in these same scenarios.
+
 | Strategy | Target selected | Action correct | Trap failures |
 |---|---:|---:|---:|
 | `bm25_metadata_text` | 3/5 | 4/5 | 2 |
@@ -117,7 +123,7 @@ Three separate fresh model passes all preserved the clean result on the first pa
 - adjacent policies with overlapping vocabulary,
 - read-only queries accidentally triggering write/execute policies.
 
-That led to CLAIM-14: specificity precedence plus `action_types`.
+That led to the next architecture layer: specificity precedence and action-type filtering.
 
 Two separate fresh action-type passes on the clutter packet both reached:
 
@@ -145,9 +151,7 @@ That is the finish-up.
 
 ## My Experience with GitHub Copilot
 
-I need to be direct here: GitHub Copilot was not part of this build.
-
-The AI development partners were Claude Code and Codex. The subject of the research was also AI agents: how memory, retrieval, corrections, and authority rules change what an agent is allowed to do.
+The development partners in this project were Claude Code and Codex — AI agents whose memory behavior was the subject of the research itself. GitHub Copilot was not part of the build.
 
 What GitHub provided was the part I did not realize I needed at the beginning: accountability.
 
@@ -186,4 +190,3 @@ That is what I finished.
 ---
 
 Tags: `devchallenge`, `githubchallenge`, `ai`, `machinelearning`
-
