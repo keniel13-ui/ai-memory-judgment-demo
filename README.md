@@ -8,6 +8,21 @@ This folder is a small, inspectable demo for testing one idea:
 
 The demo uses six structured memory files, ten scenarios, and a deterministic evaluator. It does not use an LLM, embeddings, reranking, or generated answers.
 
+## Live Product Offshoot
+
+This research now has a deployed product surface:
+
+**AI Memory Authority Auditor**
+
+- Live app: https://memory-authority-auditor-web-992750435781.us-central1.run.app
+- DEV ADK submission: https://dev.to/zep1997/i-built-a-multi-agent-authority-auditor-for-ai-memory-files-1hb0
+
+The product turns the core finding into a multi-agent audit workflow:
+
+> Relevance is not authority.
+
+It audits agent instruction and memory files for stale instructions, authority collisions, verification gates, and governing-rule categories.
+
 ## Practical Offshoot: AI Memory Reliability Audits
 
 The same framework can be used as a manual review checklist for real agent/project memory files.
