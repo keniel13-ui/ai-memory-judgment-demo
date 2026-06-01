@@ -84,6 +84,9 @@ class MemoryStoreDecision:
     rationale: str
     action_authorized_by: str
     attribution_status: str  # GOVERNED | AUTHORITY_ONLY | DEFAULT | UNATTRIBUTABLE
+    gate_result: str         # GATE_PASS | GATE_FAIL | GATE_SKIP | GATE_WARN
+    gate_note: str
+    pre_gate_action: str     # action before execution gate; equals action if no escalation
 
 
 def memory_text(memory: dict[str, Any], strategy: str) -> str:
@@ -871,11 +874,59 @@ def action_attribution(
     return authorized_by, "DEFAULT"
 
 
+RESTRICTIVE_ACTION_TYPES = {"execute", "write"}
+READ_ACTION_TYPES = {"read"}
+
+
+def execution_gate(memory: dict[str, Any], action: str) -> tuple[str, str, str]:
+    """
+    Execution-time gate: check if the memory's governs.action_types authorizes
+    the action class being taken.
+
+    Returns (gate_result, gate_note, final_action) where gate_result is:
+      GATE_PASS   — governs action_types are consistent with the action taken
+      GATE_FAIL   — governs action_types imply a restrictive action; escalate to verify_first
+      GATE_SKIP   — no governs field or no action_types to check
+      GATE_WARN   — governs action_types are read-only but action is restrictive (potential overblock)
+    """
+    governs = memory.get("governs")
+    if not isinstance(governs, dict):
+        return "GATE_SKIP", "no governs field", action
+
+    raw_types = governs.get("action_types", [])
+    action_types = {str(t).strip().lower() for t in raw_types if str(t).strip()}
+    if not action_types:
+        return "GATE_SKIP", "governs present but no action_types", action
+
+    governs_restrictive = bool(action_types & RESTRICTIVE_ACTION_TYPES)
+    governs_read_only = bool(action_types & READ_ACTION_TYPES) and not governs_restrictive
+
+    if governs_restrictive and action in PERMISSIVE_ACTIONS:
+        return (
+            "GATE_FAIL",
+            f"governs.action_types={sorted(action_types)} requires restrictive action; escalating from {action}",
+            "verify_first",
+        )
+
+    if governs_read_only and action not in PERMISSIVE_ACTIONS:
+        return (
+            "GATE_WARN",
+            f"governs.action_types={sorted(action_types)} suggests read op but action={action}",
+            action,
+        )
+
+    return "GATE_PASS", f"governs.action_types={sorted(action_types)} consistent with action={action}", action
+
+
 def score_row(strategy: str, scenario: dict[str, Any]) -> MemoryStoreDecision:
     memory_store = normalize_memory_store(scenario)
     selected, score = retrieve(scenario["query"], memory_store, strategy)
-    action, rationale = layered_action(selected)
+    pre_gate_action, rationale = layered_action(selected)
     expected = scenario["expected_action"]
+
+    # Execution-time gate: intercept before scoring
+    gate_result, gate_note, action = execution_gate(selected, pre_gate_action)
+
     action_correct = action == expected
     target_selected = selected.get("role") == "target"
     trap_failure = selected.get("distractor_trap") == "should_not_fire"
@@ -916,6 +967,9 @@ def score_row(strategy: str, scenario: dict[str, Any]) -> MemoryStoreDecision:
         rationale=rationale,
         action_authorized_by=authorized_by,
         attribution_status=attribution_status,
+        gate_result=gate_result,
+        gate_note=gate_note,
+        pre_gate_action=pre_gate_action,
     )
 
 
@@ -932,6 +986,12 @@ def summarize(rows: list[MemoryStoreDecision]) -> dict[str, int]:
         "soft_overcaution": sum(row.soft_overcaution for row in rows),
         "governed": sum(getattr(row, "attribution_status", "") == "GOVERNED" for row in rows),
         "unattributable": sum(getattr(row, "attribution_status", "") == "UNATTRIBUTABLE" for row in rows),
+        "gate_fail": sum(getattr(row, "gate_result", "") == "GATE_FAIL" for row in rows),
+        "gate_skip": sum(getattr(row, "gate_result", "") == "GATE_SKIP" for row in rows),
+        "gate_escalations": sum(
+            getattr(row, "pre_gate_action", "") != getattr(row, "action", "")
+            for row in rows
+        ),
     }
 
 
