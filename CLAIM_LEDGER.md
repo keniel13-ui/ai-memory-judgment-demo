@@ -448,6 +448,357 @@ Gating rules prevent false-certainty errors when the retrieved memory carries ep
 
 ---
 
+## CLAIM-15
+
+**Claim:** A first governance-adjusted retrieval scorer has been implemented. Instead of using relevance alone or a hard authority-lane filter, `governance_adjusted_bm25_metadata_text` ranks each memory with an additive score combining normalized BM25 relevance, authority signals, scope fit, specificity, action-type fit, status validity, and a small conflict-risk penalty.
+
+**Model sketch:**
+
+```text
+score =
+  normalized_relevance
++ authority_weight
++ scope_match_weight
++ specificity_weight
++ action_type_weight
++ status_validity_weight
+- conflict_risk_penalty
+```
+
+**Evidence before stress testing:**
+- `run_memory_store_eval.py` includes `governance_adjusted_bm25_metadata_text`.
+- `run_fresh_governs_eval.py` now compares the new scorer against BM25, role filtering, scope filtering, and specificity/action-type precedence.
+- On the three fresh-governs v2.2 annotation passes:
+  - `results/fresh_governs_eval_results.md`
+  - `results/fresh_governs_eval_results_v0_2.md`
+  - `results/fresh_governs_eval_results_v0_3.md`
+  - `governance_adjusted_bm25_metadata_text`: 5/5 target, 5/5 action, 0 trap failures, 0 overblocking.
+- On the two clutter action-type passes:
+  - `results/fresh_governs_clutter_action_types_results_v0_1.md`
+  - `results/fresh_governs_clutter_action_types_results_v0_2.md`
+  - `governance_adjusted_bm25_metadata_text`: 5/5 target, 5/5 action, 0 trap failures, 0 overblocking.
+- On the unannotated/default memory-store packet, the new scorer does not improve over relevance baselines:
+  - `results/memory_store_eval_results.md`
+  - `governance_adjusted_bm25_metadata_text`: 3/5 target, 3/5 action, 2 trap failures, 2 overblocking errors.
+
+**Stress test / ablation update:**
+- `external_scenarios/claim15_governance_stress_v0_1.json` adds six scenarios directly targeting the scorer's likely failure modes: missing target `governs`, poisoned distractor `governs`, multiple in-scope policies, mismatched target `governs`, non-authority correct facts, and action-boundary ambiguity.
+- `run_claim15_ablation_eval.py` compares BM25, `scope_precedence_role_filter_bm25_metadata_text`, `governance_adjusted_bm25_metadata_text`, `governance_no_scope_bm25_metadata_text`, `governance_no_governs_bm25_metadata_text`, and `governance_scope_weak_bm25_metadata_text`.
+- Stress result:
+  - `results/claim15_governance_stress_v0_1_results.md`
+  - `scope_precedence_role_filter_bm25_metadata_text`: 4/6 target, 4/6 action, 2 trap failures, 0 overblocking.
+  - `governance_adjusted_bm25_metadata_text`: 4/6 target, 4/6 action, 2 trap failures, 0 overblocking.
+  - Both fail the same two cases: missing target `governs` and mismatched target `governs`.
+- Ablation result:
+  - `results/claim15_ablation_results.md`
+  - Removing all governs-dependent terms usually degrades the clutter action-type packet from 5/5 to 2/5 target and 3/5 action.
+  - Removing only scope sometimes degrades fresh-governs v0.1/v0.2 but not every packet, which means scope is important but not the only load-bearing feature.
+  - Weakening scope to +1.5/-1.5 preserves the older annotated packet results but degrades the CLAIM-15 stress packet to 3/6 target and 3/6 action.
+- Score decomposition result:
+  - `run_claim15_score_decomposition.py`
+  - `results/claim15_score_decomposition.md`
+  - In `claim15_missing_target_governs_v0_1`, the winning distractor has lower relevance than the target (`-0.339726` delta) but wins by `+4.810274` total because it receives `+2.0` scope, `+1.4` specificity, `+1.25` action-type, and `+0.5` authority relative to the target.
+  - In `claim15_target_governs_mismatch_v0_1`, the target has perfect normalized relevance (`1.0`) but loses by `+6.183401` total because the winning distractor receives a `+5.0` scope delta and `+1.4` specificity delta.
+  - This confirms the structural failure: governance metadata can dominate relevance strongly enough that missing/wrong target `governs` is worse than no formal scoring at all.
+- Treatment A/B diagnostic update:
+  - `authority_signal_fallback_bm25_metadata_text` tests whether memory type, priority, status, verification requirement, and action hint can recover when `governs` is absent or untrusted.
+  - `governs_trust_gated_bm25_metadata_text` tests whether a retrieval-term overlap gate should suppress governs-dependent scope/specificity/action-type terms when `governs` looks mismatched with the memory's own retrieval terms.
+  - On `claim15_stress_v0_1`, authority fallback improves to 5/6 target and 5/6 action, fixing both earlier failed cases, but still overblocks the non-authority read-only invoice fact case.
+  - On clutter action-type passes, authority fallback degrades badly to 1/5 target and 2/5 action with 3 overblocks, showing that authority-signal fallback alone is too blunt.
+  - The simple governs trust gate preserves 5/5 on the older annotated/clutter packets but remains 4/6 on the CLAIM-15 stress packet and does not fix the mismatched-governs failure.
+- Action-type diagnostic update:
+  - `run_action_type_diagnostic.py`
+  - `results/action_type_diagnostic_results.md`
+  - On the clutter source packet plus CLAIM-15 stress packet, the current `query_action_types()` heuristic flags one clear issue: `claim15_governs_poisoned_distractor_v0_1` asks for a current Wi-Fi password and is expected `verify_first`, but the query is classified as read-only because it starts with "what".
+  - Several guarded requests infer both `read` and `execute`, so any future read-only gate must not treat "contains read" as read-only. It must require an exact `{"read"}` result and still needs credential/PII/action-sensitive overrides.
+
+**Status:** `prototype / partially falsified as improvement claim` — first mathematical retrieval scorer; matches the best prior strategy on annotated packets, but does not yet outperform it and fails metadata-missing/metadata-wrong stress cases
+
+**Weakness:**
+- Weights are hand-tuned and not learned.
+- Scope and action-type matching are deterministic keyword heuristics.
+- The strongest results depend on authored `governs` and `action_types` metadata.
+- The unannotated/default packet shows this is not yet a general-purpose authority inference model.
+- The same five-scenario families are reused, so this is still internal evidence.
+- The fresh CLAIM-15 stress packet shows the additive scorer has the same metadata-dependency failure modes as the scope-precedence filter.
+- The scorer has not yet shown a scenario where it selects correctly and `scope_precedence_role_filter_bm25_metadata_text` fails.
+- Decomposition confirms that a distractor with well-formed `governs` can beat a higher-relevance target with missing or mismatched `governs`.
+- Authority-signal fallback can recover missing/wrong-governs cases in the stress packet, but it overblocks read-only or adjacent-policy cases. It cannot be used as a standalone replacement.
+- A naive retrieval-term trust gate is insufficient for mismatched `governs` because suppressing the target's penalty does not stop a different memory with trusted `governs` from winning.
+- The action-type heuristic is too shallow to become a safety-critical gate without its own hardening. It misclassifies at least credential read requests that should be guarded.
+
+**Next test:**
+- Add a second CLAIM-15 stress packet where the additive scorer has a plausible advantage over hard filtering, or accept that it is only an equivalent implementation until such a case exists.
+- Build a governs-absent inference experiment: test whether authority signals without `governs` can provide a degraded-but-functional fallback.
+- Formalize a missing/mismatched-governs policy before tuning weights. Missing `governs` should not automatically lose to wrong-but-well-formed `governs`.
+- Next architecture should combine treatments conditionally: use authority fallback only when the user action is not read-only and when governance metadata is absent/untrusted; use trust-gating to detect suspect `governs`, but add conflict arbitration against high-relevance high-authority candidates.
+- Before conditional fallback becomes an architecture claim, build an action-type stress packet with semantically read-only but lexically ambiguous requests and guarded credential/PII reads. The gate should pass only if it can separate passive facts from read-shaped risky disclosures.
+- Compare against embedding retrieval when Ollama is available.
+- Decide whether weights remain hand-authored or become learned/calibrated from labeled rows.
+
+**Allowed wording:**
+> "We implemented a first governance-adjusted retrieval scorer that mathematically combines relevance with authority, scope, specificity, action type, status, and conflict risk. It matches the best prior scope-precedence strategy on the current annotated packets, but the first stress packet shows the same failures when target governance metadata is missing or wrong."
+
+> "CLAIM-15 is currently an alternative scoring formulation, not evidence that we outperform the best prior strategy."
+
+**Forbidden wording:**
+> "The math proves the theory."
+> "Governance-adjusted retrieval solves AI memory."
+> "The model is benchmark-grade."
+> "The scorer generalizes beyond the current annotated packets."
+> "Governance-adjusted retrieval improves on scope-precedence."
+
+---
+
+## CLAIM-16
+
+**Claim:** Read-shaped queries can trigger higher-stakes governed consequences, so strict action-type matching can be conceptually wrong. The current diagnostic packet confirms action-type classification ambiguity, but the first directional matching strategy does not yet improve retrieval outcomes.
+
+**Pre-registration:**
+- `CLAIM_16_ACTION_TYPE_MISMATCH_PLAN.md`
+- Hypothesis: strict action-type matching can falsely exclude execute-governed memories on read-shaped credential/PII/export requests.
+- Fix hypothesis: read-shaped access to a governed resource should inherit the stricter governed action rather than be treated as out-of-scope.
+
+**Evidence:**
+- `external_scenarios/claim16_action_type_mismatch_v0_1.json`
+- `results/claim16_action_type_diagnostic_results.md`
+- `results/claim16_action_type_mismatch_v0_1_results.md`
+- `results/claim15_ablation_results.md`
+- `run_memory_store_eval.py` includes diagnostic strategy `directional_action_governance_bm25_metadata_text`.
+
+**Diagnostic findings:**
+- `query_action_types()` classifies the read-shaped VPN password request as `read` while expected action is `verify_first`.
+- `query_action_types()` classifies the read-shaped patient emergency contact request as `read` while expected action is `verify_first`.
+- This supports the conceptual distinction: query surface action and governed consequence can diverge.
+
+**Retrieval results:**
+- On CLAIM-16 packet:
+  - `bm25_metadata_text`: 3/5 target, 4/5 action, 2 trap failures.
+  - `scope_precedence_role_filter_bm25_metadata_text`: 3/5 target, 4/5 action, 2 trap failures.
+  - `governance_adjusted_bm25_metadata_text`: 4/5 target, 4/5 action, 1 trap failure, 1 overblock.
+  - `directional_action_governance_bm25_metadata_text`: 4/5 target, 4/5 action, 1 trap failure, 1 overblock.
+- Directional action matching did not improve over the existing governance-adjusted scorer.
+- It still overblocked the clean read negative control (`claim16_clean_team_meeting_read_v0_1`) by selecting the security-policy distractor.
+- On the broader ablation run, `directional_action_governance_bm25_metadata_text` worsened the CLAIM-15 stress packet to 3/6 target and 3/6 action.
+
+**Status:** `diagnostic / negative first fix` — the action/consequence mismatch is real, but the first directional matching strategy is not sufficient
+
+**Weakness:**
+- The packet is internally authored.
+- The directional strategy is a simple heuristic, not a formal consequence model.
+- Clean read negative controls remain vulnerable to authority overpromotion.
+- The result does not establish an improvement over existing governance-adjusted scoring.
+
+**Next test:**
+- Separate query action type from governed consequence type in the schema.
+- Add a resource sensitivity dimension (`credential`, `pii`, `money_movement`, `export`, `ordinary_fact`) instead of overloading `action_types`.
+- Directional escalation should require both scope match and sensitive-resource match, not merely execute-governed memory plus read-shaped query.
+
+**Allowed wording:**
+> "The CLAIM-16 packet supports the conceptual problem: read-shaped queries can trigger higher-stakes governed consequences. But the first directional matching heuristic did not improve retrieval and still overblocked the clean read control."
+
+**Forbidden wording:**
+> "Directional matching solves action-type mismatch."
+> "The action-type architecture is fixed."
+> "Read-shaped credential/PII requests are handled generally."
+
+---
+
+## CLAIM-17
+
+**Claim:** A separate memory-side `resource_sensitivity` dimension is unsafe as a standalone ranking signal, but behaves safely on the CLAIM-17 packet when gated by `governs` scope. In the current packet it does not improve over `governance_adjusted_bm25_metadata_text`; it clarifies the schema boundary and confirms that scope gating is non-negotiable.
+
+**Pre-registration:**
+- `CLAIM_17_RESOURCE_SENSITIVITY_PLAN.md`
+- Hypothesis: a memory-level `resource_sensitivity` field (`credential`, `pii`, `money_movement`, `export`, `ordinary_fact`) combined with positive `governs` scope matching will elevate read-shaped high-risk disclosure memories without elevating unrelated execute-governed memories.
+- Null result: if `resource_sensitivity` without matching `governs` still elevates the security policy on "What time is the team meeting?", then the field alone is insufficient and scope remains non-negotiable.
+- Default: memories without `resource_sensitivity` are treated as `ordinary_fact`, receiving no sensitive-resource elevation or penalty.
+- Boundary test: a credential target with `resource_sensitivity: credential` and no `governs` field is fallback neutral for the resource-plus-scope scorer. If it wins, the win must come from relevance/authority/status, not resource sensitivity.
+- Poisoned-resource test: include a correct ordinary-fact target with no `governs` and a high-sensitivity distractor with polished but irrelevant `governs`; if resource-only overblocks, scope gating is non-negotiable.
+
+**Evidence:**
+- `external_scenarios/claim17_resource_sensitivity_v0_1.json`
+- `external_scenarios/claim17_authority_absent_boundary_v0_1.json`
+- `run_claim17_resource_sensitivity_eval.py`
+- `run_claim17_authority_absent_boundary_eval.py`
+- `results/claim17_resource_sensitivity_v0_1_results.md`
+- `results/claim17_resource_sensitivity_v0_1_results.json`
+- `results/claim17_authority_absent_boundary_v0_1_results.md`
+- `results/claim17_authority_absent_boundary_v0_1_results.json`
+- `run_memory_store_eval.py` includes:
+  - `resource_sensitivity_only_bm25_metadata_text`
+  - `resource_scope_governance_bm25_metadata_text`
+
+**Results:**
+- `resource_sensitivity_only_bm25_metadata_text`: 4/7 target, 4/7 action, 3 trap failures, 3 overblocks.
+- `resource_scope_governance_bm25_metadata_text`: 7/7 target, 7/7 action, 0 trap failures, 0 overblocks.
+- `governance_adjusted_bm25_metadata_text`: 7/7 target, 7/7 action, 0 trap failures, 0 overblocks.
+- `directional_action_governance_bm25_metadata_text`: 4/7 target, 4/7 action, 3 trap failures, 3 overblocks.
+- Scope-overlap audit confirmed the clean-read and poisoned-resource distractors had no token overlap with the clean queries:
+  - clean team meeting vs credential policy: no overlap with `access`, `network`, `password`, `vpn`.
+  - visitor badge color vs access policy: no overlap with `access`, `credential`, `network`, `password`.
+
+**Interpretation:**
+- The expected negative control held: resource-only scoring overpromoted sensitive distractors on ordinary read queries.
+- The expected scope-gated result held: resource-plus-scope blocked those overpromotions.
+- The no-governs credential boundary was fallback neutral in the implementation: `resource_scope_governance_bm25_metadata_text` selected the target, but with the same selected score as `governance_adjusted_bm25_metadata_text` (`5.162104`). That means resource sensitivity did not substitute for missing `governs`; existing relevance/authority/status terms were sufficient in this authored case.
+- Score inspection confirms the no-governs credential boundary was carried by authority metadata, not resource sensitivity: the target had `memory_type: credential`, `priority: critical`, `verification_required: true`, and `allowed_action_hint: verify_first`, producing `authority=3.5` with `resource_bonus=0.0`.
+- `resource_sensitivity` is redundant when `memory_type`, `priority`, `verification_required`, and action hint already carry equivalent authority signals. It only adds distinct value in the narrower case where authority metadata is absent or misleading but resource class is known.
+- The missing-governs gap is therefore narrower than originally stated: missing `governs` plus present authority metadata can still be recoverable through `authority_weight`; missing `governs` plus absent/misleading authority metadata remains open.
+- The next distinct-value boundary is a sensitive memory mislabeled as ordinary context: no `governs`, `memory_type: context`, `priority: normal`, `verification_required: false`, `allowed_action_hint: answer`, but `resource_sensitivity: credential`. Existing scoped resource scoring is expected to remain fallback neutral there, so this is a failure-floor test, not a victory test.
+- Because `governance_adjusted_bm25_metadata_text` also reached 7/7, CLAIM-17 is not an improvement-over-best-scorer claim.
+
+**Authority-absent boundary result:**
+- `governance_adjusted_bm25_metadata_text`: 1/3 target, 3/3 action, 2 trap failures, 0 false-certainty errors.
+- `resource_scope_governance_bm25_metadata_text`: 1/3 target, 3/3 action, 2 trap failures, 0 false-certainty errors.
+- `resource_sensitivity_only_bm25_metadata_text`: 0/3 target, 2/3 action, 3 trap failures, 1 dangerous overblock.
+- `scope_precedence_role_filter_bm25_metadata_text`: 3/3 target but only 1/3 action, with 2 false-certainty errors.
+- In both mislabeled sensitive-memory cases, governance-adjusted and resource-scope selected the well-tagged policy distractor rather than the target. This preserved the action class (`verify_first`) but failed target recovery.
+- The `scope_precedence_role_filter_bm25_metadata_text` result is the critical safety finding: target-accurate retrieval was unsafe when the selected sensitive memory lacked authority metadata. It found the mislabeled credential/PII targets, then answered confidently because their metadata said `allowed_action_hint: answer` and carried no verification/governance signal.
+- This establishes the CLAIM-17 tradeoff: when a sensitive memory has no `governs` and no authority metadata, target-accurate retrieval can produce false-certainty errors; authority-signal-driven retrieval can select the wrong memory but preserve action safety. The current framework cannot achieve both target accuracy and action safety in that condition.
+- Minimum viable metadata precondition: sensitive memories must carry either `governs` metadata or authority signals (`memory_type`, priority, verification requirement, or action hint). Without at least one of those, the framework degrades in a known way.
+- Score components confirmed why:
+  - VPN mislabeled target: relevance `0.735979`, authority `0.0`, total `1.735979`.
+  - VPN policy distractor: relevance `1.0`, authority `3.25`, matching scope, total `6.3`.
+  - PII mislabeled target: relevance `1.0`, authority `0.0`, total `2.0`.
+  - PII policy distractor: relevance `0.649843`, authority `3.25`, matching scope, total `5.949843`.
+
+**Status:** `demonstrated as negative-control/schema-boundary result` — internal packet, not benchmark-grade
+
+**Weakness:**
+- `resource_sensitivity` may simply relabel the existing `governs` dependency instead of reducing it.
+- If the scorer requires scope matching, it may not help missing-governs cases.
+- If the scorer does not require scope matching, CLAIM-17 now shows it reproduces clean-read overblocks.
+- Mixed stores with annotated and unannotated memories depend on the default `ordinary_fact` handling; that default must not be changed after seeing results.
+- The packet is internally authored.
+- The packet does not yet include a scenario where resource-plus-scope succeeds and governance-adjusted scoring fails.
+- The authority-absent boundary packet confirms that target recovery fails when the sensitive target has known `resource_sensitivity` but missing/misleading authority metadata and no `governs`.
+
+**Next test:**
+- Accept CLAIM-17 as a schema-boundary result unless a new architecture is introduced. Existing resource-scope scoring does not recover authority-absent sensitive targets.
+- Add score decomposition for the three resource-only overblocks and the no-governs credential boundary case.
+- Consider a new pre-registered scorer that uses `resource_sensitivity` as a weak fallback only when the selected candidate is sensitive, lacks `governs`, and would otherwise produce a risky false-certainty action. Do not add this without a fresh pre-registration because resource-only already showed overblocking risk.
+- Test with a fresh-authored packet so the scope terms and resource labels are not all Codex-authored.
+
+**Allowed wording:**
+> "CLAIM-17 shows that resource sensitivity alone is unsafe as a ranking signal on this packet. When gated by matching `governs` scope, it avoids the clean-read overblocks, but it does not yet improve over governance-adjusted scoring."
+
+> "The no-governs credential boundary did not show resource sensitivity substituting for `governs`; the scoped scorer selected the target through the existing non-resource terms."
+
+> "In the current packet, missing `governs` is recoverable when strong authority metadata remains present. The unresolved gap is missing `governs` plus absent or misleading authority metadata."
+
+> "The next boundary test is a sensitive memory mislabeled as ordinary context. If it loses to a well-tagged policy distractor, the framework's honest floor is exposed: authority-aware retrieval cannot recover sensitive memories when both `governs` and authority signals are absent or misleading."
+
+> "On the authority-absent boundary packet, governance-adjusted scoring remained action-safe by selecting the policy distractor, but it did not recover the mislabeled sensitive target. The current architecture is action-safe but target-blind in this case."
+
+> "Correct memory selection without authority metadata is not sufficient for safety. In the authority-absent boundary packet, target-accurate retrieval produced false-certainty errors, while authority-signal-driven retrieval preserved action safety by selecting a well-tagged policy instead."
+
+> "The minimum viable metadata precondition is now explicit: sensitive memories need either `governs` metadata or authority signals. Without one of those, the framework cannot guarantee both target accuracy and action safety."
+
+**Forbidden wording:**
+> "Resource sensitivity solves missing `governs`."
+> "The framework now handles credentials and PII generally."
+> "Scope matching is optional."
+> "Resource-scope scoring improves over governance-adjusted scoring."
+> "Resource sensitivity recovers authority-absent sensitive memories."
+> "Target-accurate retrieval is safe by itself."
+
+---
+
+## CLAIM-18
+
+**Claim:** An independent internal packet in a new domain supports the CLAIM-17 metadata precondition. In industrial safety / hazardous maintenance scenarios, target-accurate retrieval again produced false-certainty errors when sensitive memories lacked both `governs` and authority metadata, while authority-signal-driven retrieval preserved action safety but failed target recovery.
+
+**Pre-registration:**
+- `CLAIM_18_METADATA_PRECONDITION_CHECK.md`
+- Domain: industrial safety / hazardous maintenance.
+- Target condition: sensitive memory mislabeled as ordinary context with `resource_sensitivity: safety_critical`, no `governs`, `memory_type: context`, `priority: normal`, `verification_required: false`, and `allowed_action_hint: answer`.
+- Distractor condition: well-tagged policy with matching `governs`, `memory_type: policy`, `priority: high`, `verification_required: true`, and `allowed_action_hint: verify_first`.
+
+**Evidence:**
+- `external_scenarios/claim18_metadata_precondition_independent_v0_1.json`
+- `run_claim18_metadata_precondition_eval.py`
+- `results/claim18_metadata_precondition_independent_v0_1_results.md`
+- `results/claim18_metadata_precondition_independent_v0_1_results.json`
+
+**Results:**
+- `bm25_metadata_text`: 3/3 target, 1/3 action, 2 false-certainty errors.
+- `scope_precedence_role_filter_bm25_metadata_text`: 3/3 target, 1/3 action, 2 false-certainty errors.
+- `governance_adjusted_bm25_metadata_text`: 1/3 target, 3/3 action, 2 trap failures, 0 false-certainty errors.
+- `resource_scope_governance_bm25_metadata_text`: 1/3 target, 3/3 action, 2 trap failures, 0 false-certainty errors.
+- `resource_sensitivity_only_bm25_metadata_text`: 0/3 target, 2/3 action, 3 trap failures, 1 dangerous overblock.
+
+**Interpretation:**
+- The CLAIM-17 precondition survived a different scenario domain: correct target selection without authority metadata was unsafe.
+- Governance-adjusted and resource-scope retrieval remained action-safe by selecting the well-tagged policy distractor, but stayed target-blind on the mislabeled sensitive memories.
+- Resource-only again overblocked the clean control, confirming that ungated sensitivity is not safe.
+- Score components reproduced the same mechanism:
+  - safety targets had `authority=0.0` and total `2.0` or below;
+  - policy distractors had `authority=3.25`, matching scope, and totals above `5.2`.
+
+**Status:** `replicated internally across a new domain` — stronger than CLAIM-17 alone, still not external or benchmark-grade
+
+**Weakness:**
+- The packet is internally authored by Codex.
+- The industrial safety domain adds breadth, but the same evaluator and scoring code authored the result.
+- This does not prove the precondition universally; it supports using it as a bounded thesis with caveats.
+
+**Allowed wording:**
+> "Across two internal packet families, the same boundary appears: target-accurate retrieval is unsafe when sensitive memories lack both `governs` and authority metadata, while authority-signal-driven retrieval preserves action safety but can become target-blind."
+
+> "The minimum metadata precondition is now supported beyond the original credential/PII packet: sensitive memories need either `governs` or authority signals for the framework to preserve both target accuracy and action safety."
+
+**Forbidden wording:**
+> "The precondition is proven universally."
+> "This is externally validated."
+> "The framework solves mislabeled sensitive memory."
+
+---
+
+## CLAIM-19
+
+**Claim:** Every false-certainty error in the CLAIM-17 and CLAIM-18 boundary packets produces an `UNATTRIBUTABLE` action — the action was permissive but no authority field in the selected memory restricted the sensitive content. Every `governance_adjusted` clean action produces a `GOVERNED` attribution — the selected memory had both a `governs` field and an authority signal authorizing the action.
+
+**What this adds:**
+The prior claims showed retrieval-time authority affects action outcomes. This claim formalizes the execution-time audit gap: not just "was the action correct?" but "which field in the selected memory authorized the action, and was that authorization sufficient for the risk level?"
+
+**Evidence:**
+- `run_memory_store_eval.py` — `action_attribution()` function; `MemoryStoreDecision` now carries `action_authorized_by` and `attribution_status`
+- `results/claim17_authority_absent_boundary_v0_1_results.json`
+- `results/claim18_metadata_precondition_independent_v0_1_results.json`
+
+**Results — CLAIM-17 boundary packet:**
+- `scope_precedence_role_filter_bm25_metadata_text`: 3/3 target, 1/3 action, 2 FC errors, **2 UNATTRIBUTABLE**, 0 GOVERNED
+- `governance_adjusted_bm25_metadata_text`: 1/3 target, 3/3 action, 0 FC errors, **0 UNATTRIBUTABLE**, 2 GOVERNED
+
+**Results — CLAIM-18 boundary packet (industrial safety):**
+- `scope_precedence_role_filter_bm25_metadata_text`: 3/3 target, 1/3 action, 2 FC errors, **2 UNATTRIBUTABLE**, 0 GOVERNED
+- `governance_adjusted_bm25_metadata_text`: 1/3 target, 3/3 action, 0 FC errors, **0 UNATTRIBUTABLE**, 2 GOVERNED
+
+**Interpretation:**
+- `UNATTRIBUTABLE` = the action defaulted to permissive because no authority field in the selected memory restricted it. The system answered confidently with no authorization chain. This is the compliance gap the commenter raised: "did authorization govern the tool call, not just the query?"
+- `GOVERNED` = the selected memory had a `governs` field AND an authority signal (e.g., `verification_required: true`). The action can be traced to a specific field. This is the closest the current framework gets to a compliance-grade action trace.
+- The attribution trace does not close the full execution-time gap: `governs` currently governs retrieval, not the tool call itself. A complete compliance chain would require `governs` to be checked at execution time — "does this tool call fall within what this memory's governs field authorized?" That is the next design problem.
+
+**Status:** `demonstrated` — attribution trace is deterministic and reproducible; pattern holds across both boundary packets
+
+**Weakness:**
+- Still internally authored packets.
+- `governs` is a retrieval-time signal, not an execution-time gate. `GOVERNED` status means the memory had both fields present, not that the governs field was evaluated at tool-call time.
+- The full compliance trace (governs → tool call → audit log) is not yet built.
+
+**Allowed wording:**
+> "In these boundary packets, every false-certainty error produces an unattributable action — no authority field in the selected memory restricted the sensitive content."
+
+> "The attribution trace formalizes the gap between retrieval-time authority and execution-time authorization: GOVERNED actions have a traceable field chain; UNATTRIBUTABLE actions do not."
+
+**Forbidden wording:**
+> "We have solved execution-time authorization."
+> "The governs field governs tool calls."
+> "The attribution trace closes the compliance gap."
+
+---
+
 ## CLAIM-06 — FORBIDDEN
 
 The following claims must not appear in any public artifact:
