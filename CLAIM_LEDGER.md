@@ -799,6 +799,63 @@ The prior claims showed retrieval-time authority affects action outcomes. This c
 
 ---
 
+## CLAIM-20
+
+**Claim:** The execution-time gate closes the governs-present / authority-absent gap. When `governs.action_types` includes `execute` or `write` but authority signals are missing and `layered_action` returns a permissive action, the gate intercepts and escalates to `verify_first`. Without the gate, these cases produce false-certainty errors. With the gate, they produce correct restrictive actions.
+
+**What this adds:**
+CLAIM-19 built the attribution trace and identified `UNATTRIBUTABLE` (no governs, no authority signals) and `GATE_SKIP` (no governs to check at execution time) as the irreducible gap. CLAIM-20 shows the gate provides a real backstop for a third case: governs correctly scoped but authority signals missed. The 2×2 coverage matrix is now complete.
+
+**Evidence:**
+- `run_memory_store_eval.py` — `execution_gate()` function; fires after `layered_action`, escalates on GATE_FAIL
+- `external_scenarios/claim20_execution_gate_v0_1.json` — 3 scenarios: payment processing, production credentials, PII export. Each has `governs.action_types: ["execute"]` or `["execute", "write"]` but no `verification_required`, no authority `memory_type`, default `allowed_action_hint: answer`.
+- `results/claim20_execution_gate_v0_1_results.json`
+
+**Results:**
+
+Without execution gate (pre-intervention action from `layered_action`):
+- All strategies: 0/3 action_correct, 3 false-certainty errors — `layered_action` returns `answer` because no authority signals present.
+
+With execution gate active:
+- `bm25_metadata_text`: 3/3 action_correct, 3 gate_fail, 3 escalations, 0 FC errors
+- `scope_precedence_role_filter_bm25_metadata_text`: 3/3 action_correct, 3 gate_fail, 3 escalations, 0 FC errors
+- `governance_adjusted_bm25_metadata_text`: 3/3 action_correct, 3 gate_fail, 3 escalations, 0 FC errors
+
+**The 2×2 coverage matrix:**
+
+| Governs | Authority signals | Attribution status | Gate result | Protection |
+|---|---|---|---|---|
+| Absent | Absent | UNATTRIBUTABLE | GATE_SKIP | None — irreducible gap |
+| Absent | Present | AUTHORITY_ONLY | GATE_SKIP | Retrieval-time only |
+| Present | Absent | DEFAULT/UNATTRIBUTABLE | GATE_FAIL → escalate | Gate rescues |
+| Present | Present | GOVERNED | GATE_PASS | Full chain |
+
+**Sharpened precondition:**
+CLAIM-17 stated: "sensitive memories need either `governs` OR authority signals."
+CLAIM-20 revises this: authority signals alone provide retrieval-time protection but no execution-time gate coverage. Governs alone enables the gate but leaves retrieval-time gaps when authority signals are absent. Full protection — both retrieval-time and execution-time — requires both `governs` AND authority signals.
+
+**Status:** `demonstrated` — gate is deterministic; packet is internally authored; pattern holds across all retrieval strategies on this packet
+
+**Weakness:**
+- Packet is 3 scenarios, internally authored.
+- The gate escalates to `verify_first` uniformly — it does not distinguish between cases where `block` would be more appropriate.
+- Does not test the gate against retrieval-level noise (what happens when a different memory is selected and the gate fires on the wrong memory).
+- Still not external or benchmark-grade.
+
+**Allowed wording:**
+> "When `governs.action_types` signals a high-stakes operation but authority signals were omitted, the execution-time gate escalates the action to `verify_first`. This rescued all 3 test cases from false-certainty errors."
+
+> "The gate cannot fire when `governs` is absent. Full execution-time coverage requires `governs` to be present."
+
+> "The minimum viable metadata requirement is now sharper: sensitive memories need both `governs` jurisdiction metadata and authority signals for complete retrieval-time and execution-time protection."
+
+**Forbidden wording:**
+> "The gate solves agent memory safety."
+> "The gate eliminates false-certainty errors."
+> "This is externally validated."
+
+---
+
 ## CLAIM-06 — FORBIDDEN
 
 The following claims must not appear in any public artifact:
