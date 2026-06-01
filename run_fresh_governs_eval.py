@@ -32,6 +32,7 @@ STRATEGIES = [
     "role_filter_bm25_metadata_text",
     "scope_role_filter_bm25_metadata_text",
     "scope_precedence_role_filter_bm25_metadata_text",
+    "governance_adjusted_bm25_metadata_text",
 ]
 
 
@@ -187,8 +188,8 @@ def render_markdown(output: dict[str, Any]) -> str:
         "",
         "## Strategy Summary",
         "",
-        "| Strategy | Target selected | Action correct | Trap failures | FC errors | Downgrade misses | Overblocking |",
-        "|---|---:|---:|---:|---:|---:|---:|",
+        "| Strategy | Target selected | Action correct | Trap failures | FC errors | Downgrade misses | Overblocking | Governed | Unattributable |",
+        "|---|---:|---:|---:|---:|---:|---:|---:|---:|",
     ]
     for strategy in STRATEGIES:
         summary = output["summary"][strategy]
@@ -199,7 +200,9 @@ def render_markdown(output: dict[str, Any]) -> str:
             f"{summary['trap_failures']} | "
             f"{summary['false_certainty_errors']} | "
             f"{summary['downgrade_misses']} | "
-            f"{summary['overblocking_errors']} |"
+            f"{summary['overblocking_errors']} | "
+            f"{summary.get('governed', 0)} | "
+            f"{summary.get('unattributable', 0)} |"
         )
 
     lines.extend(
@@ -207,8 +210,8 @@ def render_markdown(output: dict[str, Any]) -> str:
             "",
             "## Scenario Rows",
             "",
-            "| Strategy | Scenario | Expected | Selected role | Action | Act ok | Trap fail | FC | Downgrade | OB |",
-            "|---|---|---|---|---|---|---|---|---|---|",
+            "| Strategy | Scenario | Expected | Selected role | Action | Act ok | Trap fail | FC | Downgrade | OB | Attribution | Authorized by |",
+            "|---|---|---|---|---|---|---|---|---|---|---|---|",
         ]
     )
     for row in output["rows"]:
@@ -219,7 +222,9 @@ def render_markdown(output: dict[str, Any]) -> str:
             f"{'yes' if row['trap_failure'] else 'no'} | "
             f"{'yes' if row['false_certainty_error'] else 'no'} | "
             f"{'yes' if row['downgrade_miss'] else 'no'} | "
-            f"{'yes' if row['overblocking_error'] else 'no'} |"
+            f"{'yes' if row['overblocking_error'] else 'no'} | "
+            f"{row.get('attribution_status', '—')} | "
+            f"{row.get('action_authorized_by', '—')} |"
         )
     return "\n".join(lines) + "\n"
 

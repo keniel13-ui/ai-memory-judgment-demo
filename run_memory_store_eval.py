@@ -35,8 +35,27 @@ LEXICAL_STRATEGIES = ["tfidf_text", "tfidf_metadata_text", "bm25_text", "bm25_me
 EMBEDDING_STRATEGIES = ["nomic_embed_text", "nomic_embed_metadata_text"]
 ROLE_FILTER_STRATEGIES = ["role_filter_bm25_metadata_text"]
 SCOPE_PRECEDENCE_STRATEGIES = ["scope_precedence_role_filter_bm25_metadata_text"]
+GOVERNANCE_ADJUSTED_STRATEGIES = ["governance_adjusted_bm25_metadata_text"]
+GOVERNANCE_ABLATION_STRATEGIES = [
+    "governance_no_scope_bm25_metadata_text",
+    "governance_no_governs_bm25_metadata_text",
+    "governance_scope_weak_bm25_metadata_text",
+    "authority_signal_fallback_bm25_metadata_text",
+    "governs_trust_gated_bm25_metadata_text",
+    "directional_action_governance_bm25_metadata_text",
+    "resource_sensitivity_only_bm25_metadata_text",
+    "resource_scope_governance_bm25_metadata_text",
+]
 AUTHORITY_MEMORY_TYPES = {"policy", "credential", "correction"}
 AUTHORITY_ACTION_HINTS = {"block", "verify_first", "warn"}
+SENSITIVE_RESOURCE_WEIGHTS = {
+    "credential": 1.5,
+    "pii": 1.5,
+    "money_movement": 1.5,
+    "export": 1.5,
+    "safety_critical": 1.5,
+    "ordinary_fact": 0.0,
+}
 
 OLLAMA_BASE_URL = os.environ.get("OLLAMA_BASE_URL", "http://127.0.0.1:11434")
 OLLAMA_EMBED_MODEL = os.environ.get("OLLAMA_EMBED_MODEL", "nomic-embed-text:latest")
@@ -63,6 +82,8 @@ class MemoryStoreDecision:
     failure_cost: str
     discriminating_signal: str
     rationale: str
+    action_authorized_by: str
+    attribution_status: str  # GOVERNED | AUTHORITY_ONLY | DEFAULT | UNATTRIBUTABLE
 
 
 def memory_text(memory: dict[str, Any], strategy: str) -> str:
@@ -225,6 +246,48 @@ def retrieve(query: str, memories: list[dict[str, Any]], strategy: str) -> tuple
             scope_aware=True,
             precedence_aware=True,
         )
+    if strategy == "governance_adjusted_bm25_metadata_text":
+        return retrieve_with_governance_adjusted_bm25(query, memories)
+    if strategy == "governance_no_scope_bm25_metadata_text":
+        return retrieve_with_governance_adjusted_bm25(
+            query,
+            memories,
+            include_scope=False,
+        )
+    if strategy == "governance_no_governs_bm25_metadata_text":
+        return retrieve_with_governance_adjusted_bm25(
+            query,
+            memories,
+            include_scope=False,
+            include_specificity=False,
+            include_action_type=False,
+            include_conflict=False,
+        )
+    if strategy == "governance_scope_weak_bm25_metadata_text":
+        return retrieve_with_governance_adjusted_bm25(
+            query,
+            memories,
+            scope_reward=1.5,
+            scope_penalty=-1.5,
+        )
+    if strategy == "authority_signal_fallback_bm25_metadata_text":
+        return retrieve_with_authority_signal_fallback(query, memories)
+    if strategy == "governs_trust_gated_bm25_metadata_text":
+        return retrieve_with_governance_adjusted_bm25(
+            query,
+            memories,
+            require_governs_retrieval_overlap=True,
+        )
+    if strategy == "directional_action_governance_bm25_metadata_text":
+        return retrieve_with_governance_adjusted_bm25(
+            query,
+            memories,
+            directional_action_matching=True,
+        )
+    if strategy == "resource_sensitivity_only_bm25_metadata_text":
+        return retrieve_with_resource_sensitivity_only(query, memories)
+    if strategy == "resource_scope_governance_bm25_metadata_text":
+        return retrieve_with_resource_scope_governance(query, memories)
 
     if strategy.startswith("tfidf"):
         scores = tfidf_scores(query, memories, strategy)
@@ -414,6 +477,400 @@ def action_type_matches_query(memory: dict[str, Any], query: str) -> bool:
     return bool(allowed & query_action_types(query))
 
 
+def status_validity_score(memory: dict[str, Any]) -> float:
+    status = memory.get("status")
+    if status in {"active", "current", "verified"}:
+        return 1.0
+    if status in {"superseded", "archived", "deprecated"}:
+        return -3.0
+    return 0.0
+
+
+def authority_weight(memory: dict[str, Any]) -> float:
+    if memory.get("status") in {"superseded", "archived"}:
+        return -2.0
+
+    weight = 0.0
+    if memory.get("memory_type") in AUTHORITY_MEMORY_TYPES:
+        weight += 1.25
+    if memory.get("allowed_action_hint") in AUTHORITY_ACTION_HINTS:
+        weight += 0.75
+    if memory.get("verification_required"):
+        weight += 0.75
+    if memory.get("priority") == "critical":
+        weight += 0.75
+    elif memory.get("priority") == "high":
+        weight += 0.5
+    return weight
+
+
+def authority_signal_fallback_weight(memory: dict[str, Any]) -> float:
+    if memory.get("status") in {"superseded", "archived"}:
+        return -3.0
+
+    weight = 0.0
+    if memory.get("memory_type") in AUTHORITY_MEMORY_TYPES:
+        weight += 1.25
+    if memory.get("priority") == "critical":
+        weight += 1.0
+    elif memory.get("priority") == "high":
+        weight += 0.5
+    if memory.get("verification_required"):
+        weight += 0.5
+
+    action_hint = memory.get("allowed_action_hint")
+    if action_hint == "block":
+        weight += 2.0
+    elif action_hint == "verify_first":
+        weight += 1.25
+    elif action_hint == "warn":
+        weight += 0.75
+    return weight
+
+
+def resource_sensitivity(memory: dict[str, Any]) -> str:
+    value = str(memory.get("resource_sensitivity", "ordinary_fact")).strip().lower()
+    return value if value in SENSITIVE_RESOURCE_WEIGHTS else "ordinary_fact"
+
+
+def resource_sensitivity_weight(memory: dict[str, Any]) -> float:
+    return SENSITIVE_RESOURCE_WEIGHTS[resource_sensitivity(memory)]
+
+
+def scope_match_weight(
+    memory: dict[str, Any],
+    query: str,
+    reward: float = 2.0,
+    penalty: float = -3.0,
+) -> float:
+    governs = memory.get("governs")
+    if not isinstance(governs, dict):
+        return 0.0
+    return reward if scope_matches_query(memory, query) else penalty
+
+
+def specificity_weight(memory: dict[str, Any], query: str) -> float:
+    return min(scope_specificity_score(memory, query), 5) * 0.35
+
+
+def action_type_weight(memory: dict[str, Any], query: str) -> float:
+    governs = memory.get("governs")
+    if not isinstance(governs, dict):
+        return 0.0
+
+    action_types = governs.get("action_types")
+    if not isinstance(action_types, list) or not action_types:
+        return 0.0
+    return 1.25 if action_type_matches_query(memory, query) else -2.0
+
+
+def directional_action_type_weight(memory: dict[str, Any], query: str) -> float:
+    governs = memory.get("governs")
+    if not isinstance(governs, dict):
+        return 0.0
+
+    action_types = governs.get("action_types")
+    if not isinstance(action_types, list) or not action_types:
+        return 0.0
+
+    allowed = {str(action_type).strip().lower() for action_type in action_types if str(action_type).strip()}
+    inferred = query_action_types(query)
+    if allowed & inferred:
+        return 1.25
+
+    # A read-shaped request can still cause a governed disclosure or downstream
+    # operation. In that case the stricter memory should remain in scope.
+    if inferred == {"read"} and allowed & {"write", "execute"} and is_authority_lane_candidate(memory):
+        return 1.0
+    return -2.0
+
+
+def governs_retrieval_overlap(memory: dict[str, Any]) -> bool:
+    governs = memory.get("governs")
+    if not isinstance(governs, dict):
+        return False
+
+    govern_terms = (
+        normalize_govern_terms(governs.get("any_terms", []))
+        | normalize_govern_terms(governs.get("all_terms", []))
+    )
+    retrieval_terms = normalize_govern_terms(memory.get("retrieval_terms", []))
+    return bool(govern_terms & retrieval_terms)
+
+
+def conflict_risk_penalty(memory: dict[str, Any], memories: list[dict[str, Any]], query: str) -> float:
+    if not is_authority_lane_candidate(memory) or not scope_matches_query(memory, query):
+        return 0.0
+
+    competing = [
+        other
+        for other in memories
+        if other["id"] != memory["id"]
+        and is_authority_lane_candidate(other)
+        and scope_matches_query(other, query)
+    ]
+    if not competing:
+        return 0.0
+    return 0.35 * len(competing)
+
+
+def authority_signal_fallback_scores(query: str, memories: list[dict[str, Any]]) -> dict[str, float]:
+    relevance_scores = bm25_scores(query, memories, "bm25_metadata_text")
+    if not relevance_scores:
+        return {}
+
+    max_abs_relevance = max(abs(score) for score in relevance_scores.values()) or 1.0
+    return {
+        memory["id"]: (
+            (relevance_scores[memory["id"]] / max_abs_relevance)
+            + authority_signal_fallback_weight(memory)
+            + status_validity_score(memory)
+        )
+        for memory in memories
+    }
+
+
+def resource_sensitivity_only_scores(query: str, memories: list[dict[str, Any]]) -> dict[str, float]:
+    relevance_scores = bm25_scores(query, memories, "bm25_metadata_text")
+    if not relevance_scores:
+        return {}
+
+    max_abs_relevance = max(abs(score) for score in relevance_scores.values()) or 1.0
+    return {
+        memory["id"]: (
+            (relevance_scores[memory["id"]] / max_abs_relevance)
+            + authority_weight(memory)
+            + status_validity_score(memory)
+            + resource_sensitivity_weight(memory)
+        )
+        for memory in memories
+    }
+
+
+def resource_scope_governance_scores(query: str, memories: list[dict[str, Any]]) -> dict[str, float]:
+    scores = governance_adjusted_scores(query, memories)
+    for memory in memories:
+        resource_bonus = (
+            resource_sensitivity_weight(memory)
+            if resource_sensitivity(memory) != "ordinary_fact" and scope_matches_query(memory, query)
+            else 0.0
+        )
+        scores[memory["id"]] += resource_bonus
+    return scores
+
+
+def governance_adjusted_scores(
+    query: str,
+    memories: list[dict[str, Any]],
+    include_scope: bool = True,
+    include_specificity: bool = True,
+    include_action_type: bool = True,
+    include_conflict: bool = True,
+    scope_reward: float = 2.0,
+    scope_penalty: float = -3.0,
+    require_governs_retrieval_overlap: bool = False,
+    directional_action_matching: bool = False,
+) -> dict[str, float]:
+    relevance_scores = bm25_scores(query, memories, "bm25_metadata_text")
+    if not relevance_scores:
+        return {}
+
+    max_abs_relevance = max(abs(score) for score in relevance_scores.values()) or 1.0
+    scores: dict[str, float] = {}
+    for memory in memories:
+        relevance = relevance_scores[memory["id"]] / max_abs_relevance
+        governs_trusted = (
+            governs_retrieval_overlap(memory)
+            if require_governs_retrieval_overlap and isinstance(memory.get("governs"), dict)
+            else True
+        )
+        action_type = (
+            directional_action_type_weight(memory, query)
+            if include_action_type and governs_trusted and directional_action_matching
+            else action_type_weight(memory, query)
+            if include_action_type and governs_trusted
+            else 0.0
+        )
+        governance_score = (
+            relevance
+            + authority_weight(memory)
+            + (
+                scope_match_weight(memory, query, reward=scope_reward, penalty=scope_penalty)
+                if include_scope and governs_trusted
+                else 0.0
+            )
+            + (specificity_weight(memory, query) if include_specificity and governs_trusted else 0.0)
+            + action_type
+            + status_validity_score(memory)
+            - (conflict_risk_penalty(memory, memories, query) if include_conflict and governs_trusted else 0.0)
+        )
+        scores[memory["id"]] = governance_score
+    return scores
+
+
+def governance_adjusted_score_components(
+    query: str,
+    memories: list[dict[str, Any]],
+    include_scope: bool = True,
+    include_specificity: bool = True,
+    include_action_type: bool = True,
+    include_conflict: bool = True,
+    scope_reward: float = 2.0,
+    scope_penalty: float = -3.0,
+    require_governs_retrieval_overlap: bool = False,
+    directional_action_matching: bool = False,
+) -> dict[str, dict[str, float]]:
+    relevance_scores = bm25_scores(query, memories, "bm25_metadata_text")
+    if not relevance_scores:
+        return {}
+
+    max_abs_relevance = max(abs(score) for score in relevance_scores.values()) or 1.0
+    components: dict[str, dict[str, float]] = {}
+    for memory in memories:
+        relevance = relevance_scores[memory["id"]] / max_abs_relevance
+        authority = authority_weight(memory)
+        governs_trusted = (
+            governs_retrieval_overlap(memory)
+            if require_governs_retrieval_overlap and isinstance(memory.get("governs"), dict)
+            else True
+        )
+        scope = (
+            scope_match_weight(memory, query, reward=scope_reward, penalty=scope_penalty)
+            if include_scope and governs_trusted
+            else 0.0
+        )
+        specificity = specificity_weight(memory, query) if include_specificity and governs_trusted else 0.0
+        if include_action_type and governs_trusted and directional_action_matching:
+            action_type = directional_action_type_weight(memory, query)
+        elif include_action_type and governs_trusted:
+            action_type = action_type_weight(memory, query)
+        else:
+            action_type = 0.0
+        status = status_validity_score(memory)
+        conflict_penalty = (
+            conflict_risk_penalty(memory, memories, query) if include_conflict and governs_trusted else 0.0
+        )
+        total = relevance + authority + scope + specificity + action_type + status - conflict_penalty
+        components[memory["id"]] = {
+            "relevance": round(relevance, 6),
+            "authority": round(authority, 6),
+            "scope": round(scope, 6),
+            "specificity": round(specificity, 6),
+            "action_type": round(action_type, 6),
+            "status": round(status, 6),
+            "conflict_penalty": round(conflict_penalty, 6),
+            "governs_trusted": 1.0 if governs_trusted else 0.0,
+            "total": round(total, 6),
+        }
+    return components
+
+
+def retrieve_with_governance_adjusted_bm25(
+    query: str,
+    memories: list[dict[str, Any]],
+    include_scope: bool = True,
+    include_specificity: bool = True,
+    include_action_type: bool = True,
+    include_conflict: bool = True,
+    scope_reward: float = 2.0,
+    scope_penalty: float = -3.0,
+    require_governs_retrieval_overlap: bool = False,
+    directional_action_matching: bool = False,
+) -> tuple[dict[str, Any], float]:
+    scores = governance_adjusted_scores(
+        query,
+        memories,
+        include_scope=include_scope,
+        include_specificity=include_specificity,
+        include_action_type=include_action_type,
+        include_conflict=include_conflict,
+        scope_reward=scope_reward,
+        scope_penalty=scope_penalty,
+        require_governs_retrieval_overlap=require_governs_retrieval_overlap,
+        directional_action_matching=directional_action_matching,
+    )
+    memory_by_id = {memory["id"]: memory for memory in memories}
+    selected_id = max(scores, key=scores.get)
+    return memory_by_id[selected_id], scores[selected_id]
+
+
+def retrieve_with_authority_signal_fallback(
+    query: str,
+    memories: list[dict[str, Any]],
+) -> tuple[dict[str, Any], float]:
+    scores = authority_signal_fallback_scores(query, memories)
+    memory_by_id = {memory["id"]: memory for memory in memories}
+    selected_id = max(scores, key=scores.get)
+    return memory_by_id[selected_id], scores[selected_id]
+
+
+def retrieve_with_resource_sensitivity_only(
+    query: str,
+    memories: list[dict[str, Any]],
+) -> tuple[dict[str, Any], float]:
+    scores = resource_sensitivity_only_scores(query, memories)
+    memory_by_id = {memory["id"]: memory for memory in memories}
+    selected_id = max(scores, key=scores.get)
+    return memory_by_id[selected_id], scores[selected_id]
+
+
+def retrieve_with_resource_scope_governance(
+    query: str,
+    memories: list[dict[str, Any]],
+) -> tuple[dict[str, Any], float]:
+    scores = resource_scope_governance_scores(query, memories)
+    memory_by_id = {memory["id"]: memory for memory in memories}
+    selected_id = max(scores, key=scores.get)
+    return memory_by_id[selected_id], scores[selected_id]
+
+
+def action_attribution(
+    memory: dict[str, Any], action: str, expected_action: str
+) -> tuple[str, str]:
+    """
+    Trace which field authorized the action and classify the attribution status.
+
+    attribution_status values:
+      GOVERNED       — governs field present AND an authority signal authorized the action
+      AUTHORITY_ONLY — authority signal authorized the action but no governs field
+      DEFAULT        — fell through to allowed_action_hint or answer default
+      UNATTRIBUTABLE — permissive action on a scenario expected to be restrictive;
+                       no authority field constrained the sensitive memory
+    """
+    has_governs = isinstance(memory.get("governs"), dict) and any(
+        memory["governs"].get(k)
+        for k in ("any_terms", "all_terms", "action_types")
+    )
+
+    if memory.get("status") in {"superseded", "archived"}:
+        authorized_by = f"status:{memory.get('status')}"
+        return authorized_by, "GOVERNED" if has_governs else "AUTHORITY_ONLY"
+
+    if memory.get("memory_type") == "correction" and memory.get("status") == "active":
+        return "memory_type:correction", "GOVERNED" if has_governs else "AUTHORITY_ONLY"
+
+    if memory.get("allowed_action_hint") == "block":
+        return "allowed_action_hint:block", "GOVERNED" if has_governs else "AUTHORITY_ONLY"
+
+    if memory.get("verification_required"):
+        return "verification_required:true", "GOVERNED" if has_governs else "AUTHORITY_ONLY"
+
+    if memory.get("epistemic_status") in {"unresolved", "contested"}:
+        ep = memory.get("epistemic_status")
+        return f"epistemic_status:{ep}", "GOVERNED" if has_governs else "AUTHORITY_ONLY"
+
+    if int(memory.get("contradiction_count", 0)) >= 2:
+        return "contradiction_count:>=2", "GOVERNED" if has_governs else "AUTHORITY_ONLY"
+
+    hint = memory.get("allowed_action_hint", "answer")
+    authorized_by = f"allowed_action_hint:{hint}"
+
+    if action in PERMISSIVE_ACTIONS and expected_action in RISKY_EXPECTED:
+        return authorized_by, "UNATTRIBUTABLE"
+
+    return authorized_by, "DEFAULT"
+
+
 def score_row(strategy: str, scenario: dict[str, Any]) -> MemoryStoreDecision:
     memory_store = normalize_memory_store(scenario)
     selected, score = retrieve(scenario["query"], memory_store, strategy)
@@ -435,6 +892,8 @@ def score_row(strategy: str, scenario: dict[str, Any]) -> MemoryStoreDecision:
     dangerous_overcaution = bool(scenario.get("over_caution_is_the_failure")) and overblocking_error
     soft_overcaution = overblocking_error and not dangerous_overcaution
 
+    authorized_by, attribution_status = action_attribution(selected, action, expected)
+
     return MemoryStoreDecision(
         strategy=strategy,
         scenario_id=scenario["id"],
@@ -455,6 +914,8 @@ def score_row(strategy: str, scenario: dict[str, Any]) -> MemoryStoreDecision:
         failure_cost=scenario.get("failure_cost", ""),
         discriminating_signal=scenario.get("discriminating_signal", ""),
         rationale=rationale,
+        action_authorized_by=authorized_by,
+        attribution_status=attribution_status,
     )
 
 
@@ -469,6 +930,8 @@ def summarize(rows: list[MemoryStoreDecision]) -> dict[str, int]:
         "overblocking_errors": sum(row.overblocking_error for row in rows),
         "dangerous_overcaution": sum(row.dangerous_overcaution for row in rows),
         "soft_overcaution": sum(row.soft_overcaution for row in rows),
+        "governed": sum(getattr(row, "attribution_status", "") == "GOVERNED" for row in rows),
+        "unattributable": sum(getattr(row, "attribution_status", "") == "UNATTRIBUTABLE" for row in rows),
     }
 
 
@@ -499,7 +962,12 @@ def main() -> None:
         scenarios_path = ROOT / scenarios_path
     results_json, results_md = output_paths(scenarios_path)
 
-    strategies = list(LEXICAL_STRATEGIES) + list(ROLE_FILTER_STRATEGIES) + list(SCOPE_PRECEDENCE_STRATEGIES)
+    strategies = (
+        list(LEXICAL_STRATEGIES)
+        + list(ROLE_FILTER_STRATEGIES)
+        + list(SCOPE_PRECEDENCE_STRATEGIES)
+        + list(GOVERNANCE_ADJUSTED_STRATEGIES)
+    )
     if ollama_available():
         strategies += EMBEDDING_STRATEGIES
         print(f"Ollama available — including embedding strategies with {OLLAMA_EMBED_MODEL}")
