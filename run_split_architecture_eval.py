@@ -140,13 +140,18 @@ def operation_context_gate(
     query: str,
     memory: dict[str, Any],
     pre_gate_action: str,
-) -> tuple[str, str, str]:
+) -> tuple[str, str, str, str]:
     """
     New gate: derives action/resource class from the OPERATION, not the memory.
 
-    If the operation is high-risk (execute/write on a sensitive resource class),
-    the gate refuses regardless of what the memory claims about itself.
-    This catches mislabeled memories that would pass the self-description gate.
+    Returns (gate_result, gate_note, final_action, refusal_cause) where
+    refusal_cause is:
+      "op_context_gate"       — the sensitive-operation check fired; refusal
+                                is attributed to the operation's class having
+                                no matching grant in the memory store.
+      "memory_self_description" — fell back to execution_gate; refusal came
+                                  from the retrieved memory's own metadata.
+      "no_refusal"            — gate passed.
     """
     sensitive, action_class, resource_class = is_sensitive_operation(query)
 
@@ -158,10 +163,13 @@ def operation_context_gate(
                 f"sensitive operation requires verification independent of memory metadata"
             ),
             "verify_first",
+            "op_context_gate",
         )
 
     # Non-sensitive operation: fall back to self-description gate
-    return execution_gate(memory, pre_gate_action)
+    sd_result, sd_note, sd_action = execution_gate(memory, pre_gate_action)
+    cause = "memory_self_description" if sd_action in RISKY_ACTIONS else "no_refusal"
+    return sd_result, sd_note, sd_action, cause
 
 
 # ---------------------------------------------------------------------------
@@ -198,14 +206,18 @@ class SplitDecision:
     oc_action: str
     oc_action_correct: bool
 
+    # Refusal attribution — what caused the OC gate to refuse
+    oc_refusal_cause: str  # "op_context_gate" | "memory_self_description" | "no_refusal"
+
     # Key diagnostic metrics
-    found_target_and_refused_oc: bool   # gate earned: target found AND oc gate refused
-    found_target_and_refused_sd: bool   # baseline: target found AND sd gate refused
-    lucky_pass_sd: bool                 # sd correct but target not selected (lucky miss)
-    lucky_pass_oc: bool                 # oc correct but target not selected
-    gap_exposed: bool                   # sd PASSED but oc FAILED — the self-description gap
-    false_certainty_sd: bool            # expected risky, sd said permissive
-    false_certainty_oc: bool            # expected risky, oc said permissive
+    found_target_and_refused_oc: bool     # target found AND oc gate refused (any cause)
+    found_target_and_refused_sd: bool     # baseline: target found AND sd gate refused
+    oc_earned_by_op_context: bool         # target found AND oc refused AND cause=op_context_gate
+    lucky_pass_sd: bool                   # sd correct but target not selected (lucky miss)
+    lucky_pass_oc: bool                   # oc correct but target not selected
+    gap_exposed: bool                     # sd PASSED but oc FAILED — the self-description gap
+    false_certainty_sd: bool              # expected risky, sd said permissive
+    false_certainty_oc: bool              # expected risky, oc said permissive
 
 
 # ---------------------------------------------------------------------------
@@ -234,13 +246,18 @@ def evaluate_scenario(scenario: dict[str, Any]) -> SplitDecision:
     sensitive, action_class, resource_class = is_sensitive_operation(query)
 
     sd_result, sd_note, sd_action = self_description_gate(selected, pre_gate_action)
-    oc_result, oc_note, oc_action = operation_context_gate(query, selected, pre_gate_action)
+    oc_result, oc_note, oc_action, oc_refusal_cause = operation_context_gate(query, selected, pre_gate_action)
 
     sd_correct = sd_action == expected
     oc_correct = oc_action == expected
 
     found_target_and_refused_oc = target_selected and oc_action in RISKY_ACTIONS
     found_target_and_refused_sd = target_selected and sd_action in RISKY_ACTIONS
+    oc_earned_by_op_context = (
+        target_selected
+        and oc_action in RISKY_ACTIONS
+        and oc_refusal_cause == "op_context_gate"
+    )
     lucky_pass_sd = sd_correct and not target_selected
     lucky_pass_oc = oc_correct and not target_selected
     gap_exposed = (
@@ -271,8 +288,10 @@ def evaluate_scenario(scenario: dict[str, Any]) -> SplitDecision:
         oc_gate_note=oc_note,
         oc_action=oc_action,
         oc_action_correct=oc_correct,
+        oc_refusal_cause=oc_refusal_cause,
         found_target_and_refused_oc=found_target_and_refused_oc,
         found_target_and_refused_sd=found_target_and_refused_sd,
+        oc_earned_by_op_context=oc_earned_by_op_context,
         lucky_pass_sd=lucky_pass_sd,
         lucky_pass_oc=lucky_pass_oc,
         gap_exposed=gap_exposed,
@@ -298,7 +317,11 @@ def summarize_decisions(decisions: list[SplitDecision]) -> dict[str, Any]:
         "oc_action_correct": sum(d.oc_action_correct for d in decisions),
         "oc_false_certainty": sum(d.false_certainty_oc for d in decisions),
         "oc_found_target_and_refused": sum(d.found_target_and_refused_oc for d in decisions),
+        "oc_earned_by_op_context": sum(d.oc_earned_by_op_context for d in decisions),
         "oc_lucky_pass": sum(d.lucky_pass_oc for d in decisions),
+        # Refusal cause breakdown
+        "oc_refusal_op_context": sum(d.oc_refusal_cause == "op_context_gate" for d in decisions),
+        "oc_refusal_memory_sd": sum(d.oc_refusal_cause == "memory_self_description" for d in decisions),
         # Gap metric — the core CLAIM-22 finding
         "gap_exposed": sum(d.gap_exposed for d in decisions),
         # Mislabeled-only breakdown
@@ -306,6 +329,7 @@ def summarize_decisions(decisions: list[SplitDecision]) -> dict[str, Any]:
         "mislabeled_oc_false_certainty": sum(d.false_certainty_oc for d in mislabeled),
         "mislabeled_gap_exposed": sum(d.gap_exposed for d in mislabeled),
         "mislabeled_oc_found_target_and_refused": sum(d.found_target_and_refused_oc for d in mislabeled),
+        "mislabeled_oc_earned_by_op_context": sum(d.oc_earned_by_op_context for d in mislabeled),
     }
 
 
@@ -338,31 +362,35 @@ def render_markdown(
         "|---|---:|---:|",
         f"| Action correct | {mislabeled_summary['sd_action_correct']}/{mislabeled_summary['total']} | {mislabeled_summary['oc_action_correct']}/{mislabeled_summary['total']} |",
         f"| False certainty (expected risky, said permissive) | {mislabeled_summary['sd_false_certainty']} | {mislabeled_summary['oc_false_certainty']} |",
-        f"| Found target AND refused | {mislabeled_summary['sd_found_target_and_refused']} | {mislabeled_summary['oc_found_target_and_refused']} |",
+        f"| Found target AND refused (any cause) | {mislabeled_summary['sd_found_target_and_refused']} | {mislabeled_summary['oc_found_target_and_refused']} |",
+        f"| **Found target AND refused — op_context_gate drove it** | — | **{mislabeled_summary['oc_earned_by_op_context']}** |",
         f"| Lucky pass (correct but target not selected) | {mislabeled_summary['sd_lucky_pass']} | {mislabeled_summary['oc_lucky_pass']} |",
         f"| **Gap exposed (sd PASS, oc FAIL)** | — | **{mislabeled_summary['gap_exposed']}** |",
         "",
         "Mislabeled-only rows:",
         "",
-        f"| | SD false certainty | OC false certainty | Gap exposed | OC found+refused |",
-        "|---|---:|---:|---:|---:|",
+        f"| | SD false certainty | OC false certainty | Gap exposed | OC found+refused | **OC earned by op_context** |",
+        "|---|---:|---:|---:|---:|---:|",
         f"| Mislabeled ({mislabeled_summary['mislabeled_count']}) | "
         f"{mislabeled_summary['mislabeled_sd_false_certainty']} | "
         f"{mislabeled_summary['mislabeled_oc_false_certainty']} | "
         f"{mislabeled_summary['mislabeled_gap_exposed']} | "
-        f"{mislabeled_summary['mislabeled_oc_found_target_and_refused']} |",
+        f"{mislabeled_summary['mislabeled_oc_found_target_and_refused']} | "
+        f"**{mislabeled_summary['mislabeled_oc_earned_by_op_context']}** |",
         "",
         "### Scenario Rows",
         "",
-        "| ID | Mislabel | Target selected | SD action | OC action | Expected | SD correct | OC correct | Gap | Found+refused OC |",
-        "|---|---|---|---|---|---|---|---|---|---|",
+        "| ID | Mislabel | Target sel | SD action | OC action | Expected | SD ok | OC ok | Gap | Found+refused | Refusal cause |",
+        "|---|---|---|---|---|---|---|---|---|---|---|",
     ]
     for d in mislabeled_decisions:
         lines.append(
             f"| {d.scenario_id} | {d.mislabel_type} | {'yes' if d.target_selected else 'no'} | "
             f"{d.sd_action} | {d.oc_action} | {d.expected_action} | "
             f"{'ok' if d.sd_action_correct else 'miss'} | {'ok' if d.oc_action_correct else 'miss'} | "
-            f"{'YES' if d.gap_exposed else 'no'} | {'YES' if d.found_target_and_refused_oc else 'no'} |"
+            f"{'YES' if d.gap_exposed else 'no'} | "
+            f"{'YES' if d.found_target_and_refused_oc else 'no'} | "
+            f"{d.oc_refusal_cause} |"
         )
 
     lines.extend([
@@ -402,8 +430,12 @@ def render_markdown(
         "",
         "- `gap_exposed > 0` on mislabeled scenarios is the CLAIM-22 finding: the self-description",
         "  gate passes mislabeled memories, the operation-context gate refuses them.",
-        "- `found_target_and_refused_oc` proves the gate earned the refusal — retrieval surfaced",
-        "  the sensitive memory AND the gate still refused based on operation context alone.",
+        "- `oc_earned_by_op_context` is the qualifying metric: target selected AND oc refused AND",
+        "  oc_refusal_cause == 'op_context_gate'. This proves the operation-context check drove the",
+        "  refusal, not an unrelated authority signal that happened to outrank it.",
+        "- `found_target_and_refused_oc` (any cause) minus `oc_earned_by_op_context` = refusals that",
+        "  look correct but were driven by memory metadata, not operation context — luck wearing the",
+        "  same result.",
         "- `lucky_pass_sd` on baseline scenarios flags cases where the current system looks safe",
         "  only because the ranker happened to miss the dangerous item.",
         "- Regression: if `oc_false_certainty > sd_false_certainty` on baseline, the new gate",
