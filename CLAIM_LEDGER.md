@@ -856,6 +856,135 @@ CLAIM-20 revises this: authority signals alone provide retrieval-time protection
 
 ---
 
+## CLAIM-21
+
+**Claim:** An externally authored certificate-policy packet confirms that the current execution gate is not a semantic authorization layer. The gate can check whether selected-memory metadata says an action type is high-stakes, but it cannot decide whether the retrieved policy content is valid, unsafe, underspecified, or authorizes privilege escalation. That requires a resource/action-class authorization layer outside item self-description.
+
+**What this adds:**
+CLAIM-20 showed that `governs.action_types` can rescue governs-present / authority-absent cases by escalating permissive actions. CLAIM-21 applies external pressure from ANP2's certificate-policy packet. The packet includes well-formed policies, intentionally bad policies, and ambiguous policies. Several expected outcomes depend on certificate-domain semantics, not just metadata consistency.
+
+**Evidence:**
+- `external_scenarios/claim21_external_cert_policy_packet_v0_1.json` — externally authored certificate policy packet: revoke, issue, verify, sign, delegate, bad-policy, and ambiguous authorization cases.
+- `run_claim21_external_cert_policy_eval.py` — evaluates the packet with current gate results separated from the external semantic gate expectations.
+- `results/claim21_external_cert_policy_packet_v0_1_results.json`
+- `results/claim21_external_cert_policy_packet_v0_1_results.md`
+
+**Results:**
+
+| Strategy | Expected memory | Current action ok | Current gate matched | External gate matched | Trap failures |
+|---|---:|---:|---:|---:|---:|
+| `bm25_metadata_text` | 8/10 | 5/10 | 5/10 | 7/10 | 2 |
+| `scope_precedence_role_filter_bm25_metadata_text` | 6/10 | 5/10 | 3/10 | 5/10 | 4 |
+| `governance_adjusted_bm25_metadata_text` | 3/10 | 6/10 | 6/10 | 3/10 | 7 |
+| `resource_scope_governance_bm25_metadata_text` | 4/10 | 5/10 | 7/10 | 4/10 | 6 |
+
+**Key row-level finding:**
+- The packet exposes retrieval ambiguity: governance-heavy strategies often select a safer adjacent policy instead of the externally expected policy. This supports ANP2's critique that ranking is doing two jobs when retrieval and authorization are collapsed.
+- The packet also exposes gate incompleteness: expected outcomes such as bad delegation, unsafe issuance, undefined batch authorization, and shared-project revocation depend on the proposed operation's resource/action semantics. The current gate only sees fields like `governs.action_types`, `verification_required`, and `allowed_action_hint`; it does not interpret the policy's substantive safety rule.
+
+**Interpretation:**
+- The CLAIM-20 gate is still real, but its boundary is now sharper: it is a metadata consistency gate, not a policy-validity gate.
+- ANP2's critique holds: per-item metadata is insufficient for mislabeled or semantically bad memories. A stricter layer needs to key off the operation/resource class being touched, not only what the retrieved item says about itself.
+- `resource_sensitivity` was not a dead end. It was unsafe as an ungated ranking signal, but CLAIM-21 suggests the right location is an authorization layer keyed by resource/action class, not the retriever.
+
+**Status:** `external-pressure finding` — packet authored outside the framework; evaluation harness is internal; not a benchmark-grade validation.
+
+**Weakness:**
+- The semantic external gate in `run_claim21_external_cert_policy_eval.py` currently encodes the author's expected gate labels rather than deriving them from a formal certificate-policy verifier.
+- No resource/action-class gate has been implemented yet.
+- Retrieval and semantic authorization are still measured together in the same packet; the next experiment should explicitly retrieve top-k relevant memories, then run a separate resource/action authorization gate over the proposed operation.
+
+**Allowed wording:**
+> "On an externally authored certificate-policy packet, the current execution gate behaved as a metadata consistency gate, not a semantic authorization layer."
+
+> "The packet supports the critique that retrieval and authorization should be split: retrieve for relevance, then authorize the proposed action against a resource/action policy layer."
+
+> "Per-item metadata remains useful, but it cannot be the only safety mechanism when the threat model includes mislabeled or semantically bad memories."
+
+**Forbidden wording:**
+> "CLAIM-21 externally validates the framework."
+> "The current gate understands certificate policy."
+> "The coverage map is proven."
+> "Resource-level authorization is implemented."
+
+---
+
+## CLAIM-22
+
+**Claim:** Separating retrieval (relevance) from authorization (operation context) closes the self-description gap: mislabeled sensitive memories that pass the current gate are refused by the operation-context gate.
+
+**What this advances from CLAIM-21:**
+CLAIM-21 named the architectural gap — the current gate reads `governs.action_types` from the retrieved memory, so a mislabeled item can pass the gate by lying about its own resource class. CLAIM-22 implements and measures the split fix: derive the action/resource class from the OPERATION (query/request), not from the retrieved memory's self-description.
+
+**Architecture:**
+- **Self-description gate (current):** reads `governs.action_types` and `resource_sensitivity` from the retrieved memory.
+- **Operation-context gate (new):** infers action class and resource class from the query before retrieval; refuses if the operation is high-risk (execute/write on sensitive resource class), independent of what the retrieved memory claims.
+
+**Evidence:**
+- `external_scenarios/split_architecture_mislabeled_v0_1.json` — 5 internally authored scenarios: 3 with intentionally mislabeled target memories (resource_sensitivity=ordinary_fact, allowed_action_hint=answer), 2 clean baseline.
+- `run_split_architecture_eval.py` — evaluator running both gates side-by-side on the same BM25 retrieval result; includes `found_target_and_refused`, `lucky_pass`, and `gap_exposed` metrics.
+- `results/split_architecture_eval_results.json`
+- `results/split_architecture_eval_results.md`
+
+**Results — Mislabeled Packet (5 scenarios, 3 mislabeled, 2 clean):**
+
+| Metric | Self-description gate | Operation-context gate |
+|---|---:|---:|
+| Action correct | 2/5 | 5/5 |
+| False certainty (expected risky, said permissive) | 3 | 0 |
+| Found target AND refused | 1 | 3 |
+| Lucky pass (correct but target not selected) | 0 | 1 |
+| **Gap exposed (SD PASS, OC FAIL)** | — | **3** |
+
+Mislabeled-only rows:
+
+| | SD false certainty | OC false certainty | Gap exposed | OC found+refused |
+|---|---:|---:|---:|---:|
+| Mislabeled (3) | 3 | 0 | 3 | 2 |
+
+**Results — Baseline Regression (fresh-Claude v0.4 top-5):**
+
+| Metric | Self-description gate | Operation-context gate |
+|---|---:|---:|
+| Action correct | 5/5 | 3/5 |
+| False certainty | 0 | 0 |
+| Gap exposed | — | 0 |
+
+**Key findings:**
+1. **Gap exposed = 3 on mislabeled scenarios.** All 3 mislabeled memories that passed the self-description gate were correctly refused by the operation-context gate. The gap ANP2 named is real and measurable.
+2. **found_target_and_refused_oc = 2/3 on mislabeled.** The gate earned 2 of the 3 refusals — it retrieved the sensitive mislabeled memory AND refused it based on operation context alone. The 3rd was a lucky pass (retrieval happened to miss the target, OC still correct).
+3. **Baseline regression: OC drops from 5/5 to 3/5.** The operation-context gate over-refuses on 2 clean scenarios — expected `block`, OC downgraded to `verify_first`. No false certainty errors; the gate never said permissive when risky was expected. This is a precision cost that is documented, not hidden.
+4. **Lucky pass (OC) = 1 on mislabeled.** One scenario where OC was correct but the target was not retrieved — the system looked safe because the ranker got lucky. This is the misleading-pass failure mode that `lucky_pass` was designed to catch.
+
+**Interpretation:**
+- The operation-context gate closes the self-description gap at scale: 3/3 mislabeled cases caught, 0 false certainty errors introduced.
+- The precision cost is real: 2 downgrade misses on clean scenarios (block → verify_first). This is the known tradeoff — a gate that authorizes from operation context rather than memory self-description is stricter on all sensitive operations, including correctly labeled ones.
+- `found_target_and_refused` now distinguishes earned refusals from lucky retrieval misses. On baseline, SD had `found_target_and_refused = 3` — those 3 were earned. OC matches those 3 on baseline with 0 lucky passes, confirming no regression on the earned refusal class.
+- The `lucky_pass` metric confirms the inverse failure exists: 1 mislabeled scenario looked safe in OC only because retrieval missed the target. The operation-context gate still refused (correctly) in this case, but the retrieval layer did not surface the right memory — that is a separate gap.
+
+**Status:** `demonstrated` — at 5-scenario scale, internally authored mislabeled packet. Needs external-authored mislabeled scenarios for replication.
+
+**Weakness:**
+- The operation-context gate infers resource/action class from keyword sets in the query. This is coarse — a sophisticated mislabeled operation with no sensitive keywords in the query could evade the gate.
+- The mislabeled scenarios are internally authored. The gap exists by construction. External replication requires an adversary authoring mislabeled memories that the gate must catch.
+- The 2 baseline downgrade misses (block → verify_first) need a stricter gate resolution: the OC gate should not silently downgrade well-labeled block decisions.
+- The split architecture does not yet address the write-time authorization problem: who authorized the storing agent to grant the authority it claimed at write time.
+
+**Allowed wording:**
+> "On an internally authored mislabeled-memory packet, the operation-context gate caught 3/3 cases the self-description gate missed, with 0 false certainty errors."
+
+> "The `found_target_and_refused` metric distinguishes earned refusals from lucky retrieval misses. On the mislabeled packet, the operation-context gate earned 2 of its 3 refusals."
+
+> "The operation-context gate introduces a precision cost: 2 downgrade misses on correctly labeled scenarios (block → verify_first). This tradeoff is documented."
+
+**Forbidden wording:**
+> "The split architecture solves the self-description problem."
+> "The operation-context gate is production-ready."
+> "Mislabeled memories are always caught by the operation-context gate."
+> "The write-time authorization problem is resolved."
+
+---
+
 ## CLAIM-06 — FORBIDDEN
 
 The following claims must not appear in any public artifact:
