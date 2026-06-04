@@ -1,0 +1,144 @@
+{
+  "claim": "CLAIM-24",
+  "description": "TTL-valid grants can be stale when source conditions changed. Re-derivation gate reads from agent-writable=false source at execution time.",
+  "registered": "2026-06-04",
+  "divergence_cell": 3,
+  "scenarios": [
+    {
+      "id": 1,
+      "description": "TTL-valid + conditions unchanged",
+      "grant": {
+        "grant_id": "g-0001",
+        "recipient": "agent:worker-1",
+        "scope": "read:credentials:dev",
+        "issued_at": "2026-06-03T09:00:00Z",
+        "ttl_hours": 72,
+        "source_snapshot": {
+          "role": "dev-reader",
+          "scope_ceiling": "read:credentials:dev"
+        }
+      },
+      "source_current": {
+        "role": "dev-reader",
+        "scope_ceiling": "read:credentials:dev"
+      },
+      "source_reachable": true,
+      "expected": "ALLOW"
+    },
+    {
+      "id": 2,
+      "description": "TTL-expired",
+      "grant": {
+        "grant_id": "g-0002",
+        "recipient": "agent:worker-2",
+        "scope": "read:credentials:dev",
+        "issued_at": "2026-05-31T09:00:00Z",
+        "ttl_hours": 24,
+        "source_snapshot": {
+          "role": "dev-reader",
+          "scope_ceiling": "read:credentials:dev"
+        }
+      },
+      "source_current": {
+        "role": "dev-reader",
+        "scope_ceiling": "read:credentials:dev"
+      },
+      "source_reachable": true,
+      "expected": "BLOCK"
+    },
+    {
+      "id": 3,
+      "description": "TTL-valid + conditions changed — THE DIVERGENCE CELL",
+      "grant": {
+        "grant_id": "g-0003",
+        "recipient": "agent:worker-3",
+        "scope": "read:credentials:dev",
+        "issued_at": "2026-06-01T09:00:00Z",
+        "ttl_hours": 72,
+        "source_snapshot": {
+          "role": "dev-reader",
+          "scope_ceiling": "read:credentials:dev"
+        }
+      },
+      "source_current": {
+        "role": "restricted",
+        "scope_ceiling": "read:logs:dev"
+      },
+      "source_reachable": true,
+      "expected": "REFUSED_STALE"
+    },
+    {
+      "id": 4,
+      "description": "Source unreachable",
+      "grant": {
+        "grant_id": "g-0004",
+        "recipient": "agent:worker-4",
+        "scope": "read:credentials:dev",
+        "issued_at": "2026-06-03T09:00:00Z",
+        "ttl_hours": 72,
+        "source_snapshot": {
+          "role": "dev-reader",
+          "scope_ceiling": "read:credentials:dev"
+        }
+      },
+      "source_current": null,
+      "source_reachable": false,
+      "expected": "REFUSED_UNREACHABLE"
+    },
+    {
+      "id": 5,
+      "description": "No grant present",
+      "grant": null,
+      "source_current": {
+        "role": "dev-reader",
+        "scope_ceiling": "read:credentials:dev"
+      },
+      "source_reachable": true,
+      "expected": "BLOCK"
+    },
+    {
+      "id": 6,
+      "description": "Recipient changed",
+      "grant": {
+        "grant_id": "g-0006",
+        "recipient": "agent:worker-6",
+        "scope": "read:credentials:dev",
+        "issued_at": "2026-06-03T09:00:00Z",
+        "ttl_hours": 72,
+        "source_snapshot": {
+          "role": "dev-reader",
+          "scope_ceiling": "read:credentials:dev",
+          "authorized_agent": "agent:worker-6"
+        }
+      },
+      "source_current": {
+        "role": "dev-reader",
+        "scope_ceiling": "read:credentials:dev",
+        "authorized_agent": "agent:worker-99"
+      },
+      "source_reachable": true,
+      "expected": "REFUSED_STALE"
+    },
+    {
+      "id": 7,
+      "description": "Scope narrowed",
+      "grant": {
+        "grant_id": "g-0007",
+        "recipient": "agent:worker-7",
+        "scope": "read:credentials:dev",
+        "issued_at": "2026-06-03T09:00:00Z",
+        "ttl_hours": 72,
+        "source_snapshot": {
+          "role": "dev-reader",
+          "scope_ceiling": "read:credentials:dev"
+        }
+      },
+      "source_current": {
+        "role": "dev-reader",
+        "scope_ceiling": "read:logs:dev"
+      },
+      "source_reachable": true,
+      "expected": "REFUSED_STALE"
+    }
+  ]
+}
