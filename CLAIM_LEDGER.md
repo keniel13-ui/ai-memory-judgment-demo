@@ -1132,6 +1132,8 @@ Pre-registered: 2026-06-03, before receiving Ken W Alger's (Sovereign Synapse) L
 
 *Enforcement artifact requirement (pre-registered):* Each gate decision (allow, refused_stale, refused_unreachable, block) must emit an authority event frozen at decision time, including: policy version consulted, source conditions read, grant parameters matched, and gate result. This is required output metadata, not part of the main claim. Absent authority events, the gate decision is not auditable. Signature verification of authority events is deferred to CLAIM-25.
 
+*condition_delta field constraint (added 2026-06-03, from ANP2 external review):* The `condition_delta` field in the authority event must store the raw before/after values the re-derivation compared — not a derived label such as "stale". A label is one more thing the system asserts about itself and cannot be independently verified; it can be re-summarized or mis-classified. Raw values (e.g. `recipient_at_grant: "agent_A"`, `recipient_at_check: "agent_B"`) let any reader recompute the verdict from the row itself, without trusting that the classifier bucketed the case correctly. This is the same principle applied to the gate output: stop storing the conclusion, store what was read. A condition_delta cell containing only a derived label fails this constraint and the authority event is not independently auditable.
+
 *Falsification conditions:*
 - The divergence cell (scenario 3, 6, 7) produces `allow` instead of `refused_stale` → the re-derivation gate cannot detect drift
 - `refused_stale` and `refused_unreachable` collapse to the same result → the gate cannot distinguish caught staleness from fail-closed; this is a different safety property and must not be conflated
