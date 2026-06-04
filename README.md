@@ -277,8 +277,37 @@ Across two independent fresh action-type passes on the clutter packet:
 | Strategy | Target selected | Action correct | Trap failures | Overblocking |
 |---|---:|---:|---:|---:|
 | scope_precedence_role_filter_bm25_metadata_text | 5/5 | 5/5 | 0 | 0 |
+| governance_adjusted_bm25_metadata_text | 5/5 | 5/5 | 0 | 0 |
 
 This is a two-pass result on one five-scenario clutter packet, not a general reliability claim.
+
+The first governance-adjusted scorer is now implemented as:
+
+```text
+score =
+  normalized_relevance
++ authority_weight
++ scope_match_weight
++ specificity_weight
++ action_type_weight
++ status_validity_weight
+- conflict_risk_penalty
+```
+
+This is the first step toward a formal retrieval model rather than a sequence of hard filters. On annotated governs/action-type packets it matches the best current strategy, but on unannotated memory stores it still fails. A first CLAIM-15 stress packet also shows the scorer failing the same missing/mismatched-governance cases as `scope_precedence_role_filter_bm25_metadata_text`. Treat it as an alternative scoring formulation, not as proof that it improves on the best prior strategy.
+
+CLAIM-15 diagnostic files:
+
+```text
+external_scenarios/claim15_governance_stress_v0_1.json
+run_claim15_ablation_eval.py
+run_claim15_score_decomposition.py
+results/claim15_governance_stress_v0_1_results.md
+results/claim15_ablation_results.md
+results/claim15_score_decomposition.md
+```
+
+The first decomposition confirms the main structural weakness: a target with higher relevance can lose to a distractor whose `governs` metadata matches better. Missing or mismatched `governs` is therefore not just missing information; under the current scorer it becomes a ranking liability.
 
 For the replication procedure, see:
 

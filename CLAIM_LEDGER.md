@@ -550,6 +550,67 @@ score =
 
 ---
 
+## CLAIM-15B
+
+**Claim:** A fresh held-out packet authored without formula context partially falsified the stronger CLAIM-15 improvement framing. On the held-out packet, plain `bm25_metadata_text` reached 6/6 target and 6/6 action, while the full `governance_adjusted_bm25_metadata_text` scorer reached 5/6 target and 5/6 action with one false-certainty error. The additive scorer remains useful as a diagnostic, but this packet does not support claiming retrieval improvement over relevance-only BM25.
+
+**What this adds:**
+CLAIM-15 showed that the additive scorer matched the best prior strategy on the stress packet and exposed metadata-dependency failures. CLAIM-15B tested the formula on a preregistered held-out packet authored by a fresh model with no scoring-formula context. The result forces a narrower public article: the scorer is a diagnostic tool and architecture probe, not an empirically superior retriever.
+
+**Evidence:**
+- `CLAIM15B_PREREGISTRATION.md`
+- `CLAIM15B_HELDOUT_PACKET_PROMPT.md`
+- `external_scenarios/claim15b_heldout_v0_1.json`
+- `results/claim15b_heldout_v0_1_results.md`
+- `results/claim15b_heldout_v0_1_results.json`
+- `results/claim15b_score_decomposition.md`
+- `results/claim15b_score_decomposition.json`
+
+**Held-out results:**
+
+| Strategy | Target | Action | Trap failures | FC errors | OB errors |
+|---|---:|---:|---:|---:|---:|
+| `bm25_metadata_text` | 6/6 | 6/6 | 0 | 0 | 0 |
+| `scope_precedence_role_filter_bm25_metadata_text` | 3/6 | 3/6 | 3 | 3 | 0 |
+| `governance_adjusted_bm25_metadata_text` | 5/6 | 5/6 | 1 | 1 | 0 |
+| `governance_no_scope_bm25_metadata_text` | 4/6 | 4/6 | 2 | 1 | 1 |
+| `governance_no_governs_bm25_metadata_text` | 4/6 | 4/6 | 2 | 0 | 2 |
+| `governance_scope_weak_bm25_metadata_text` | 5/6 | 5/6 | 1 | 1 | 0 |
+| `authority_signal_fallback_bm25_metadata_text` | 4/6 | 4/6 | 2 | 0 | 2 |
+| `governs_trust_gated_bm25_metadata_text` | 5/6 | 5/6 | 1 | 1 | 0 |
+
+**Falsification result:**
+- Pre-registered condition A7 vs A1 triggered more strongly than written: relevance-only BM25 did not merely match the full scorer; it outperformed it (`6/6` vs `5/6`).
+- A2 dropped below A1 (`4/6` vs `5/6`), so scope remains load-bearing.
+- A8 did not outperform A1 (`3/6` vs `5/6`).
+- A1 did not collapse below the known relevance floor.
+
+**Key row-level finding:**
+The A1 failure occurred on `s04`, legal litigation-hold deletion. The expected target governed deletion/destruction and should have produced `verify_first`. The full scorer selected the read-access policy instead. Score decomposition shows the target had higher relevance and authority, but the shallow action-type heuristic penalized it (`-2.0`) and rewarded the read-access distractor (`+1.25`). The failure is therefore not only missing or wrong `governs`; it is also weak action/operation inference.
+
+**Status:** `held-out negative / diagnostic result` — fresh-authored packet; evaluator remains internal.
+
+**Weakness:**
+- Fresh model authored the packet, but the schema and six scenario requirements were still designed by us.
+- Held-out packet is still small (`n=6`).
+- BM25 winning 6/6 may reflect the author making targets lexically obvious, not general BM25 superiority.
+- Action-type inference is shallow and must not be treated as a safety-critical mechanism without a stronger operation parser/tool-call layer.
+
+**Allowed wording:**
+> "On a fresh held-out packet, the governance-adjusted scorer reached 5/6, but relevance-only BM25 reached 6/6. This falsifies any simple improvement-over-BM25 framing for CLAIM-15."
+
+> "The held-out failure exposed a new weakness: shallow action-type inference can penalize the correct governing policy and reward a wrong read-access policy."
+
+> "The scorer remains useful as a diagnostic because it shows which metadata terms dominate and where the architecture depends on fields that may be missing, wrong, or misread."
+
+**Forbidden wording:**
+> "The scoring formula improves retrieval."
+> "CLAIM-15B validates governance-adjusted retrieval."
+> "BM25 is safer in general."
+> "The held-out packet is benchmark-grade."
+
+---
+
 ## CLAIM-16
 
 **Claim:** Read-shaped queries can trigger higher-stakes governed consequences, so strict action-type matching can be conceptually wrong. The current diagnostic packet confirms action-type classification ambiguity, but the first directional matching strategy does not yet improve retrieval outcomes.
@@ -982,6 +1043,155 @@ Mislabeled-only rows:
 > "The operation-context gate is production-ready."
 > "Mislabeled memories are always caught by the operation-context gate."
 > "The write-time authorization problem is resolved."
+
+---
+
+## CLAIM-23
+
+**Claim:** A tool-call authorization gate that matches concrete operation parameters against an external grant table catches cases that both memory self-description and query-context authorization miss. On an internally authored seven-scenario packet, the tool-call grant gate reached 7/7 action correctness with 0 false-certainty errors, while the self-description gate reached 1/7 and the CLAIM-22 query-context gate reached 3/7.
+
+**What this advances from CLAIM-22:**
+CLAIM-22 moved authorization away from retrieved-memory self-description, but still inferred action/resource class from query text. CLAIM-23 removes that natural-language self-description channel by authorizing the actual proposed tool call:
+
+`agent_id + action_type + target_resource + recipient + scope + expiry`
+
+The grant table lives outside the memory store. A memory cannot authorize itself by claiming `allowed_action_hint: answer`, and a vague query cannot hide a sensitive operation if the tool call exposes the concrete target.
+
+**Pre-registration:**
+- `CLAIM_23_TOOL_CALL_AUTHORIZATION_PLAN.md`
+- Hypothesis: exact active grants allow safe operations; missing, recipient-mismatched, scope-mismatched, expired, and block-list grants force `verify_first` or `block`.
+- Falsification conditions include: query-context and tool-call gates producing identical results, tool-call gate allowing recipient/scope mismatch, or refusing exact active allow grants.
+
+**Evidence:**
+- `external_scenarios/claim23_tool_call_authorization_v0_1.json` — 7 internally authored scenarios with `tool_call` objects and `external_grants`.
+- `run_claim23_tool_call_authorization_eval.py` — compares self-description gate, CLAIM-22 query-context gate, and CLAIM-23 tool-call grant gate.
+- `results/claim23_tool_call_authorization_v0_1_results.md`
+- `results/claim23_tool_call_authorization_v0_1_results.json`
+
+**Results:**
+
+| Gate | Action correct | False-certainty errors |
+|---|---:|---:|
+| Self-description gate | 1/7 | 6 |
+| Query-context gate (CLAIM-22) | 3/7 | 2 |
+| Tool-call grant gate | 7/7 | 0 |
+
+**Row-level findings:**
+- Exact active allow grant passed: `claim23_exact_grant_allow`.
+- Missing grant refused: `claim23_missing_grant_sensitive`.
+- Recipient mismatch refused: `claim23_recipient_mismatch`.
+- Scope mismatch refused: `claim23_scope_mismatch`.
+- Expired exact grant refused: `claim23_expired_grant`.
+- Vague query with sensitive tool call refused: `claim23_vague_query_sensitive_tool`.
+- Exact active block grant blocked: `claim23_exact_block_grant`.
+
+**Interpretation:**
+- The self-description gate missed six cases because the selected memory's `allowed_action_hint` said `answer`.
+- The query-context gate improved on self-description but missed two cases: expired authority and vague query hiding a sensitive credential-distribution tool call.
+- The tool-call grant gate caught parameter-bound failures that query inference cannot see: recipient mismatch, scope mismatch, grant expiry, and exact block decision.
+- This supports ANP2's critique: authorization must bind to the specific operation parameters, not just `{agent, role}` or the memory's own metadata.
+
+**Status:** `demonstrated internally` — small internally authored packet, not external or benchmark-grade.
+
+**Weakness:**
+- The packet is internally authored and intentionally isolates the failure modes.
+- The external grant table is a simplified fixture, not a production identity/authorization service.
+- The gate only checks exact grants; it does not model hierarchical scopes, delegated authority, revocation propagation, policy conflict resolution, or tool-call provenance.
+- This does not solve write-time authorization. It assumes the tool call and grant table are trustworthy inputs.
+
+**Allowed wording:**
+> "On an internally authored packet, a tool-call grant gate caught recipient, scope, expiry, missing-grant, and block-list cases that memory self-description missed."
+
+> "CLAIM-23 shows why query-context authorization is only a bridge: vague query text and expired grants require concrete tool-call parameters and an external grant table."
+
+> "The operation tuple must bind to target resource, recipient, scope, and expiry. A coarse grant for `{agent, action}` is not enough."
+
+**Forbidden wording:**
+> "Tool-call authorization solves agent safety."
+> "The external grant layer is production-ready."
+> "CLAIM-23 externally validates the framework."
+> "Memory metadata is no longer needed."
+> "The write-time authorization problem is resolved."
+
+---
+
+## CLAIM-24
+
+**Claim:** A TTL-valid grant can be stale when live source conditions have changed underneath the grant. A re-derivation gate that reads from a source the agent cannot write to catches that divergence and refuses in a way that timestamp-only expiry cannot.
+
+**What this advances from CLAIM-23:**
+CLAIM-23 bound authorization to concrete tool-call parameters (`agent_id + action_type + target_resource + recipient + scope + expiry`) and showed that an external grant table catches recipient, scope, expiry, and missing-grant failures. But the grant table itself can be stale. A grant is TTL-valid if the clock says so — but if the conditions that made the grant valid have since changed (recipient role changed, scope contracted, resource state moved), the TTL clock does not know. CLAIM-24 proposes a re-derivation gate that re-checks whether the grant would still be issued under current live conditions before allowing the operation.
+
+**Pre-registration:**
+
+Pre-registered: 2026-06-03, before receiving Ken W Alger's (Sovereign Synapse) Local Brain architecture code.
+
+*Main hypothesis:* When a grant is TTL-valid but live source conditions have drifted, the re-derivation gate refuses with `refused_stale`. The timestamp-only gate allows the same operation. The divergence cell (TTL-valid, re-derivation stale) is the success criterion for this claim. If that cell is empty, re-derivation bought nothing over timestamp expiry alone.
+
+*Source independence constraint (pre-registered):* Re-derivation must read from a source the agent cannot write to. If re-derivation reads from the same store the agent populates, it is self-description moved upstream — not an independent authority check. This constraint is required for the claim to hold. Violation falsifies the architecture, not just the result.
+
+*Enforcement artifact requirement (pre-registered):* Each gate decision (allow, refused_stale, refused_unreachable, block) must emit an authority event frozen at decision time, including: policy version consulted, source conditions read, grant parameters matched, and gate result. This is required output metadata, not part of the main claim. Absent authority events, the gate decision is not auditable. Signature verification of authority events is deferred to CLAIM-25.
+
+*Falsification conditions:*
+- The divergence cell (scenario 3, 6, 7) produces `allow` instead of `refused_stale` → the re-derivation gate cannot detect drift
+- `refused_stale` and `refused_unreachable` collapse to the same result → the gate cannot distinguish caught staleness from fail-closed; this is a different safety property and must not be conflated
+- Re-derivation reads from agent-writable source → source independence violated; result is self-description, not independent gate
+- TTL-expired cases (scenario 2) produce a different result than refused_stale cases → both are refuses, but for different reasons; if the gate cannot surface the reason, the audit trace is incomplete
+
+*Architecture:*
+- **Timestamp-only gate:** checks `expiry` field of the grant against clock. Refuses if expired.
+- **Re-derivation gate:** re-derives the would-be grant from the live source (external, agent-writable=false). Compares re-derived conditions against stored grant parameters. If diverged → `refused_stale`. If live source unreachable → `refused_unreachable`. If live source confirms → allow (gate pass). TTL is still checked; re-derivation adds a second check that runs if TTL is valid.
+
+*Pre-registered seven scenarios:*
+
+| # | Scenario | Grant TTL | Re-derivation result | Expected gate output |
+|---|---|---|---|---|
+| 1 | TTL-valid, conditions unchanged | valid | confirms | `allow` |
+| 2 | TTL-expired, conditions unchanged | expired | — (gate short-circuits on TTL) | `block` |
+| 3 | TTL-valid, conditions changed (DIVERGENCE CELL) | valid | stale | `refused_stale` |
+| 4 | TTL-valid, re-derivation source unreachable | valid | unreachable | `refused_unreachable` |
+| 5 | No grant exists | — | — | `block` |
+| 6 | Recipient changed since grant issued, TTL valid | valid | stale (recipient drift) | `refused_stale` |
+| 7 | Scope narrowed since grant issued, TTL valid | valid | stale (scope drift) | `refused_stale` |
+
+*Pre-registered result table shape:*
+
+| Gate | Scenario 1 | Scenario 2 | Scenario 3 (divergence) | Scenario 4 | Scenario 5 | Scenario 6 | Scenario 7 |
+|---|---|---|---|---|---|---|---|
+| Timestamp-only | allow | block | **allow (miss)** | — | block | **allow (miss)** | **allow (miss)** |
+| Re-derivation | allow | block | **refused_stale** | refused_unreachable | block | refused_stale | refused_stale |
+
+Scenarios 3, 6, and 7 are the divergence cells. Timestamp-only cannot catch them. Re-derivation must catch all three. If it catches zero, the claim is falsified. If it catches some but not all, the claim is partially falsified with a documented boundary.
+
+**Status:** `pre-registered` — no results yet; registered before seeing external architecture code
+
+**Weakness (known before running):**
+- Re-derivation requires a readable live source. If the architecture under test does not expose an agent-writable=false source, the required constraint cannot be verified and the experiment cannot be run cleanly.
+- If the live source is slow or rate-limited, `refused_unreachable` may appear where `allow` was expected — masking real divergence with fail-closed behavior.
+- Scenario 4 (`refused_unreachable`) is not evidence the gate works. It only shows fail-closed behavior. The claim lives or dies on scenario 3, 6, and 7.
+- The seven scenarios are internally authored. External replication requires an adversary constructing TTL-valid grants over drifted conditions without knowing the expected results.
+- Enforcement artifact emission is required output but cannot itself be tested as a security claim until CLAIM-25 adds signature verification.
+
+**Next test:**
+- Build the seven-scenario packet with `tool_call`, `external_grants`, and `live_source_snapshot` fields per scenario.
+- Run timestamp-only gate and re-derivation gate side-by-side on the same packet.
+- Confirm `refused_stale` and `refused_unreachable` are emitted as distinct result codes with full authority events.
+- Stress: corrupt the live source after grant issuance on a subset of scenarios and verify the gate detects drift without being told what changed.
+- After results: write allowed wording based on what the divergence cell actually showed.
+
+**Allowed wording (pre-registered, subject to revision after results):**
+> "On a seven-scenario internally authored packet, the re-derivation gate refused N/3 divergence-cell cases that the timestamp-only gate allowed."
+
+> "`refused_stale` and `refused_unreachable` are distinct result codes. The claim holds only on `refused_stale` rows — those are caught staleness. `refused_unreachable` rows are fail-closed and are not evidence the gate detects drift."
+
+> "The source independence constraint was [satisfied / violated] in this experiment. [If violated: the result does not support the claim.]"
+
+**Forbidden wording:**
+> "Re-derivation solves TTL staleness."
+> "The re-derivation gate eliminates stale grant failures."
+> "refused_unreachable proves the gate caught staleness."
+> "This is externally validated."
+> "The enforcement artifact is a signed audit log." (that is CLAIM-25, not this claim)
 
 ---
 
