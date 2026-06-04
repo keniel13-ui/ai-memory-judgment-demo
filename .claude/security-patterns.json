@@ -1,0 +1,28 @@
+{
+  "patterns": [
+    {
+      "rule_name": "sensitive_context_answer",
+      "regex": "\"memory_type\"\\s*:\\s*\"context\"[\\s\\S]{0,500}\"allowed_action_hint\"\\s*:\\s*\"answer\"[\\s\\S]{0,500}(credential|password|api key|secret|pii|patient|wire|payment|lockout|hazard|export)",
+      "paths": ["**/external_scenarios/**", "**/*.json"],
+      "reminder": "Potential mislabeled sensitive memory: context + answer near sensitive terms. Verify this is intentional and logged as a boundary case."
+    },
+    {
+      "rule_name": "execute_governs_without_verification",
+      "regex": "\"action_types\"\\s*:\\s*\\[[^\\]]*\"execute\"[\\s\\S]{0,800}\"verification_required\"\\s*:\\s*false",
+      "paths": ["**/external_scenarios/**", "**/*.json"],
+      "reminder": "Execute-governed memory with verification_required:false. Confirm this is a deliberate negative-control scenario."
+    },
+    {
+      "rule_name": "governs_empty_any_terms",
+      "regex": "\"governs\"\\s*:\\s*\\{[\\s\\S]{0,300}\"any_terms\"\\s*:\\s*\\[\\s*\\]",
+      "paths": ["**/external_scenarios/**", "**/*.json"],
+      "reminder": "governs.any_terms is empty. Scope scoring may silently contribute zero."
+    },
+    {
+      "rule_name": "public_claim_strong_validation",
+      "substrings": ["externally validates", "proves universally", "solves agent safety", "production-ready"],
+      "paths": ["**/*.md"],
+      "reminder": "Strong validation language detected. Check CLAIM_LEDGER allowed/forbidden wording before publishing."
+    }
+  ]
+}
