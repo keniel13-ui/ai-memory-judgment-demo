@@ -11,7 +11,7 @@
         "grant_id": "g-0001",
         "recipient": "agent:worker-1",
         "scope": "read:credentials:dev",
-        "issued_at": "2026-06-03T09:00:00Z",
+        "issued_at": "2026-06-04T20:00:00Z",
         "ttl_hours": 72,
         "source_snapshot": {
           "role": "dev-reader",
@@ -53,7 +53,7 @@
         "grant_id": "g-0003",
         "recipient": "agent:worker-3",
         "scope": "read:credentials:dev",
-        "issued_at": "2026-06-01T09:00:00Z",
+        "issued_at": "2026-06-04T20:00:00Z",
         "ttl_hours": 72,
         "source_snapshot": {
           "role": "dev-reader",
@@ -74,7 +74,7 @@
         "grant_id": "g-0004",
         "recipient": "agent:worker-4",
         "scope": "read:credentials:dev",
-        "issued_at": "2026-06-03T09:00:00Z",
+        "issued_at": "2026-06-04T20:00:00Z",
         "ttl_hours": 72,
         "source_snapshot": {
           "role": "dev-reader",
@@ -103,7 +103,7 @@
         "grant_id": "g-0006",
         "recipient": "agent:worker-6",
         "scope": "read:credentials:dev",
-        "issued_at": "2026-06-03T09:00:00Z",
+        "issued_at": "2026-06-04T20:00:00Z",
         "ttl_hours": 72,
         "source_snapshot": {
           "role": "dev-reader",
@@ -126,7 +126,7 @@
         "grant_id": "g-0007",
         "recipient": "agent:worker-7",
         "scope": "read:credentials:dev",
-        "issued_at": "2026-06-03T09:00:00Z",
+        "issued_at": "2026-06-04T20:00:00Z",
         "ttl_hours": 72,
         "source_snapshot": {
           "role": "dev-reader",
