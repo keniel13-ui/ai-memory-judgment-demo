@@ -1,0 +1,44 @@
+
+Full run: SignedFreshGate (core + ablations) vs SignatureOnlyGate (baseline)
+
+======================================================================
+Gate: SignedFreshGate — core
+Run time: 2026-06-06T12:00:00+00:00
+======================================================================
+ID   Label Expected               Got                    Pass   Notes
+---- ----- ---------------------- ---------------------- ------ ------------------------------
+1    E     ALLOW                  ALLOW                  PASS   All four properties satisfied. Signed, fresh, sour
+2    A     REFUSED_STALE          REFUSED_STALE          PASS   Source conditions changed. Grant scope: read:crede
+3    B     REFUSED_STALE          REFUSED_STALE          PASS   Response sequence 8 < floor 12. Replay or stale re
+4    C     REFUSED_STALE          REFUSED_STALE          PASS   Response sequence 8 < floor 10. Replay or stale re
+5    D     REFUSED_TAMPERED       REFUSED_TAMPERED       PASS   High-water mark storage tampered — mark was lowere
+
+All passed: True
+
+======================================================================
+Gate: SignatureOnlyGate — baseline (no freshness)
+Run time: 2026-06-06T12:00:00+00:00
+======================================================================
+ID   Label Expected               Got                    Pass   Notes
+---- ----- ---------------------- ---------------------- ------ ------------------------------
+1    E     ALLOW                  ALLOW                  PASS   Signature valid, conditions match. No freshness ch
+2    A     REFUSED_STALE          REFUSED_STALE          PASS   Conditions changed: read:credentials:dev -> read:l
+3    B     REFUSED_STALE          ALLOW                  FAIL   Signature valid, conditions match. No freshness ch
+4    C     REFUSED_STALE          ALLOW                  FAIL   Signature valid, conditions match. No freshness ch
+5    D     REFUSED_TAMPERED       ALLOW                  FAIL   Signature valid, conditions match. No freshness ch
+
+All passed: False
+
+======================================================================
+Gate: SignedFreshGate — ablations
+Run time: 2026-06-06T12:00:00+00:00
+======================================================================
+ID   Label Expected               Got                    Pass   Notes
+---- ----- ---------------------- ---------------------- ------ ------------------------------
+6    A1    ALLOW                  ALLOW                  PASS   All four properties satisfied. Signed, fresh, sour [ABLATION]
+7    A2    ALLOW                  ALLOW                  PASS   All four properties satisfied. Signed, fresh, sour [ABLATION]
+8    A3    ALLOW                  ALLOW                  PASS   All four properties satisfied. Signed, fresh, sour [ABLATION]
+9    A4    ALLOW                  ALLOW                  PASS   All four properties satisfied. Signed, fresh, sour [ABLATION]
+
+All passed: True
+Ablations: 4 run, 0 did not produce expected failure

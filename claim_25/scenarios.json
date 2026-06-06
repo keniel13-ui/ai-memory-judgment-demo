@@ -1,0 +1,321 @@
+{
+  "claim": "CLAIM-25",
+  "description": "Signed-AND-fresh: four required properties — pinned source, signature, grant-carried sequence floor, tamper-evident mark. Each is independently necessary.",
+  "registered": "2026-06-06",
+  "divergence_cells": [2, 3, 4, 5],
+  "ablation_cells": [6, 7, 8, 9],
+  "note": "Scenarios 1-5 are the core claim. Scenarios 6-9 are ablations: each removes one property and the specific attack must succeed (expected=ALLOW or REFUSED_TAMPERED depending on the property). If an ablation does not return the expected failure, that property was not load-bearing.",
+  "scenarios": [
+    {
+      "id": 1,
+      "label": "E",
+      "description": "Clean — TTL-valid, conditions unchanged, sequence current, mark current",
+      "grant": {
+        "grant_id": "g-2501",
+        "recipient": "agent:worker-1",
+        "scope": "read:credentials:dev",
+        "issued_at": "2026-06-06T08:00:00Z",
+        "ttl_hours": 72,
+        "source_address": "source://auth.internal/agents/worker-1",
+        "sequence_at_issue": 10,
+        "issuer_signature": "sig:simulated:g-2501:seq10:worker-1"
+      },
+      "source_response": {
+        "sequence": 15,
+        "role": "dev-reader",
+        "scope_ceiling": "read:credentials:dev",
+        "signature_valid": true
+      },
+      "gate_state": {
+        "stored_mark": 12,
+        "source_address_runtime": "source://auth.internal/agents/worker-1",
+        "mark_is_tampered": false
+      },
+      "expected": "ALLOW",
+      "why": "All four properties satisfied. Clean grant, fresh response, mark current."
+    },
+    {
+      "id": 2,
+      "label": "A",
+      "description": "TTL-valid drift — conditions changed, sequence current, timestamp gate misses this",
+      "grant": {
+        "grant_id": "g-2502",
+        "recipient": "agent:worker-2",
+        "scope": "read:credentials:dev",
+        "issued_at": "2026-06-06T08:00:00Z",
+        "ttl_hours": 72,
+        "source_address": "source://auth.internal/agents/worker-2",
+        "sequence_at_issue": 10,
+        "issuer_signature": "sig:simulated:g-2502:seq10:worker-2"
+      },
+      "source_response": {
+        "sequence": 15,
+        "role": "restricted",
+        "scope_ceiling": "read:logs:dev",
+        "signature_valid": true
+      },
+      "gate_state": {
+        "stored_mark": 12,
+        "source_address_runtime": "source://auth.internal/agents/worker-2",
+        "mark_is_tampered": false
+      },
+      "expected": "REFUSED_STALE",
+      "why": "Sequence is current (15 >= 10) and signature valid, but source conditions changed. Role downgraded from dev-reader to restricted. Timestamp-only gate returns ALLOW — this is the divergence cell inherited from CLAIM-24."
+    },
+    {
+      "id": 3,
+      "label": "B",
+      "description": "Replay attack — genuine pre-revocation signed response, sequence below grant floor",
+      "grant": {
+        "grant_id": "g-2503",
+        "recipient": "agent:worker-3",
+        "scope": "read:credentials:dev",
+        "issued_at": "2026-06-06T08:00:00Z",
+        "ttl_hours": 72,
+        "source_address": "source://auth.internal/agents/worker-3",
+        "sequence_at_issue": 10,
+        "issuer_signature": "sig:simulated:g-2503:seq10:worker-3"
+      },
+      "source_response": {
+        "sequence": 8,
+        "role": "dev-reader",
+        "scope_ceiling": "read:credentials:dev",
+        "signature_valid": true,
+        "note": "This is a genuine pre-revocation response — signature is valid, but sequence 8 predates grant issuance at sequence 10. Role was dev-reader before the revocation event."
+      },
+      "gate_state": {
+        "stored_mark": 12,
+        "source_address_runtime": "source://auth.internal/agents/worker-3",
+        "mark_is_tampered": false
+      },
+      "expected": "REFUSED_STALE",
+      "why": "Signature is valid — this is a genuine issuer response. But sequence 8 < grant.sequence_at_issue 10. The grant-carried floor rejects it. Signature-only gate returns ALLOW. This is the window signature-only gates cannot close."
+    },
+    {
+      "id": 4,
+      "label": "C",
+      "description": "Cold-start replay — no stored mark, floor must come from grant",
+      "grant": {
+        "grant_id": "g-2504",
+        "recipient": "agent:worker-4",
+        "scope": "read:credentials:dev",
+        "issued_at": "2026-06-06T08:00:00Z",
+        "ttl_hours": 72,
+        "source_address": "source://auth.internal/agents/worker-4",
+        "sequence_at_issue": 10,
+        "issuer_signature": "sig:simulated:g-2504:seq10:worker-4"
+      },
+      "source_response": {
+        "sequence": 8,
+        "role": "dev-reader",
+        "scope_ceiling": "read:credentials:dev",
+        "signature_valid": true,
+        "note": "Pre-revocation response. Signature valid. Sequence 8 predates revocation."
+      },
+      "gate_state": {
+        "stored_mark": null,
+        "source_address_runtime": "source://auth.internal/agents/worker-4",
+        "mark_is_tampered": false
+      },
+      "expected": "REFUSED_STALE",
+      "why": "Gate has no stored mark — cold start or post-restart. Floor is derived from grant.sequence_at_issue=10. Response sequence 8 < 10. Gate refuses. Without grant-carried floor, cold start has no baseline and replay succeeds."
+    },
+    {
+      "id": 5,
+      "label": "D",
+      "description": "Mark rewind — attacker rewound the high-water mark, tamper must be detected",
+      "grant": {
+        "grant_id": "g-2505",
+        "recipient": "agent:worker-5",
+        "scope": "read:credentials:dev",
+        "issued_at": "2026-06-06T08:00:00Z",
+        "ttl_hours": 72,
+        "source_address": "source://auth.internal/agents/worker-5",
+        "sequence_at_issue": 10,
+        "issuer_signature": "sig:simulated:g-2505:seq10:worker-5"
+      },
+      "source_response": {
+        "sequence": 8,
+        "role": "dev-reader",
+        "scope_ceiling": "read:credentials:dev",
+        "signature_valid": true,
+        "note": "Pre-revocation response. The mark was rewound from 15 to 5 so this sequence appears above the mark."
+      },
+      "gate_state": {
+        "stored_mark": 5,
+        "source_address_runtime": "source://auth.internal/agents/worker-5",
+        "mark_is_tampered": true,
+        "mark_tamper_note": "Mark was 15 at last valid read. Rewound to 5 by attacker. Gate must detect monotonicity violation."
+      },
+      "expected": "REFUSED_TAMPERED",
+      "why": "Sequence 8 > rewound mark 5, so a non-monotonic gate would return ALLOW. Tamper-evident gate detects mark was lowered (not append-only) and refuses. If mark storage is rewindable, rollback moves from source layer to mark layer — same attack one level down."
+    },
+    {
+      "id": 6,
+      "label": "A1",
+      "description": "ABLATION: Drop grant-carried floor — cold-start replay must succeed (ALLOW expected)",
+      "ablation": "no_sequence_floor",
+      "ablation_removes": "grant.sequence_at_issue",
+      "ablation_note": "Grant has no sequence_at_issue. Gate has no stored mark (cold start). Gate has no floor from any source. If the gate still refuses, the grant-carried floor was not load-bearing — something else blocked it.",
+      "grant": {
+        "grant_id": "g-2506",
+        "recipient": "agent:worker-6",
+        "scope": "read:credentials:dev",
+        "issued_at": "2026-06-06T08:00:00Z",
+        "ttl_hours": 72,
+        "source_address": "source://auth.internal/agents/worker-6",
+        "sequence_at_issue": null,
+        "issuer_signature": "sig:simulated:g-2506:seqNULL:worker-6"
+      },
+      "source_response": {
+        "sequence": 8,
+        "role": "dev-reader",
+        "scope_ceiling": "read:credentials:dev",
+        "signature_valid": true,
+        "note": "Pre-revocation response. Without a floor, this cannot be rejected on sequence grounds."
+      },
+      "gate_state": {
+        "stored_mark": null,
+        "source_address_runtime": "source://auth.internal/agents/worker-6",
+        "mark_is_tampered": false
+      },
+      "expected": "ALLOW",
+      "failure_mode": "cold-start replay passed — no floor from any source",
+      "why": "ABLATION EXPECTED FAILURE. Without grant-carried floor and without stored mark, cold-start replay has nothing to be rejected against. Gate must return ALLOW here to prove the grant-carried floor (scenario 4) was load-bearing."
+    },
+    {
+      "id": 7,
+      "label": "A2",
+      "description": "ABLATION: Rewindable mark — rollback must reopen the attack (ALLOW expected)",
+      "ablation": "rewindable_mark",
+      "ablation_removes": "tamper_detection on stored_mark",
+      "ablation_note": "Grant floor is 5 (legitimately reachable — real grant was issued at seq 5). Replayed sequence 8 >= floor 5, so floor passes. The only remaining guard is tamper detection. With it disabled, 8 > rewound mark 5 and gate accepts. Floor is NOT removed in this ablation — only tamper detection is stripped. This is the clean isolation.",
+      "grant": {
+        "grant_id": "g-2507",
+        "recipient": "agent:worker-7",
+        "scope": "read:credentials:dev",
+        "issued_at": "2026-06-06T08:00:00Z",
+        "ttl_hours": 72,
+        "source_address": "source://auth.internal/agents/worker-7",
+        "sequence_at_issue": 5,
+        "issuer_signature": "sig:simulated:g-2507:seq5:worker-7"
+      },
+      "source_response": {
+        "sequence": 8,
+        "role": "dev-reader",
+        "scope_ceiling": "read:credentials:dev",
+        "signature_valid": true,
+        "note": "Pre-revocation response. Sequence 8 >= grant floor 5 — floor passes. Mark was rewound from 12 to 5 (a legitimately reachable value — real grant existed at seq 5). Tamper detection disabled in this ablation."
+      },
+      "gate_state": {
+        "stored_mark": 5,
+        "source_address_runtime": "source://auth.internal/agents/worker-7",
+        "mark_is_tampered": false,
+        "mark_tamper_note": "Mark WAS at 12, rewound to 5 by attacker. 5 is legitimately reachable (real grant at seq 5) so it does not look obviously impossible. Only monotonicity check would catch this. Tamper detection disabled in this ablation."
+      },
+      "expected": "ALLOW",
+      "failure_mode": "rewound mark accepted — mark lowered without detection",
+      "why": "ABLATION EXPECTED FAILURE. Floor passes (8 >= 5). Without tamper detection, the monotonicity violation goes undetected and 8 > rewound mark 5. Gate returns ALLOW. Tamper detection is isolated as the sole load-bearing property in this cell."
+    },
+    {
+      "id": 8,
+      "label": "A3",
+      "description": "ABLATION: Unpinned source — substitution must succeed (ALLOW expected)",
+      "ablation": "unpinned_source",
+      "ablation_removes": "enforcement of grant.source_address at execution time",
+      "ablation_note": "Gate reads from runtime-supplied address instead of grant.source_address. Attacker substitutes a friendly source returning ALLOW state.",
+      "grant": {
+        "grant_id": "g-2508",
+        "recipient": "agent:worker-8",
+        "scope": "read:credentials:dev",
+        "issued_at": "2026-06-06T08:00:00Z",
+        "ttl_hours": 72,
+        "source_address": "source://auth.internal/agents/worker-8",
+        "sequence_at_issue": 10,
+        "issuer_signature": "sig:simulated:g-2508:seq10:worker-8"
+      },
+      "source_response": {
+        "sequence": 15,
+        "role": "dev-reader",
+        "scope_ceiling": "read:credentials:dev",
+        "signature_valid": true,
+        "note": "Response from SUBSTITUTED friendly source. Real source would return restricted/refused."
+      },
+      "gate_state": {
+        "stored_mark": 12,
+        "source_address_runtime": "source://friendly.attacker/agents/worker-8",
+        "mark_is_tampered": false,
+        "substitution_note": "source_address_runtime differs from grant.source_address. Gate reads from runtime address in this ablation."
+      },
+      "expected": "ALLOW",
+      "failure_mode": "substituted source accepted — runtime address used instead of grant address",
+      "why": "ABLATION EXPECTED FAILURE. Without source pinning, the gate reads from the attacker-supplied address. Friendly source returns ALLOW. This proves that pinning source_address inside the grant (scenario 2 defense) is load-bearing."
+    },
+    {
+      "id": 9,
+      "label": "A4",
+      "description": "ABLATION: No signature — forged response must pass (ALLOW expected)",
+      "ablation": "no_signature",
+      "ablation_removes": "signature verification on source response",
+      "ablation_note": "Gate does not verify response signature. Attacker presents forged response with high sequence and ALLOW conditions.",
+      "grant": {
+        "grant_id": "g-2509",
+        "recipient": "agent:worker-9",
+        "scope": "read:credentials:dev",
+        "issued_at": "2026-06-06T08:00:00Z",
+        "ttl_hours": 72,
+        "source_address": "source://auth.internal/agents/worker-9",
+        "sequence_at_issue": 10,
+        "issuer_signature": "sig:simulated:g-2509:seq10:worker-9"
+      },
+      "source_response": {
+        "sequence": 50,
+        "role": "dev-reader",
+        "scope_ceiling": "read:credentials:dev",
+        "signature_valid": false,
+        "note": "FORGED response. Signature is invalid. Gate must verify signature. If gate skips verification, sequence 50 >= floor 10 and ALLOW is returned."
+      },
+      "gate_state": {
+        "stored_mark": 12,
+        "source_address_runtime": "source://auth.internal/agents/worker-9",
+        "mark_is_tampered": false
+      },
+      "expected": "ALLOW",
+      "failure_mode": "forged response accepted — invalid signature not checked",
+      "why": "ABLATION EXPECTED FAILURE. Gate skips signature check. Forged response has high sequence (50 >= 10) and ALLOW conditions. Gate returns ALLOW. This proves signature verification is load-bearing."
+    },
+    {
+      "id": 10,
+      "label": "A2-overlap",
+      "description": "OVERLAP ASSERTION: Both grant floor and tamper detection cover this cell — defense-in-depth zone",
+      "ablation": "overlap_assertion",
+      "ablation_note": "This is not an isolated control. It documents the defense-in-depth zone from the original confounded A2: grant floor 10 > replayed sequence 8, AND mark is tampered. Both properties independently catch this attack. Registered so any future change that quietly drops either guard shows up as a regression.",
+      "grant": {
+        "grant_id": "g-2510",
+        "recipient": "agent:worker-10",
+        "scope": "read:credentials:dev",
+        "issued_at": "2026-06-06T08:00:00Z",
+        "ttl_hours": 72,
+        "source_address": "source://auth.internal/agents/worker-10",
+        "sequence_at_issue": 10,
+        "issuer_signature": "sig:simulated:g-2510:seq10:worker-10"
+      },
+      "source_response": {
+        "sequence": 8,
+        "role": "dev-reader",
+        "scope_ceiling": "read:credentials:dev",
+        "signature_valid": true,
+        "note": "Pre-revocation response. Sequence 8 < grant floor 10 — floor would catch it. Mark also rewound to 5 with tamper flag set — tamper detection would also catch it. Both guards active."
+      },
+      "gate_state": {
+        "stored_mark": 5,
+        "source_address_runtime": "source://auth.internal/agents/worker-10",
+        "mark_is_tampered": true,
+        "mark_tamper_note": "Mark rewound from 12 to 5. Tamper detected. Floor (10) also exceeds replayed sequence (8). This cell has two independent guards."
+      },
+      "expected": "REFUSED_TAMPERED",
+      "overlap_guards": ["grant_floor", "tamper_detection"],
+      "why": "OVERLAP ASSERTION. Gate fires REFUSED_TAMPERED (tamper check comes before floor check in evaluation order). If tamper detection were dropped, floor would still catch it (8 < 10). If floor were dropped, tamper detection would still catch it. Defense-in-depth — both guards must remain for this cell to be fully protected."
+    }
+  ]
+}
