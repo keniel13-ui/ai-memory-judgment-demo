@@ -234,6 +234,29 @@ The important parts:
 
 If any of those fail, the record may still be useful operationally, but it is not audit-safe under CLAIM-26.
 
+Here is what the `post_hoc` failure looks like in practice — the shape a `SeparateWriteGate` accepts and a `PairedAuthorityActionGate` refuses:
+
+```json
+{
+  "authority_event_id": "auth-003",
+  "decision": "ALLOW",
+  "snapshot_hash": "sha256:policy_v21_sequence_42",
+  "is_immutable": true,
+  "written_at": "2026-06-06T12:00:06Z"
+}
+```
+
+```json
+{
+  "action_id": "act-003",
+  "authority_event_id": "auth-003",
+  "snapshot_hash": "sha256:policy_v21_sequence_42",
+  "written_at": "2026-06-06T12:00:02Z"
+}
+```
+
+Action at `12:00:02`, authority at `12:00:06`. The records are consistent. The hashes match. The authority record is immutable. A gate that checks shape passes this. A gate that checks write order returns `REFUSED_POST_HOC`. That four-second gap is the difference between prior authorization and reconstruction.
+
 ---
 
 ## What This Does Not Claim
@@ -257,6 +280,8 @@ Those are next layers.
 The narrower claim is this:
 
 If an agent takes an action and the system cannot pair that action with immutable authority evidence containing the exact source snapshot used to authorize it, written before or atomically with the action, the action is not audit-safe.
+
+This proves the properties are structurally necessary within this design. It does not prove they are sufficient or optimal for real compliance requirements.
 
 ---
 
