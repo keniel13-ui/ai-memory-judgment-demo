@@ -1,12 +1,24 @@
 # AI Memory Judgment Demo
 
-Status: sanitized public lab artifact. Not benchmark-grade.
+Status: public research lab artifact. Not benchmark-grade.
 
-This folder is a small, inspectable demo for testing one idea:
+This repository is the public research trail behind Self-Correcting Systems: a series of small, inspectable experiments on AI agent memory reliability, authority, freshness, and action safety.
+
+Current public arc:
+
+- 27 public claims, tracked in `CLAIM_LEDGER.md`
+- Retrieval consequence tests: relevant memory is not always safe memory
+- Authority arbitration tests: which memory is allowed to govern an action
+- Tool-call authorization tests: concrete tool parameters beat vague query intent
+- Signed-and-fresh grant tests: signed is not the same as current
+- Paired authority/action event tests: action logs need proof of why the action was allowed
+- Scope-soundness tests: content integrity is outside a source/sequence-only signing boundary
+
+The starting idea was:
 
 > Agent memory should be evaluated by the consequence of retrieval, not only by top-1 retrieval accuracy.
 
-The demo uses six structured memory files, ten scenarios, and a deterministic evaluator. It does not use an LLM, embeddings, reranking, or generated answers.
+The earliest demo used six structured memory files, ten scenarios, and a deterministic evaluator. The repository has since grown into a claim ledger plus targeted harnesses for authority, freshness, verification gates, and auditability.
 
 ## Live Product Offshoot
 
