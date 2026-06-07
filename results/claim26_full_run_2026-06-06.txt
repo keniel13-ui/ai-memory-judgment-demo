@@ -1,0 +1,102 @@
+
+========================================================================
+Gate: PairedAuthorityActionGate
+========================================================================
+ID   Label          Expected                   Got                        Pass
+---- -------------- -------------------------- -------------------------- ----
+1    clean          ALLOW                      ALLOW                      PASS
+2    unpaired       REFUSED_UNPAIRED           REFUSED_UNPAIRED           PASS
+3    post_hoc       REFUSED_POST_HOC           REFUSED_POST_HOC           PASS
+4    mutable_ptr    REFUSED_MUTABLE_SOURCE     REFUSED_MUTABLE_SOURCE     PASS
+5    hash_mismatch  REFUSED_SNAPSHOT_MISMATCH  REFUSED_SNAPSHOT_MISMATCH  PASS
+6    tampered       REFUSED_TAMPERED           REFUSED_TAMPERED           PASS
+7    audit_gap      REFUSED_AUDIT_GAP          REFUSED_AUDIT_GAP          PASS
+
+Result: 7/7 passed
+
+========================================================================
+Gate: DecisionOnlyGate
+========================================================================
+ID   Label          Expected                   Got                        Pass
+---- -------------- -------------------------- -------------------------- ----
+1    clean          ALLOW                      ALLOW                      PASS
+2    unpaired       REFUSED_UNPAIRED           REFUSED_UNPAIRED           PASS
+3    post_hoc       REFUSED_POST_HOC           ALLOW                      FAIL
+4    mutable_ptr    REFUSED_MUTABLE_SOURCE     ALLOW                      FAIL
+5    hash_mismatch  REFUSED_SNAPSHOT_MISMATCH  ALLOW                      FAIL
+6    tampered       REFUSED_TAMPERED           ALLOW                      FAIL
+7    audit_gap      REFUSED_AUDIT_GAP          ALLOW                      FAIL
+
+Result: 2/7 passed
+  FAIL id=3 (post_hoc): expected REFUSED_POST_HOC, got ALLOW
+       notes: Decision: ALLOW (no structural audit checks performed)
+  FAIL id=4 (mutable_ptr): expected REFUSED_MUTABLE_SOURCE, got ALLOW
+       notes: Decision: ALLOW (no structural audit checks performed)
+  FAIL id=5 (hash_mismatch): expected REFUSED_SNAPSHOT_MISMATCH, got ALLOW
+       notes: Decision: ALLOW (no structural audit checks performed)
+  FAIL id=6 (tampered): expected REFUSED_TAMPERED, got ALLOW
+       notes: Decision: ALLOW (no structural audit checks performed)
+  FAIL id=7 (audit_gap): expected REFUSED_AUDIT_GAP, got ALLOW
+       notes: Decision: ALLOW (no structural audit checks performed)
+
+========================================================================
+Gate: MutablePointerAuditGate
+========================================================================
+ID   Label          Expected                   Got                        Pass
+---- -------------- -------------------------- -------------------------- ----
+1    clean          ALLOW                      ALLOW                      PASS
+2    unpaired       REFUSED_UNPAIRED           REFUSED_UNPAIRED           PASS
+3    post_hoc       REFUSED_POST_HOC           ALLOW                      FAIL
+4    mutable_ptr    REFUSED_MUTABLE_SOURCE     ALLOW                      FAIL
+5    hash_mismatch  REFUSED_SNAPSHOT_MISMATCH  ALLOW                      FAIL
+6    tampered       REFUSED_TAMPERED           ALLOW                      FAIL
+7    audit_gap      REFUSED_AUDIT_GAP          ALLOW                      FAIL
+
+Result: 2/7 passed
+  FAIL id=3 (post_hoc): expected REFUSED_POST_HOC, got ALLOW
+       notes: Source reference present (hash or URI accepted — no frozen snapshot required)
+  FAIL id=4 (mutable_ptr): expected REFUSED_MUTABLE_SOURCE, got ALLOW
+       notes: Source reference present (hash or URI accepted — no frozen snapshot required)
+  FAIL id=5 (hash_mismatch): expected REFUSED_SNAPSHOT_MISMATCH, got ALLOW
+       notes: Source reference present (hash or URI accepted — no frozen snapshot required)
+  FAIL id=6 (tampered): expected REFUSED_TAMPERED, got ALLOW
+       notes: Source reference present (hash or URI accepted — no frozen snapshot required)
+  FAIL id=7 (audit_gap): expected REFUSED_AUDIT_GAP, got ALLOW
+       notes: Source reference present (hash or URI accepted — no frozen snapshot required)
+
+========================================================================
+Gate: SeparateWriteGate
+========================================================================
+ID   Label          Expected                   Got                        Pass
+---- -------------- -------------------------- -------------------------- ----
+1    clean          ALLOW                      ALLOW                      PASS
+2    unpaired       REFUSED_UNPAIRED           REFUSED_UNPAIRED           PASS
+3    post_hoc       REFUSED_POST_HOC           ALLOW                      FAIL
+4    mutable_ptr    REFUSED_MUTABLE_SOURCE     REFUSED_MUTABLE_SOURCE     PASS
+5    hash_mismatch  REFUSED_SNAPSHOT_MISMATCH  REFUSED_SNAPSHOT_MISMATCH  PASS
+6    tampered       REFUSED_TAMPERED           REFUSED_TAMPERED           PASS
+7    audit_gap      REFUSED_AUDIT_GAP          ALLOW                      FAIL
+
+Result: 5/7 passed
+  FAIL id=3 (post_hoc): expected REFUSED_POST_HOC, got ALLOW
+       notes: Hash present, immutable, hashes agree (write order not enforced; no audit gap check)
+  FAIL id=7 (audit_gap): expected REFUSED_AUDIT_GAP, got ALLOW
+       notes: Hash present, immutable, hashes agree (write order not enforced; no audit gap check)
+
+========================================================================
+Comparison table
+========================================================================
+ID   Label          Expected                   Paired     Decision   MutPtr     SepWrite  
+----------------------------------------------------------------------------------------
+1    clean          ALLOW                      PASS       PASS       PASS       PASS      
+2    unpaired       REFUSED_UNPAIRED           PASS       PASS       PASS       PASS      
+3    post_hoc       REFUSED_POST_HOC           PASS       FAIL       FAIL       FAIL      
+4    mutable_ptr    REFUSED_MUTABLE_SOURCE     PASS       FAIL       FAIL       PASS      
+5    hash_mismatch  REFUSED_SNAPSHOT_MISMATCH  PASS       FAIL       FAIL       PASS      
+6    tampered       REFUSED_TAMPERED           PASS       FAIL       FAIL       PASS      
+7    audit_gap      REFUSED_AUDIT_GAP          PASS       FAIL       FAIL       FAIL      
+
+  Paired       7/7
+  Decision     2/7
+  MutPtr       2/7
+  SepWrite     5/7

@@ -1,0 +1,206 @@
+{
+  "claim": "CLAIM-26",
+  "property": "paired-authority-action",
+  "description": "An action is audit-safe only if it is paired with an immutable authority event that contains the exact source snapshot hash used to authorize it, written before or atomically with the action event.",
+  "pre_registered": "2026-06-06",
+  "scenarios": [
+    {
+      "id": 1,
+      "label": "clean",
+      "description": "Clean paired action — authority event written first, snapshot hashes match between records and verification context, record immutable.",
+      "expected": "ALLOW",
+      "authority_record": {
+        "authority_event_id": "auth-001",
+        "grant_id": "grant-abc",
+        "decision": "ALLOW",
+        "decision_timestamp": "2026-06-06T12:00:00Z",
+        "snapshot_hash": "sha256:policy_v21_sequence_42",
+        "source_sequence": 42,
+        "policy_version": "v2.1",
+        "run_id": "run-001",
+        "is_immutable": true,
+        "written_at": "2026-06-06T12:00:01Z",
+        "source_uri": null
+      },
+      "action_record": {
+        "action_id": "act-001",
+        "authority_event_id": "auth-001",
+        "action_type": "read:credentials:dev",
+        "run_id": "run-001",
+        "snapshot_hash": "sha256:policy_v21_sequence_42",
+        "written_at": "2026-06-06T12:00:02Z"
+      },
+      "audit_context": {
+        "active_snapshot_hash": "sha256:policy_v21_sequence_42"
+      }
+    },
+    {
+      "id": 2,
+      "label": "unpaired",
+      "description": "Action taken with no linked authority event — no pairing.",
+      "expected": "REFUSED_UNPAIRED",
+      "authority_record": null,
+      "action_record": {
+        "action_id": "act-002",
+        "authority_event_id": null,
+        "action_type": "read:credentials:dev",
+        "run_id": "run-002",
+        "snapshot_hash": null,
+        "written_at": "2026-06-06T12:00:02Z"
+      },
+      "audit_context": {
+        "active_snapshot_hash": "sha256:policy_v21_sequence_42"
+      }
+    },
+    {
+      "id": 3,
+      "label": "post_hoc",
+      "description": "Authority event written after action — post-hoc reconstruction, not prior authorization.",
+      "expected": "REFUSED_POST_HOC",
+      "authority_record": {
+        "authority_event_id": "auth-003",
+        "grant_id": "grant-abc",
+        "decision": "ALLOW",
+        "decision_timestamp": "2026-06-06T12:00:05Z",
+        "snapshot_hash": "sha256:policy_v21_sequence_42",
+        "source_sequence": 42,
+        "policy_version": "v2.1",
+        "run_id": "run-003",
+        "is_immutable": true,
+        "written_at": "2026-06-06T12:00:06Z",
+        "source_uri": null
+      },
+      "action_record": {
+        "action_id": "act-003",
+        "authority_event_id": "auth-003",
+        "action_type": "write:credentials:prod",
+        "run_id": "run-003",
+        "snapshot_hash": "sha256:policy_v21_sequence_42",
+        "written_at": "2026-06-06T12:00:02Z"
+      },
+      "audit_context": {
+        "active_snapshot_hash": "sha256:policy_v21_sequence_42"
+      }
+    },
+    {
+      "id": 4,
+      "label": "mutable_ptr",
+      "description": "Authority event stores source URI only — no snapshot hash. Cannot reconstruct what policy was read at decision time.",
+      "expected": "REFUSED_MUTABLE_SOURCE",
+      "authority_record": {
+        "authority_event_id": "auth-004",
+        "grant_id": "grant-abc",
+        "decision": "ALLOW",
+        "decision_timestamp": "2026-06-06T12:00:00Z",
+        "snapshot_hash": null,
+        "source_sequence": null,
+        "policy_version": "v2.1",
+        "run_id": "run-004",
+        "is_immutable": true,
+        "written_at": "2026-06-06T12:00:01Z",
+        "source_uri": "https://policy-store.internal/policies/active"
+      },
+      "action_record": {
+        "action_id": "act-004",
+        "authority_event_id": "auth-004",
+        "action_type": "read:credentials:dev",
+        "run_id": "run-004",
+        "snapshot_hash": null,
+        "written_at": "2026-06-06T12:00:02Z"
+      },
+      "audit_context": {
+        "active_snapshot_hash": "sha256:policy_v21_sequence_42"
+      }
+    },
+    {
+      "id": 5,
+      "label": "hash_mismatch",
+      "description": "Authority and action snapshot hashes disagree — the action was authorized against different evidence than what the authority record shows.",
+      "expected": "REFUSED_SNAPSHOT_MISMATCH",
+      "authority_record": {
+        "authority_event_id": "auth-005",
+        "grant_id": "grant-abc",
+        "decision": "ALLOW",
+        "decision_timestamp": "2026-06-06T12:00:00Z",
+        "snapshot_hash": "sha256:policy_v21_sequence_42",
+        "source_sequence": 42,
+        "policy_version": "v2.1",
+        "run_id": "run-005",
+        "is_immutable": true,
+        "written_at": "2026-06-06T12:00:01Z",
+        "source_uri": null
+      },
+      "action_record": {
+        "action_id": "act-005",
+        "authority_event_id": "auth-005",
+        "action_type": "read:credentials:dev",
+        "run_id": "run-005",
+        "snapshot_hash": "sha256:policy_v20_sequence_38",
+        "written_at": "2026-06-06T12:00:02Z"
+      },
+      "audit_context": {
+        "active_snapshot_hash": "sha256:policy_v21_sequence_42"
+      }
+    },
+    {
+      "id": 6,
+      "label": "tampered",
+      "description": "Authority record is mutable — is_immutable=false. Evidence may have been altered after the action was taken.",
+      "expected": "REFUSED_TAMPERED",
+      "authority_record": {
+        "authority_event_id": "auth-006",
+        "grant_id": "grant-abc",
+        "decision": "ALLOW",
+        "decision_timestamp": "2026-06-06T12:00:00Z",
+        "snapshot_hash": "sha256:policy_v21_sequence_42",
+        "source_sequence": 42,
+        "policy_version": "v2.1",
+        "run_id": "run-006",
+        "is_immutable": false,
+        "written_at": "2026-06-06T12:00:01Z",
+        "source_uri": null
+      },
+      "action_record": {
+        "action_id": "act-006",
+        "authority_event_id": "auth-006",
+        "action_type": "read:credentials:dev",
+        "run_id": "run-006",
+        "snapshot_hash": "sha256:policy_v21_sequence_42",
+        "written_at": "2026-06-06T12:00:02Z"
+      },
+      "audit_context": {
+        "active_snapshot_hash": "sha256:policy_v21_sequence_42"
+      }
+    },
+    {
+      "id": 7,
+      "label": "audit_gap",
+      "description": "Correct decision, wrong evidence snapshot — the authority hash does not correspond to what the source was actually serving at decision time. The audit trail is internally consistent but cannot be verified against the source.",
+      "expected": "REFUSED_AUDIT_GAP",
+      "authority_record": {
+        "authority_event_id": "auth-007",
+        "grant_id": "grant-abc",
+        "decision": "ALLOW",
+        "decision_timestamp": "2026-06-06T12:00:00Z",
+        "snapshot_hash": "sha256:policy_v20_sequence_38",
+        "source_sequence": 38,
+        "policy_version": "v2.0",
+        "run_id": "run-007",
+        "is_immutable": true,
+        "written_at": "2026-06-06T12:00:01Z",
+        "source_uri": null
+      },
+      "action_record": {
+        "action_id": "act-007",
+        "authority_event_id": "auth-007",
+        "action_type": "read:credentials:dev",
+        "run_id": "run-007",
+        "snapshot_hash": "sha256:policy_v20_sequence_38",
+        "written_at": "2026-06-06T12:00:02Z"
+      },
+      "audit_context": {
+        "active_snapshot_hash": "sha256:policy_v21_sequence_42"
+      }
+    }
+  ]
+}
