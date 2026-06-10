@@ -4,8 +4,15 @@
 **Revision 1:** 2026-06-09 EDT — ten edits applied after a skeptical review pass that read
 the frozen CLAIM-28 gate and fixture line by line. The review evidence is incorporated
 below. No packet, evaluator, or results existed before or after this revision.
-**Status:** Pre-registration only. Implementation is a separate lane and must not begin
-until this document is reviewed and frozen.
+**Revision 2 (freeze pass):** 2026-06-09 EDT, late night — final consistency review
+before freeze found two defects, both fixed: (1) the Codex handoff omitted the claim_29
+shape-layer `role_profile.json` that the imported norm gate requires to run at all;
+(2) one baseline expectation sentence was muddled. No scenario, matrix cell, gate,
+ablation, or falsification condition changed between Revision 1 and Revision 2.
+**Status:** **FROZEN 2026-06-09 EDT (Revision 2).** Reviewed by Keniel and Fable.
+Locked for implementation. Any change after this line requires a new dated revision
+entry, voids any in-progress packet authoring, and restarts the authoring sequence in
+section 9 from step 1.
 
 **External origin:** The purpose-envelope framing was named by Max Quimby (Computeleap)
 in the CLAIM-28 public comment thread. His formulation: provenance answers "can this
@@ -247,8 +254,8 @@ specific property.
 
 ### Baselines
 
-- **AuthorityOnlyGate** (reused from claim_28): allows rows 4-12 except row 3.
-  Demonstrates the gap after the authority layer.
+- **AuthorityOnlyGate** (reused from claim_28): allows every row except row 3 (the
+  existing-gate failure). Demonstrates the gap after the authority layer.
 - **BehavioralNormGate** (imported frozen from claim_28, unchanged): challenges row 4,
   allows rows 5-12. This is the load-bearing baseline. If it does anything else, either
   the rows are misauthored or the claim is wrong — see falsification.
@@ -364,6 +371,11 @@ Lane boundary: this document is the conceptual frame. Everything below is build 
 and none of it starts until this document is frozen by Keniel.
 
 - Directory: `claim_29/`, mirroring `claim_28/` layout.
+- `role_profile.json`: the shape-layer profile for the invoice-reconciliation agent,
+  same schema as `claim_28/role_profile.json`, consumed by the imported frozen norm
+  gate. Without this file the must-pass-28 precondition cannot be executed. It is
+  authored and frozen together with the envelope fixture in authoring-order step 1,
+  and rows 5-9 must pass the frozen gate *under this profile*.
 - `purpose_envelope.json`: frozen fixture — mandate purposes, mandate domains,
   object-to-domain map, envelope version id, agent_writable: false, and the
   high-standing principal subset used by StandingGate. The object-to-domain map must
