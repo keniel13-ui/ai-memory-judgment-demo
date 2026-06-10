@@ -1329,6 +1329,7 @@ verification and exception rules, and a narrow keyword list for one action type.
 not read `target_resource`. CLAIM-29 uses that blind spot directly.
 
 **Pre-registration, fixtures, evaluator, and results:**
+- Public article: `https://dev.to/zep1997/permission-is-not-purpose-the-next-failure-mode-in-agent-memory-claim-29-39fk`
 - Frozen pre-registration: `claim_29/CLAIM_29_PURPOSE_ENVELOPE_PREREGISTRATION.md`
 - Role profile: `claim_29/role_profile.json`
 - Purpose envelope: `claim_29/purpose_envelope.json`

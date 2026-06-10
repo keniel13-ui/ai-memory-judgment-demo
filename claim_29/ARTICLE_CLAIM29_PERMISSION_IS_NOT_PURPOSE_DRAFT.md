@@ -1,6 +1,6 @@
 ---
-title: "Permission Is Not Purpose: The Next Failure Mode in Agent Memory"
-published: false
+title: "Permission Is Not Purpose: The Next Failure Mode in Agent Memory (CLAIM-29)"
+published: true
 tags: ai, agents, machinelearning, security
 ---
 
@@ -148,6 +148,8 @@ That boundary stays open and named.
 - Not benchmark-grade. Twelve rows, one role, one world, one hand-drawn map.
 - The agent does not "know" its purpose. The envelope is a declared constraint
   checked structurally. Comprehension is not claimed, tested, or implied.
+- The envelope here is a frozen fixture. Real deployments need versioned envelope
+  change, which this result names as a requirement but does not test.
 - The out-of-band definition channel is not secured by this result.
 - In-mandate harm is untouched: an action that genuinely serves the mandate can still
   be harmful.
