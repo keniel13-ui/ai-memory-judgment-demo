@@ -1197,6 +1197,123 @@ Scenarios 3, 6, and 7 are the divergence cells. Timestamp-only cannot catch them
 
 ---
 
+## CLAIM-27
+
+**Claim:** Under a signing decision where the signature covers `(source_address, sequence)` only — not content fields — the four signed-AND-fresh properties from CLAIM-25 are genuinely independent of content-integrity. A content-forgery adversary active across all four ablation controls does not flip any verdict.
+
+**What this advances from CLAIM-25/26:**
+CLAIM-25 established four properties for a signed-AND-fresh gate. CLAIM-26 proved that action events must be paired with immutable authority events. CLAIM-27 tests whether those properties have a hidden fifth dependency: content-integrity. ANP2's question was precise — if the signature covers source+sequence only, content is unprotected by construction. The scope-soundness test confirms whether the boundary is real or quietly assumed.
+
+**Pre-registration:** `claim_27/CLAIM_27_SCOPE_SOUNDNESS_PREREGISTRATION.md`
+**Evaluator:** `claim_27/scope_soundness_evaluator.py`
+**Result:** Outcome A — no verdict flipped across A1, A3, A4, and clean-A2 with content-forgery adversary active. Commit 775de73.
+
+**Signing decision pinned before running:** signature covers `(source_address, sequence)` only. Content fields (`role`, `scope_ceiling`) not covered.
+
+**Content-forgery adversary:** alters `role` to `"admin:full-access"`, keeps `scope_ceiling` matching grant scope, keeps `signature_valid=True`.
+
+**Result table:**
+
+| Ablation | Baseline verdict | With forgery verdict | Flipped |
+|---|---|---|---|
+| A1 (no floor) | ALLOW | ALLOW | No |
+| A3 (unpinned source) | ALLOW | ALLOW | No |
+| A4 (no sig check) | ALLOW | ALLOW | No |
+| Clean-A2 (rewindable mark) | ALLOW | ALLOW | No |
+
+**Allowed wording:**
+> "Under the stated signing decision (signature covers source_address and sequence only), the four CLAIM-25 properties held with a content-forgery adversary active across all four ablation controls."
+
+> "Content-integrity is genuinely out of scope under this signing decision — positive finding, not a quiet omission."
+
+> "The four freshness and source properties do not secretly depend on content-integrity on this four-ablation packet."
+
+**Forbidden wording:**
+> "Content-integrity does not matter." (it matters — it belongs to a separate layer)
+> "The gate handles content forgery."
+> "CLAIM-27 proves content-integrity is unnecessary."
+> "This result generalizes beyond the stated signing decision."
+> "Content-integrity is solved by the signed-AND-fresh gate."
+
+---
+
+## CLAIM-28
+
+**Claim:** An authorized, fresh, auditable memory instruction may still need to be
+challenged when its requested action falls outside the agent's frozen behavioral envelope.
+
+**What this advances from CLAIM-24 through CLAIM-27:**
+Prior authority work asks whether memory has the right to govern action: is the grant
+fresh, independently checkable, and paired to an auditable action event? CLAIM-28 asks the
+next bounded question: if those checks pass, can the system still identify authorized
+memory that instructs anomalous action?
+
+**Pre-registration and packet:**
+- Pre-registration: `claim_28/CLAIM_28_BEHAVIORAL_NORM_PREREGISTRATION.md`
+- Frozen role profile: `claim_28/role_profile.json`
+- Locked scenario packet: `claim_28/scenarios.json`
+- Evaluator and gates: `claim_28/evaluator.py`
+- Results: `claim_28/results.md`
+
+**V0 result:**
+
+| Gate | Expected decisions matched |
+|---|---:|
+| AuthorityOnlyGate | 10/10 |
+| KeywordRiskGate | 10/10 |
+| BehavioralNormGate | 10/10 |
+
+**Interpretation:**
+- `AuthorityOnlyGate` allowed the authorized adversarial rows, demonstrating the gap left
+  after authority/freshness/verification checks pass.
+- `KeywordRiskGate` caught obvious risky wording but missed paraphrased/doctrine attacks
+  and challenged a legitimate credential-handoff exception.
+- `BehavioralNormGate` challenged the authorized adversarial rows and allowed the two
+  legitimate anomalous exception rows by checking action type, recipient, verification
+  rule, and doctrine constraints against the frozen role profile.
+
+**Status:** `demonstrated internally` — small internally authored V0 packet, deterministic
+structural gate, not external or benchmark-grade.
+
+**Weakness:**
+- The role profile and packet are internally authored.
+- The behavioral envelope is frozen; V0 does not test a learned or growing baseline.
+- The gate is structural and deterministic; it does not solve semantic deception,
+  malicious insiders, general reasoning, or alignment.
+- Success on 10 rows does not prove the gate generalizes to real production agents.
+- Legitimate exceptions are modeled as clean fixture grants; real exception governance is
+  harder.
+
+**Next test:**
+- Add externally authored adversarial authorized-memory rows without changing the frozen
+  gate.
+- Add near-miss legitimate anomaly rows to stress overblocking.
+- Add paraphrases that avoid the current structural markers but preserve the same action
+  tuple.
+- After V0 holds or narrows, test whether a versioned behavioral profile can be updated
+  without letting adversarial memory rewrite the envelope itself.
+
+**Allowed wording:**
+> "On an internally authored 10-scenario packet, an authority-only gate allowed authorized
+> adversarial instructions that a frozen behavioral-norm gate challenged."
+
+> "CLAIM-28 tests a narrow boundary: authority verification is necessary but not
+> sufficient when authorized memory instructs action outside a defined behavioral
+> envelope."
+
+> "The V0 gate is deterministic and structural. It checks action type, recipient,
+> verification rule, and doctrine constraints against a frozen role profile."
+
+**Forbidden wording:**
+> "We solved agent reasoning."
+> "BehavioralNormGate detects malicious authorized memory."
+> "The agent learns safely over time."
+> "The baseline grows safely."
+> "This is externally validated."
+> "The gate is production-ready."
+
+---
+
 ## CLAIM-06 — FORBIDDEN
 
 The following claims must not appear in any public artifact:
