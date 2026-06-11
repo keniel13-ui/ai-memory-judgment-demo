@@ -1339,6 +1339,10 @@ not read `target_resource`. CLAIM-29 uses that blind spot directly.
 - Frozen CLAIM-28 verifier: `claim_29/verify_frozen28_must_pass.py`
 - Evaluator: `claim_29/evaluator.py`
 - Results: `claim_29/results.md`, `claim_29/results.json`
+- Append-only evaluation log anchor: `results/evaluation_log.jsonl`, event
+  `bea63f8527fb78750d098db33caefe90fd57bbaae6c8f7ca790309b0fa47b40b`, committed in
+  `b0eb655`. The log is internally chained and externally timestamped by public git
+  history. This strengthens audit integrity; it does not change the evidence level.
 
 **Chain-of-custody summary:**
 - Pre-registration froze before fixtures, scenario rows, evaluator, or results.
