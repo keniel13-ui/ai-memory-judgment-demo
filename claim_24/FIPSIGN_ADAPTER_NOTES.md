@@ -1,6 +1,6 @@
 # CLAIM-24 FIPSign SourceAdapter Notes
 
-Status: adapter implemented, live external run waiting on FIPSign CA base URL and live certificate IDs.
+Status: adapter implemented; live FIPSign mapped-subset run completed on 2026-06-11.
 
 ## What Exists
 
@@ -21,10 +21,28 @@ Status: adapter implemented, live external run waiting on FIPSign CA base URL an
   - Writes result artifacts to `results/claim24_fipsign_*`.
   - Accepts an optional scenario file with `--scenarios`.
 
+## Live FIPSign Run
+
+Artifacts:
+
+- Scenario packet: `claim_24/scenarios_fipsign_live.json`
+- Results: `results/claim24_fipsign_live_mapped_subset_results.md`
+- Raw JSON: `results/claim24_fipsign_live_mapped_subset_results.json`
+
+Run summary:
+
+- Base URL: `https://api.fipsign.dev`
+- Evidence tier: real-external-source mapped subset
+- Live FIPSign inputs covered frozen cells 1, 2, 3, 4, and 5.
+- Cells 6 and 7 still require distinct live cert/source fixtures for recipient-changed and scope-narrowed drift.
+- The divergence cell mapped to `status.revoked: true` and returned `REFUSED_STALE`.
+- `REFUSED_UNREACHABLE` remained a separate result code.
+
+This is not a full seven-cell external-source run.
+
 ## What Does Not Exist Yet
 
-- A pinned public FIPSign CA base URL in this repo.
-- Live certificate IDs mapped to the seven frozen CLAIM-24 scenarios.
+- Live certificate fixtures for frozen cells 6 and 7.
 - Cryptographic signature verification against ML-DSA-65.
 
 The adapter preserves returned signature fields, but it does not mark signatures verified. Do not claim signature verification until the exact PQCert signing payload and public-key format are pinned and tested.
@@ -55,13 +73,17 @@ For each FIPSign-backed grant, `source_snapshot` should be the output of `normal
 
 ## Evidence Boundary
 
-Current evidence tier after this implementation:
+Current evidence tier after the 2026-06-11 live mapped-subset run:
 
-> Adapter implemented and harness-compatible; external-source run pending live CA inputs.
+> CLAIM-24 was exercised against a real external FIPSign CA source for the mapped scenarios. The divergence cell returned `REFUSED_STALE`. Full seven-cell external coverage remains pending cells 6 and 7.
 
-Allowed future wording only after a successful live run:
+Allowed wording:
 
 > CLAIM-24 was exercised against a real external FIPSign CA source for the mapped scenarios.
+
+> The live FIPSign mapped-subset run covered cells 1 through 5 and preserved the distinction between `REFUSED_STALE` and `REFUSED_UNREACHABLE`.
+
+> This is real external-source evidence for the mapped subset, not a full seven-cell external validation.
 
 Forbidden until signature verification is implemented:
 

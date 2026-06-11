@@ -1165,7 +1165,36 @@ Pre-registered: 2026-06-03, before receiving Ken W Alger's (Sovereign Synapse) L
 
 Scenarios 3, 6, and 7 are the divergence cells. Timestamp-only cannot catch them. Re-derivation must catch all three. If it catches zero, the claim is falsified. If it catches some but not all, the claim is partially falsified with a documented boundary.
 
-**Status:** `pre-registered` — no results yet; registered before seeing external architecture code
+**Live FIPSign mapped-subset result (2026-06-11):**
+
+FIPSign provided a live CA base URL and two test certificates: one active, one revoked.
+The adapter was updated to read FIPSign's real response shape, send `X-API-Key` only
+from runtime environment, and use a browser-style `User-Agent` after Cloudflare blocked
+Python's default client signature.
+
+Artifacts:
+- Live scenario packet: `claim_24/scenarios_fipsign_live.json`
+- Results: `results/claim24_fipsign_live_mapped_subset_results.md`
+- Raw JSON: `results/claim24_fipsign_live_mapped_subset_results.json`
+- Adapter notes: `claim_24/FIPSIGN_ADAPTER_NOTES.md`
+- Append-only evaluation log anchor: `results/evaluation_log.jsonl`, event
+  `9c44ec9a36f0c5be7af6154c048e5e8cc063a20c017a9eef2357ce6f72579e3f`
+
+Result:
+- Cells 1 through 5 were exercised against the live FIPSign CA input set and passed.
+- Scenario 3, the divergence cell, mapped to `status.revoked: true` on the revoked
+  certificate and returned `REFUSED_STALE`.
+- Scenario 4 returned `REFUSED_UNREACHABLE`, preserving the required distinction between
+  caught staleness and fail-closed unreachable source.
+- Cells 6 and 7 were not covered by this live input set; they require distinct live
+  certificate/source fixtures for recipient-changed and scope-narrowed drift.
+- No API key is committed in the repo.
+- ML-DSA-65 signature fields are preserved but not verified; no signature-verification
+  claim is made.
+
+**Status:** `real-external-source mapped subset` — live FIPSign CA run covers cells 1
+through 5, including the main divergence cell. Full seven-cell external run remains
+pending cells 6 and 7.
 
 **Weakness (known before running):**
 - Re-derivation requires a readable live source. If the architecture under test does not expose an agent-writable=false source, the required constraint cannot be verified and the experiment cannot be run cleanly.
@@ -1188,10 +1217,19 @@ Scenarios 3, 6, and 7 are the divergence cells. Timestamp-only cannot catch them
 
 > "The source independence constraint was [satisfied / violated] in this experiment. [If violated: the result does not support the claim.]"
 
+**Allowed wording after live FIPSign mapped-subset run:**
+> "CLAIM-24 was exercised against a real external FIPSign CA source for the mapped scenarios. The main divergence cell returned `REFUSED_STALE` when the live CA reported the certificate revoked."
+
+> "The live mapped-subset run covered cells 1 through 5. It is real external-source evidence for the mapped subset, not full seven-cell external validation."
+
+> "`REFUSED_STALE` and `REFUSED_UNREACHABLE` remained distinct in the live run."
+
 **Forbidden wording:**
 > "Re-derivation solves TTL staleness."
 > "The re-derivation gate eliminates stale grant failures."
 > "refused_unreachable proves the gate caught staleness."
+> "CLAIM-24 is fully externally validated."
+> "CLAIM-24 cryptographically verified FIPSign signatures."
 > "This is externally validated."
 > "The enforcement artifact is a signed audit log." (that is CLAIM-25, not this claim)
 

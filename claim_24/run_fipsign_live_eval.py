@@ -12,6 +12,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import os
 from datetime import datetime, timezone
 from pathlib import Path
 
@@ -30,7 +31,26 @@ def parse_time(value: str | None) -> datetime:
     return datetime.fromisoformat(value.replace("Z", "+00:00"))
 
 
-def write_results(results: list, base_url: str, operation_time: datetime, label: str) -> tuple[Path, Path]:
+def load_scenario_metadata(path: str | None) -> dict:
+    if not path:
+        return {}
+    with open(path, encoding="utf-8") as handle:
+        data = json.load(handle)
+    return {
+        "description": data.get("description"),
+        "mapped_frozen_cells": data.get("mapped_frozen_cells"),
+        "unmapped_frozen_cells": data.get("unmapped_frozen_cells"),
+        "source": data.get("source"),
+    }
+
+
+def write_results(
+    results: list,
+    base_url: str,
+    operation_time: datetime,
+    label: str,
+    scenario_metadata: dict | None = None,
+) -> tuple[Path, Path]:
     RESULTS_DIR.mkdir(exist_ok=True)
     safe_label = label.lower().replace(" ", "_")
     json_path = RESULTS_DIR / f"claim24_fipsign_{safe_label}_results.json"
@@ -38,10 +58,11 @@ def write_results(results: list, base_url: str, operation_time: datetime, label:
 
     payload = {
         "claim": "CLAIM-24",
-        "evidence_tier": "real-external-source candidate",
+        "evidence_tier": "real-external-source mapped subset",
         "source_adapter": "FIPSignSourceAdapter",
         "base_url": base_url,
         "operation_time": operation_time.isoformat(),
+        "scenario_metadata": scenario_metadata or {},
         "results": results,
     }
     json_path.write_text(json.dumps(payload, indent=2, sort_keys=True), encoding="utf-8")
@@ -50,15 +71,28 @@ def write_results(results: list, base_url: str, operation_time: datetime, label:
     lines = [
         "# CLAIM-24 FIPSign Live SourceAdapter Results",
         "",
-        f"- Evidence tier: real-external-source candidate",
+        f"- Evidence tier: real-external-source mapped subset",
         f"- Source adapter: `FIPSignSourceAdapter`",
         f"- Base URL: `{base_url}`",
         f"- Operation time: `{operation_time.isoformat()}`",
         f"- All scenarios passed: `{all_pass}`",
+    ]
+    if scenario_metadata:
+        mapped = scenario_metadata.get("mapped_frozen_cells")
+        unmapped = scenario_metadata.get("unmapped_frozen_cells")
+        if mapped is not None:
+            lines.append(f"- Frozen cells covered by live FIPSign inputs: `{mapped}`")
+        if unmapped:
+            lines.append(f"- Frozen cells not covered by this live input set: `{unmapped}`")
+        lines.extend([
+            "",
+            "Boundary: this run uses live FIPSign CA reads for the mapped cells. It is not a full seven-cell external run.",
+        ])
+    lines.extend([
         "",
         "| ID | Expected | Got | Pass | Notes |",
         "| --- | --- | --- | --- | --- |",
-    ]
+    ])
     for row in results:
         lines.append(
             f"| {row['scenario_id']} | {row['expected']} | {row['got']} | {row['passed']} | {row['notes']} |"
@@ -73,16 +107,23 @@ def main() -> int:
     parser.add_argument("--scenarios", help="Optional CLAIM-24 scenario file with live FIPSign cert IDs/snapshots.")
     parser.add_argument("--operation-time", help="ISO timestamp for deterministic TTL evaluation.")
     parser.add_argument("--label", default="live", help="Output artifact label.")
+    parser.add_argument("--api-key-env", default="FIPSIGN_API_KEY", help="Environment variable containing the FIPSign API key.")
     args = parser.parse_args()
 
     operation_time = parse_time(args.operation_time)
     if args.scenarios:
         evaluator.SCENARIOS_PATH = Path(args.scenarios)
 
-    adapter = FIPSignSourceAdapter(args.base_url)
+    adapter = FIPSignSourceAdapter(args.base_url, api_key=os.environ.get(args.api_key_env))
     gate = RederivationGate(adapter)
     results = evaluator.run(gate, "RederivationGate + FIPSignSourceAdapter", operation_time)
-    json_path, md_path = write_results(results, args.base_url, operation_time, args.label)
+    json_path, md_path = write_results(
+        results,
+        args.base_url,
+        operation_time,
+        args.label,
+        scenario_metadata=load_scenario_metadata(args.scenarios),
+    )
     print(f"Wrote {json_path}")
     print(f"Wrote {md_path}")
     return 0 if all(row["passed"] for row in results) else 1

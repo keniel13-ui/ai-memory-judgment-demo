@@ -1,0 +1,149 @@
+{
+  "claim": "CLAIM-24",
+  "description": "Live FIPSign CA mapped subset for CLAIM-24 SourceAdapter. Uses external CA reads for active unchanged, revoked divergence, and unreachable-source cells. Remaining frozen scenario families require additional live cert fixtures.",
+  "mapped_frozen_cells": [
+    1,
+    2,
+    3,
+    4,
+    5
+  ],
+  "operation_time": "2026-06-11T17:50:00Z",
+  "registered": "2026-06-04",
+  "scenarios": [
+    {
+      "description": "Live FIPSign: TTL-valid + active certificate unchanged",
+      "expected": "ALLOW",
+      "grant": {
+        "grant_id": "cert_95ba1e49b71e0fc0669790e0baa2fc75",
+        "issued_at": "2026-06-11T16:00:00Z",
+        "recipient": "agent:claim24-live",
+        "scope": "read:fipsign:test",
+        "source_snapshot": {
+          "algorithm": "ML-DSA-65",
+          "cert_id": "cert_95ba1e49b71e0fc0669790e0baa2fc75",
+          "issuer": "ca_0884a618765020917620f7cd70e8a57d",
+          "meta": {
+            "scenario": "active",
+            "test": "claim24"
+          },
+          "signature": "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",
+          "standard": "NIST FIPS 204",
+          "status": {
+            "expired": false,
+            "expires_at": 1783787426,
+            "revoked": false
+          },
+          "subject": "claim24-test-device-active"
+        },
+        "ttl_hours": 72
+      },
+      "id": 1,
+      "source_current": null,
+      "source_reachable": true
+    },
+    {
+      "description": "Live FIPSign: TTL-expired grant blocks before source read",
+      "expected": "BLOCK",
+      "grant": {
+        "grant_id": "cert_95ba1e49b71e0fc0669790e0baa2fc75",
+        "issued_at": "2026-06-01T00:00:00Z",
+        "recipient": "agent:claim24-live",
+        "scope": "read:fipsign:test",
+        "source_snapshot": {
+          "algorithm": "ML-DSA-65",
+          "cert_id": "cert_95ba1e49b71e0fc0669790e0baa2fc75",
+          "issuer": "ca_0884a618765020917620f7cd70e8a57d",
+          "meta": {
+            "scenario": "active",
+            "test": "claim24"
+          },
+          "signature": "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",
+          "standard": "NIST FIPS 204",
+          "status": {
+            "expired": false,
+            "expires_at": 1783787426,
+            "revoked": false
+          },
+          "subject": "claim24-test-device-active"
+        },
+        "ttl_hours": 24
+      },
+      "id": 2,
+      "source_current": null,
+      "source_reachable": true
+    },
+    {
+      "description": "Live FIPSign divergence cell: TTL-valid grant recorded active, CA now reports revoked",
+      "expected": "REFUSED_STALE",
+      "grant": {
+        "grant_id": "cert_832f3a3b65ec5897eb1803789899281e",
+        "issued_at": "2026-06-11T16:00:00Z",
+        "recipient": "agent:claim24-live",
+        "scope": "read:fipsign:test",
+        "source_snapshot": {
+          "algorithm": "ML-DSA-65",
+          "cert_id": "cert_832f3a3b65ec5897eb1803789899281e",
+          "issuer": "ca_0884a618765020917620f7cd70e8a57d",
+          "meta": {
+            "recorded_at_issue_status": "active_before_revocation",
+            "scenario": "to-be-revoked",
+            "test": "claim24"
+          },
+          "signature": "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",
+          "standard": "NIST FIPS 204",
+          "status": {
+            "expired": false,
+            "expires_at": 1783787486,
+            "revoked": false
+          },
+          "subject": "claim24-test-device-revoked"
+        },
+        "ttl_hours": 72
+      },
+      "id": 3,
+      "source_current": null,
+      "source_reachable": true
+    },
+    {
+      "description": "Live FIPSign: missing certificate ID returns unreachable source cell",
+      "expected": "REFUSED_UNREACHABLE",
+      "grant": {
+        "grant_id": "cert_claim24_unreachable_probe",
+        "issued_at": "2026-06-11T16:00:00Z",
+        "recipient": "agent:claim24-live",
+        "scope": "read:fipsign:test",
+        "source_snapshot": {
+          "cert_id": "cert_claim24_unreachable_probe"
+        },
+        "ttl_hours": 72
+      },
+      "id": 4,
+      "source_current": null,
+      "source_reachable": false
+    },
+    {
+      "description": "No grant present",
+      "expected": "BLOCK",
+      "grant": null,
+      "id": 5,
+      "source_current": null,
+      "source_reachable": true
+    }
+  ],
+  "source": {
+    "api_key_committed": false,
+    "base_url": "https://api.fipsign.dev",
+    "cert_ids": {
+      "active": "cert_95ba1e49b71e0fc0669790e0baa2fc75",
+      "revoked": "cert_832f3a3b65ec5897eb1803789899281e",
+      "unreachable_probe": "cert_claim24_unreachable_probe"
+    },
+    "provided_by": "German / mobydickfinance",
+    "type": "FIPSign CA"
+  },
+  "unmapped_frozen_cells": {
+    "6": "recipient-changed requires a distinct live cert/source state fixture",
+    "7": "scope-narrowed requires a distinct live cert/source state fixture"
+  }
+}

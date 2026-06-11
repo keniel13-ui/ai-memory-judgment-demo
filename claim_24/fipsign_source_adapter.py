@@ -22,6 +22,10 @@ from gate_interface import Grant, SourceAdapter
 
 
 JsonGetter = Callable[[str], Optional[dict]]
+DEFAULT_USER_AGENT = (
+    "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) "
+    "AppleWebKit/537.36 (KHTML, like Gecko) Chrome/125.0 Safari/537.36"
+)
 
 
 class FIPSignSourceAdapter(SourceAdapter):
@@ -41,10 +45,12 @@ class FIPSignSourceAdapter(SourceAdapter):
     def __init__(
         self,
         base_url: str,
+        api_key: Optional[str] = None,
         timeout_seconds: float = 10.0,
         http_get_json: Optional[JsonGetter] = None,
     ):
         self.base_url = base_url.rstrip("/")
+        self.api_key = api_key
         self.timeout_seconds = timeout_seconds
         self._http_get_json = http_get_json or self._urllib_get_json
 
@@ -67,7 +73,10 @@ class FIPSignSourceAdapter(SourceAdapter):
         return self._http_get_json(f"{self.base_url}/public-key")
 
     def _urllib_get_json(self, url: str) -> Optional[dict]:
-        request = urllib.request.Request(url, headers={"Accept": "application/json"})
+        headers = {"Accept": "application/json", "User-Agent": DEFAULT_USER_AGENT}
+        if self.api_key and "/ca/certificate/" in url:
+            headers["X-API-Key"] = self.api_key
+        request = urllib.request.Request(url, headers=headers)
         try:
             with urllib.request.urlopen(request, timeout=self.timeout_seconds) as response:
                 body = response.read().decode("utf-8")
@@ -111,14 +120,17 @@ def normalize_pqcert(raw: dict) -> dict:
     No derived stale labels are added here.
     """
 
+    certificate = raw.get("certificate") if isinstance(raw.get("certificate"), dict) else raw
     status = raw.get("status") if isinstance(raw.get("status"), dict) else {}
-    meta = raw.get("meta") if isinstance(raw.get("meta"), dict) else {}
+    cert_meta = certificate.get("meta") if isinstance(certificate.get("meta"), dict) else {}
+    raw_meta = raw.get("meta") if isinstance(raw.get("meta"), dict) else {}
+    meta = {**raw_meta, **cert_meta}
 
     normalized = {
-        "cert_id": first_present(raw, "cert_id", "certId", "certificate_id", "certificateId", "id"),
-        "subject": first_present(raw, "subject", "subject_id", "subjectId", "holder", "owner"),
-        "issuer": first_present(raw, "issuer", "issuer_id", "issuerId", "ca"),
-        "scope": first_present(raw, "scope", "scope_ceiling", "scopeCeiling") or meta.get("scope") or meta.get("scope_ceiling"),
+        "cert_id": first_present(certificate, "cert_id", "certId", "certificate_id", "certificateId", "id"),
+        "subject": first_present(certificate, "subject", "subject_id", "subjectId", "holder", "owner"),
+        "issuer": first_present(certificate, "issuer", "issuer_id", "issuerId", "ca", "caId"),
+        "scope": first_present(certificate, "scope", "scope_ceiling", "scopeCeiling") or meta.get("scope") or meta.get("scope_ceiling"),
         "status": {
             "revoked": bool(status.get("revoked", False)),
             "expired": bool(status.get("expired", False)),
@@ -126,11 +138,27 @@ def normalize_pqcert(raw: dict) -> dict:
         "meta": sort_json(meta),
     }
 
-    signature = first_present(raw, "signature", "sig")
+    revoked_at = status.get("revokedAt")
+    if revoked_at is not None:
+        normalized["status"]["revoked_at"] = revoked_at
+
+    expires_at = status.get("expiresAt") or certificate.get("expiresAt")
+    if expires_at is not None:
+        normalized["status"]["expires_at"] = expires_at
+
+    algorithm = certificate.get("algorithm")
+    if algorithm is not None:
+        normalized["algorithm"] = algorithm
+
+    standard = certificate.get("standard")
+    if standard is not None:
+        normalized["standard"] = standard
+
+    signature = first_present(certificate, "signature", "sig")
     if signature is not None:
         normalized["signature"] = signature
 
-    signed_payload = first_present(raw, "signed_payload", "signedPayload", "payload")
+    signed_payload = first_present(certificate, "signed_payload", "signedPayload", "payload")
     if signed_payload is not None:
         normalized["signed_payload"] = signed_payload
 
