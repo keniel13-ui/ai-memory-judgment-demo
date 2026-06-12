@@ -20,5 +20,21 @@
 
 - This run does not claim external validation.
 - This run does not prove unknown harmful joins are discovered.
-- The fresh-authored packet did not produce a distinct time-sliced escape; sequence 8 and 9 behave as legitimate long-window controls in this V0 run.
+- Sequence 7 split the same threshold shape across two windows with authorized policy-boundary closes and was allowed by design. The open time-sliced question is close-authority policy, including when a boundary may close a window and whether that authority can be induced or gamed.
 - Under-declared consumed inputs and hidden internal-state laundering remain out of scope.
+
+## Ablations
+
+These ablations are internal evaluator variants over the same frozen fixtures and the same fresh-authored sequences. They do not add external validation.
+
+| Ablation | Load-bearing signal | Leaked baseline refusals |
+| --- | --- | --- |
+| ablation_2_remove_composition_clauses | Previously refused sequence-level compositions should leak. | 1, 3, 5 |
+| ablation_3_remove_derivation_closure | Derived-artifact composition classes should leak while direct accumulation can still be caught. | 1, 3 |
+| ablation_5_window_limit_last_3_operations | Long-window accumulation should leak when the trajectory is truncated. | 5 |
+
+Interpretation:
+
+- Removing composition clauses leaks the three baseline refusals, showing that per-step purpose checks alone cannot see those packet-level compositions.
+- Removing derivation closure leaks the derived-artifact classes while threshold accumulation remains catchable, showing that data-flow inheritance is load-bearing for the join and staging results.
+- Limiting each window to its last three operations leaks the threshold-accumulation sequence, showing that full-window reading is load-bearing for the accumulation result.

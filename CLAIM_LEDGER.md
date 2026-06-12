@@ -1525,14 +1525,19 @@ time while violating it in the aggregate.
 - Fresh-authored sequence commit: `ffbeff3`.
 - Evaluator/result commit: `b4251f2`.
 - Evaluation-log event: `c1e1e7de6e59937e0c2dceddc7a76d8a17d6baf901000e14220799cadce5774e`.
+- Ablation event: `1d148ef7194f67ff06634400a83b547e1ec7d83a4caaafa4c10f78ed0e840e91`.
 - Result file: `claim_30/results.md` and `claim_30/results.json`.
 
 **Status:** `demonstrated internally, class-limited` — all 75 fresh-authored
 operations passed the imported frozen CLAIM-29 per-step PurposeEnvelopeGate. The
 TrajectoryCompositionGate refused three sequence-level compositions: forbidden
 combination, derived-recipient/staged-delivery, and threshold accumulation. Matched
-ordinary twins and refund-window controls were allowed. The fresh packet did not
-produce a distinct time-sliced escape, so the V0 result does not support that class.
+ordinary twins and refund-window controls were allowed. Three internal ablations over
+the same frozen packet showed the load-bearing parts: removing composition clauses
+leaked sequences 1, 3, and 5; removing derivation closure leaked sequences 1 and 3;
+limiting each window to its last three operations leaked sequence 5. Sequence 7 split
+the same threshold shape across two windows with authorized policy-boundary closes and
+was allowed by design, so the open time-sliced question is close-authority policy.
 
 **Weakness known before running:**
 - The composition envelope is hand-authored in V0.
@@ -1541,16 +1546,16 @@ produce a distinct time-sliced escape, so the V0 result does not support that cl
 - The V0 packet supports three composition classes, not the full pre-registered class
   set: forbidden combination, derived-recipient/staged-delivery, and threshold
   accumulation.
-- The time-sliced class remains open because the fresh-authored sequences behaved as
-  legitimate long-window controls rather than a distinct escape.
+- The time-sliced class remains open because authorized policy-boundary closes reset
+  accumulation windows by design. The remaining question is when a boundary may close a
+  window and whether that authority can be induced or gamed.
 - V0 assumes honestly declared step inputs; under-declared consumption is out of scope.
 - Internal-state laundering, cross-session splitting, exogenous completion, and learned
   or adaptive composition envelopes are explicitly out of scope.
 
 **Next test:**
-- Author a new fresh packet or external packet targeting the time-sliced class without
-  changing frozen fixtures or evaluator logic.
-- Add explicit negative controls and ablations for the three demonstrated classes.
+- Author a new fresh packet or external packet targeting close-authority and
+  time-sliced behavior without changing frozen fixtures or evaluator logic.
 - Seek externally authored trajectory rows against the unchanged fixtures and
   evaluator.
 - Preserve the current evidence boundary in any public article: internal,

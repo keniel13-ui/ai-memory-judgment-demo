@@ -88,7 +88,16 @@ class FoldedWindow:
 
 
 class Claim30Evaluator:
-    def __init__(self):
+    def __init__(
+        self,
+        *,
+        disable_composition_clauses: bool = False,
+        disable_derivation_closure: bool = False,
+        window_limit: int | None = None,
+    ):
+        self.disable_composition_clauses = disable_composition_clauses
+        self.disable_derivation_closure = disable_derivation_closure
+        self.window_limit = window_limit
         self.claim29 = load_claim29_evaluator()
         self.role_profile_raw = load_json(CLAIM_30_DIR / "role_profile.json")
         self.purpose_envelope_raw = load_json(CLAIM_30_DIR / "purpose_envelope.json")
@@ -224,7 +233,10 @@ class Claim30Evaluator:
 
         sources = self.direct_sources_for_operation(op, window.artifact_sources)
         for artifact in produced:
-            window.artifact_sources[artifact] = set(sources)
+            if self.disable_derivation_closure:
+                window.artifact_sources[artifact] = set()
+            else:
+                window.artifact_sources[artifact] = set(sources)
 
         if action == "grant_folder_access":
             # V0 records access to both the explicit target and consumed artifacts.
@@ -251,8 +263,20 @@ class Claim30Evaluator:
         return obs
 
     def fold_sequence(self, sequence: dict[str, Any]) -> dict[str, FoldedWindow]:
+        operations = sequence["operations"]
+        if self.window_limit is not None:
+            by_window: dict[str, list[dict[str, Any]]] = {}
+            for op in operations:
+                by_window.setdefault(op["composition_window_id"], []).append(op)
+            kept_ids = {
+                id(op)
+                for window_ops in by_window.values()
+                for op in window_ops[-self.window_limit :]
+            }
+            operations = [op for op in operations if id(op) in kept_ids]
+
         windows: dict[str, FoldedWindow] = {}
-        for op in sequence["operations"]:
+        for op in operations:
             window = windows.setdefault(
                 op["composition_window_id"],
                 FoldedWindow(window_id=op["composition_window_id"]),
@@ -286,6 +310,9 @@ class Claim30Evaluator:
         return allowed
 
     def evaluate_window(self, window: FoldedWindow) -> tuple[str, str, list[str]]:
+        if self.disable_composition_clauses:
+            return ALLOW, "Composition clauses disabled by ablation.", []
+
         close_principal = self.composition_envelope["window_rules"][
             "close_authority_principal"
         ]
@@ -440,7 +467,7 @@ class Claim30Evaluator:
             "window_results": window_results,
         }
 
-    def run(self) -> dict[str, Any]:
+    def run_without_ablations(self) -> dict[str, Any]:
         results = [self.evaluate_sequence(s) for s in self.packet["sequences"]]
         return {
             "claim": "CLAIM-30",
@@ -458,6 +485,108 @@ class Claim30Evaluator:
             },
             "results": results,
         }
+
+    def run(self) -> dict[str, Any]:
+        return {
+            **self.run_without_ablations(),
+            "ablations": run_ablations(),
+        }
+
+
+def summarize_leaks(
+    baseline_results: list[dict[str, Any]], ablation_results: list[dict[str, Any]]
+) -> list[int]:
+    baseline_by_id = {row["sequence_id"]: row for row in baseline_results}
+    leaks: list[int] = []
+    for row in ablation_results:
+        baseline = baseline_by_id[row["sequence_id"]]
+        if (
+            baseline["candidate_decision"] == REFUSE_COMPOSITE_DRIFT
+            and row["candidate_decision"] == ALLOW
+        ):
+            leaks.append(row["sequence_id"])
+    return leaks
+
+
+def compact_ablation_rows(results: list[dict[str, Any]]) -> list[dict[str, Any]]:
+    return [
+        {
+            "sequence_id": row["sequence_id"],
+            "label": row["label"],
+            "candidate_decision": row["candidate_decision"],
+            "triggered_clauses": row["triggered_clauses"],
+            "notes": row["notes"],
+            "all_steps_pass_claim29": row["all_steps_pass_claim29"],
+        }
+        for row in results
+    ]
+
+
+def run_ablations() -> list[dict[str, Any]]:
+    baseline = Claim30Evaluator().run_without_ablations()["results"]
+    ablation_specs = [
+        {
+            "id": "ablation_2_remove_composition_clauses",
+            "description": "Disable trajectory composition clauses after the frozen CLAIM-29 per-step precondition.",
+            "expected_load_bearing_signal": "Previously refused sequence-level compositions should leak.",
+            "evaluator": Claim30Evaluator(disable_composition_clauses=True),
+        },
+        {
+            "id": "ablation_3_remove_derivation_closure",
+            "description": "Keep windows and thresholds, but stop produced artifacts from inheriting declared input sources.",
+            "expected_load_bearing_signal": "Derived-artifact composition classes should leak while direct accumulation can still be caught.",
+            "evaluator": Claim30Evaluator(disable_derivation_closure=True),
+        },
+        {
+            "id": "ablation_5_window_limit_last_3_operations",
+            "description": "Evaluate only the last three operations in each composition window.",
+            "expected_load_bearing_signal": "Long-window accumulation should leak when the trajectory is truncated.",
+            "evaluator": Claim30Evaluator(window_limit=3),
+        },
+    ]
+    ablations: list[dict[str, Any]] = []
+    for spec in ablation_specs:
+        results = [spec["evaluator"].evaluate_sequence(s) for s in spec["evaluator"].packet["sequences"]]
+        ablations.append(
+            {
+                "id": spec["id"],
+                "description": spec["description"],
+                "expected_load_bearing_signal": spec["expected_load_bearing_signal"],
+                "leaked_sequences": summarize_leaks(baseline, results),
+                "results": compact_ablation_rows(results),
+            }
+        )
+    return ablations
+
+
+def write_ablation_section(lines: list[str], ablations: list[dict[str, Any]]) -> None:
+    lines.extend(
+        [
+            "",
+            "## Ablations",
+            "",
+            "These ablations are internal evaluator variants over the same frozen fixtures and the same fresh-authored sequences. They do not add external validation.",
+            "",
+            "| Ablation | Load-bearing signal | Leaked baseline refusals |",
+            "| --- | --- | --- |",
+        ]
+    )
+    for ablation in ablations:
+        leaks = ", ".join(str(item) for item in ablation["leaked_sequences"]) or "-"
+        lines.append(
+            f"| {ablation['id']} | {ablation['expected_load_bearing_signal']} | {leaks} |"
+        )
+
+    lines.extend(
+        [
+            "",
+            "Interpretation:",
+            "",
+            "- Removing composition clauses leaks the three baseline refusals, showing that per-step purpose checks alone cannot see those packet-level compositions.",
+            "- Removing derivation closure leaks the derived-artifact classes while threshold accumulation remains catchable, showing that data-flow inheritance is load-bearing for the join and staging results.",
+            "- Limiting each window to its last three operations leaks the threshold-accumulation sequence, showing that full-window reading is load-bearing for the accumulation result.",
+        ]
+    )
 
 
 def write_results(payload: dict[str, Any]) -> None:
@@ -493,11 +622,12 @@ def write_results(payload: dict[str, Any]) -> None:
             "",
             "- This run does not claim external validation.",
             "- This run does not prove unknown harmful joins are discovered.",
-            "- The fresh-authored packet did not produce a distinct time-sliced escape; sequence 8 and 9 behave as legitimate long-window controls in this V0 run.",
+            "- Sequence 7 split the same threshold shape across two windows with authorized policy-boundary closes and was allowed by design. The open time-sliced question is close-authority policy, including when a boundary may close a window and whether that authority can be induced or gamed.",
             "- Under-declared consumed inputs and hidden internal-state laundering remain out of scope.",
-            "",
         ]
     )
+    write_ablation_section(lines, payload["ablations"])
+    lines.append("")
     RESULTS_MD_PATH.write_text("\n".join(lines))
 
 
