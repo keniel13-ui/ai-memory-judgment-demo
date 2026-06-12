@@ -1196,6 +1196,17 @@ Result:
 through 5, including the main divergence cell. Full seven-cell external run remains
 pending cells 6 and 7.
 
+**Additional FIPSign fixtures (2026-06-11, after the mapped-subset run):**
+FIPSign provided additional fixtures in which the grant-recorded certificate is revoked
+and a replacement certificate is issued with a different recipient or scope.
+Classification: revocation-mediated replacement evidence. The gate fetches only the
+grant-recorded cert id, so the raw field that moves in `condition_delta` is
+`status.revoked`, the same live signal as cell 3. These fixtures reinforce cell 3's
+signal path. They do not satisfy cells 6 or 7, which require subject/recipient drift
+(cell 6) or scope narrowing (cell 7) on the grant-recorded certificate while status
+stays active. Fixture requirements are documented in
+`claim_24/GRANT_SCHEMA_FOR_FIPSIGN.md` (commit `e91fac6`). Cells 6 and 7 remain open.
+
 **Weakness (known before running):**
 - Re-derivation requires a readable live source. If the architecture under test does not expose an agent-writable=false source, the required constraint cannot be verified and the experiment cannot be run cleanly.
 - If the live source is slow or rate-limited, `refused_unreachable` may appear where `allow` was expected — masking real divergence with fail-closed behavior.
@@ -1204,11 +1215,13 @@ pending cells 6 and 7.
 - Enforcement artifact emission is required output but cannot itself be tested as a security claim until CLAIM-25 adds signature verification.
 
 **Next test:**
-- Build the seven-scenario packet with `tool_call`, `external_grants`, and `live_source_snapshot` fields per scenario.
-- Run timestamp-only gate and re-derivation gate side-by-side on the same packet.
-- Confirm `refused_stale` and `refused_unreachable` are emitted as distinct result codes with full authority events.
-- Stress: corrupt the live source after grant issuance on a subset of scenarios and verify the gate detects drift without being told what changed.
-- After results: write allowed wording based on what the divergence cell actually showed.
+- Cells 6 and 7 require live or dedicated test fixtures where subject/recipient or
+  scope changes on the grant-recorded certificate while status stays active, per
+  `claim_24/GRANT_SCHEMA_FOR_FIPSIGN.md` section 5.
+- If FIPSign cannot expose clean-status metadata drift, record that as a
+  source-capability finding and pursue a dedicated test-fixture path.
+- ML-DSA-65 signature verification remains deferred; signature fields are preserved,
+  not verified.
 
 **Allowed wording (pre-registered, subject to revision after results):**
 > "On a seven-scenario internally authored packet, the re-derivation gate refused N/3 divergence-cell cases that the timestamp-only gate allowed."
@@ -1472,6 +1485,68 @@ Not external, not benchmark-grade, and not production-ready.
 > "The purpose envelope stops agent misuse."
 > "No principal can misuse the agent."
 > "The envelope problem is closed."
+> "This is externally validated."
+> "This is production-ready."
+
+---
+
+## CLAIM-30
+
+**Claim:** A sequence of individually in-mandate steps can compose into an
+out-of-mandate outcome, and that failure family requires trajectory-level evaluation
+rather than only per-step purpose checks.
+
+**What this advances from CLAIM-29:**
+CLAIM-29 tests single-action purpose boundaries. CLAIM-30 names the next boundary:
+composition. The frozen CLAIM-29 gate remains the per-step precondition and baseline.
+CLAIM-30 asks whether a trajectory can stay inside the purpose envelope one step at a
+time while violating it in the aggregate.
+
+**Pre-registration:**
+- Frozen pre-registration: `claim_30/CLAIM_30_COMPOSITIONAL_ESCAPE_PREREGISTRATION.md`
+- Public freeze commit: `00fbf65 Freeze CLAIM-30 pre-registration (Revision 5)`
+- No fixtures authored at freeze time.
+- No scenario rows authored at freeze time.
+- No evaluator or results at freeze time.
+
+**Design boundary frozen before testing:**
+- The imported frozen CLAIM-29 gate is not the sequence judge. It is imported unchanged
+  only as the per-step precondition and baseline.
+- The candidate `TrajectoryCompositionGate` reads a chained trajectory log, folds raw
+  `effect_delta` fields, and applies a separate frozen composition envelope.
+- Fixture order is pre-registered: `role_profile.json`, `purpose_envelope.json`,
+  `composition_envelope.json`, `observer_rules.json`, then fresh-author packet.
+- Fixture authors are disqualified from authoring escape rows.
+
+**Status:** `pre-registered design only` — frozen public pre-registration, no V0 packet
+or result yet.
+
+**Weakness known before running:**
+- No sequence rows exist yet.
+- No fixtures exist yet.
+- The composition envelope is hand-authored in V0.
+- V0 assumes honestly declared step inputs; under-declared consumption is out of scope.
+- Internal-state laundering, cross-session splitting, exogenous completion, and learned
+  or adaptive composition envelopes are explicitly out of scope.
+
+**Next test:**
+- Author and freeze fixtures in the Section 6 order.
+- Create a fresh-author packet only after fixtures freeze.
+- Run the frozen CLAIM-29 gate on every step before any sequence result counts.
+- Run the trajectory gate, negative controls, and ablations only after the per-step
+  precondition is mechanically satisfied.
+
+**Allowed wording before results:**
+> "CLAIM-30 is pre-registered. It names compositional escape: the possibility that
+> individually in-mandate steps compose into an out-of-mandate outcome."
+
+> "No CLAIM-30 result exists yet. The pre-registration is public and frozen before
+> fixtures, rows, evaluator, or results."
+
+**Forbidden wording:**
+> "CLAIM-30 demonstrates composite drift."
+> "CLAIM-30 solves multi-step misuse."
+> "The trajectory gate works."
 > "This is externally validated."
 > "This is production-ready."
 
