@@ -1207,6 +1207,17 @@ signal path. They do not satisfy cells 6 or 7, which require subject/recipient d
 stays active. Fixture requirements are documented in
 `claim_24/GRANT_SCHEMA_FOR_FIPSIGN.md` (commit `e91fac6`). Cells 6 and 7 remain open.
 
+**Source-contract finding (2026-06-12):**
+FIPSign maintainer confirmed certificate fields (`subject`, `scope`, `meta`) are
+immutable after issuance by design; mutability would break ML-DSA-65 signature
+coverage. Revoke-and-reissue is correct CA behavior, not a gap. A CA is therefore
+structurally incapable of clean-status drift: cells 6 and 7 require a mutable identity
+registry source contract, such as a user directory, device registry, or role store,
+where attributes update on a stable identifier while status stays clean. Recorded as a
+source-capability finding, not a failed test. Next step: publish a minimal registry
+source contract; FIPSign side has offered equivalent fixtures once a fitting source
+type exists.
+
 **Weakness (known before running):**
 - Re-derivation requires a readable live source. If the architecture under test does not expose an agent-writable=false source, the required constraint cannot be verified and the experiment cannot be run cleanly.
 - If the live source is slow or rate-limited, `refused_unreachable` may appear where `allow` was expected — masking real divergence with fail-closed behavior.
@@ -1552,6 +1563,8 @@ was allowed by design, so the open time-sliced question is close-authority polic
 - V0 assumes honestly declared step inputs; under-declared consumption is out of scope.
 - Internal-state laundering, cross-session splitting, exogenous completion, and learned
   or adaptive composition envelopes are explicitly out of scope.
+- Pre-registered ablations 1 and 4 remain pending. V0 has run ablations 2, 3, and 5
+  only.
 
 **Next test:**
 - Author a new fresh packet or external packet targeting close-authority and
