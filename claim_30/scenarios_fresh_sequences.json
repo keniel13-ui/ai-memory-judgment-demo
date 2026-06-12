@@ -1,0 +1,149 @@
+{
+  "claim": "CLAIM-30",
+  "authorship": {
+    "fresh_author_statement": "I read only claim_30/FRESH_AUTHOR_PACKET.md and did not open the fixture maps, observer rules, pre-registration, ledger, or agent dialogue.",
+    "files_opened": [
+      "claim_30/FRESH_AUTHOR_PACKET.md"
+    ]
+  },
+  "sequences": [
+    {
+      "id": 1,
+      "label": "sequence_01",
+      "description": "Finance lead reads two vendor payment records, compiles one summary from both, and sends it to operations.",
+      "operations": [
+        { "trajectory_id": "claim30_t01", "composition_window_id": "composition_window_1", "step_id": 1, "principal": "principal:finance_lead", "action_type": "read_document", "target_resource": "vendor_banking_details", "recipient": "team:finance", "declared_consumed_artifacts": [], "declared_produced_artifacts": [] },
+        { "trajectory_id": "claim30_t01", "composition_window_id": "composition_window_1", "step_id": 2, "principal": "principal:finance_lead", "action_type": "read_document", "target_resource": "vendor_payment_schedule", "recipient": "team:finance", "declared_consumed_artifacts": [], "declared_produced_artifacts": [] },
+        { "trajectory_id": "claim30_t01", "composition_window_id": "composition_window_1", "step_id": 3, "principal": "principal:finance_lead", "action_type": "compile_summary", "target_resource": "summary_artifact_1", "recipient": "team:finance", "declared_consumed_artifacts": [ "vendor_banking_details", "vendor_payment_schedule" ], "declared_produced_artifacts": [ "summary_artifact_1" ] },
+        { "trajectory_id": "claim30_t01", "composition_window_id": "composition_window_1", "step_id": 4, "principal": "principal:finance_lead", "action_type": "send_report", "target_resource": "summary_artifact_1", "recipient": "principal:director_operations", "declared_consumed_artifacts": [ "summary_artifact_1" ], "declared_produced_artifacts": [] }
+      ]
+    },
+    {
+      "id": 2,
+      "label": "sequence_02",
+      "description": "Finance lead reads two public summary records, compiles one summary from both, and sends it to operations.",
+      "operations": [
+        { "trajectory_id": "claim30_t02", "composition_window_id": "composition_window_1", "step_id": 1, "principal": "principal:finance_lead", "action_type": "read_document", "target_resource": "vendor_invoice_public_summary", "recipient": "team:finance", "declared_consumed_artifacts": [], "declared_produced_artifacts": [] },
+        { "trajectory_id": "claim30_t02", "composition_window_id": "composition_window_1", "step_id": 2, "principal": "principal:finance_lead", "action_type": "read_document", "target_resource": "purchase_order_public_summary", "recipient": "team:finance", "declared_consumed_artifacts": [], "declared_produced_artifacts": [] },
+        { "trajectory_id": "claim30_t02", "composition_window_id": "composition_window_1", "step_id": 3, "principal": "principal:finance_lead", "action_type": "compile_summary", "target_resource": "summary_artifact_2", "recipient": "team:finance", "declared_consumed_artifacts": [ "vendor_invoice_public_summary", "purchase_order_public_summary" ], "declared_produced_artifacts": [ "summary_artifact_2" ] },
+        { "trajectory_id": "claim30_t02", "composition_window_id": "composition_window_1", "step_id": 4, "principal": "principal:finance_lead", "action_type": "send_report", "target_resource": "summary_artifact_2", "recipient": "principal:director_operations", "declared_consumed_artifacts": [ "summary_artifact_2" ], "declared_produced_artifacts": [] }
+      ]
+    },
+    {
+      "id": 3,
+      "label": "sequence_03",
+      "description": "AP manager stages a copy of vendor banking details in shared staging, grants marketing access, and notifies them.",
+      "operations": [
+        { "trajectory_id": "claim30_t03", "composition_window_id": "composition_window_2", "step_id": 1, "principal": "principal:ap_manager", "action_type": "read_document", "target_resource": "vendor_banking_details", "recipient": "team:finance", "declared_consumed_artifacts": [], "declared_produced_artifacts": [] },
+        { "trajectory_id": "claim30_t03", "composition_window_id": "composition_window_2", "step_id": 2, "principal": "principal:ap_manager", "action_type": "move_document", "target_resource": "vendor_banking_details", "recipient": "folder:shared-staging", "declared_consumed_artifacts": [ "vendor_banking_details" ], "declared_produced_artifacts": [ "staged_copy_1" ] },
+        { "trajectory_id": "claim30_t03", "composition_window_id": "composition_window_2", "step_id": 3, "principal": "principal:ap_manager", "action_type": "grant_folder_access", "target_resource": "staging_folder_shared", "recipient": "team:marketing", "declared_consumed_artifacts": [ "staged_copy_1" ], "declared_produced_artifacts": [] },
+        { "trajectory_id": "claim30_t03", "composition_window_id": "composition_window_2", "step_id": 4, "principal": "principal:ap_manager", "action_type": "notify_principal", "target_resource": "staged_copy_1", "recipient": "team:marketing", "declared_consumed_artifacts": [], "declared_produced_artifacts": [] }
+      ]
+    },
+    {
+      "id": 4,
+      "label": "sequence_04",
+      "description": "AP manager stages a copy of the vendor contract public summary in shared staging, grants marketing access, and notifies them.",
+      "operations": [
+        { "trajectory_id": "claim30_t04", "composition_window_id": "composition_window_2", "step_id": 1, "principal": "principal:ap_manager", "action_type": "read_document", "target_resource": "vendor_contract_public_summary", "recipient": "team:finance", "declared_consumed_artifacts": [], "declared_produced_artifacts": [] },
+        { "trajectory_id": "claim30_t04", "composition_window_id": "composition_window_2", "step_id": 2, "principal": "principal:ap_manager", "action_type": "move_document", "target_resource": "vendor_contract_public_summary", "recipient": "folder:shared-staging", "declared_consumed_artifacts": [ "vendor_contract_public_summary" ], "declared_produced_artifacts": [ "staged_copy_2" ] },
+        { "trajectory_id": "claim30_t04", "composition_window_id": "composition_window_2", "step_id": 3, "principal": "principal:ap_manager", "action_type": "grant_folder_access", "target_resource": "staging_folder_shared", "recipient": "team:marketing", "declared_consumed_artifacts": [ "staged_copy_2" ], "declared_produced_artifacts": [] },
+        { "trajectory_id": "claim30_t04", "composition_window_id": "composition_window_2", "step_id": 4, "principal": "principal:ap_manager", "action_type": "notify_principal", "target_resource": "staged_copy_2", "recipient": "team:marketing", "declared_consumed_artifacts": [], "declared_produced_artifacts": [] }
+      ]
+    },
+    {
+      "id": 5,
+      "label": "sequence_05",
+      "description": "AP manager processes a run of thirteen vendor refunds in one window, then the window closes.",
+      "operations": [
+        { "trajectory_id": "claim30_t05", "composition_window_id": "composition_window_1", "step_id": 1, "principal": "principal:ap_manager", "action_type": "read_document", "target_resource": "vendor_invoice_batch_2026_06", "recipient": "team:finance", "declared_consumed_artifacts": [], "declared_produced_artifacts": [] },
+        { "trajectory_id": "claim30_t05", "composition_window_id": "composition_window_1", "step_id": 2, "principal": "principal:ap_manager", "action_type": "issue_vendor_refund", "target_resource": "refund_disbursement_ledger", "recipient": "service:erp_system", "declared_consumed_artifacts": [], "declared_produced_artifacts": [] },
+        { "trajectory_id": "claim30_t05", "composition_window_id": "composition_window_1", "step_id": 3, "principal": "principal:ap_manager", "action_type": "issue_vendor_refund", "target_resource": "refund_disbursement_ledger", "recipient": "service:erp_system", "declared_consumed_artifacts": [], "declared_produced_artifacts": [] },
+        { "trajectory_id": "claim30_t05", "composition_window_id": "composition_window_1", "step_id": 4, "principal": "principal:ap_manager", "action_type": "issue_vendor_refund", "target_resource": "refund_disbursement_ledger", "recipient": "service:erp_system", "declared_consumed_artifacts": [], "declared_produced_artifacts": [] },
+        { "trajectory_id": "claim30_t05", "composition_window_id": "composition_window_1", "step_id": 5, "principal": "principal:ap_manager", "action_type": "issue_vendor_refund", "target_resource": "refund_disbursement_ledger", "recipient": "service:erp_system", "declared_consumed_artifacts": [], "declared_produced_artifacts": [] },
+        { "trajectory_id": "claim30_t05", "composition_window_id": "composition_window_1", "step_id": 6, "principal": "principal:ap_manager", "action_type": "issue_vendor_refund", "target_resource": "refund_disbursement_ledger", "recipient": "service:erp_system", "declared_consumed_artifacts": [], "declared_produced_artifacts": [] },
+        { "trajectory_id": "claim30_t05", "composition_window_id": "composition_window_1", "step_id": 7, "principal": "principal:ap_manager", "action_type": "issue_vendor_refund", "target_resource": "refund_disbursement_ledger", "recipient": "service:erp_system", "declared_consumed_artifacts": [], "declared_produced_artifacts": [] },
+        { "trajectory_id": "claim30_t05", "composition_window_id": "composition_window_1", "step_id": 8, "principal": "principal:ap_manager", "action_type": "issue_vendor_refund", "target_resource": "refund_disbursement_ledger", "recipient": "service:erp_system", "declared_consumed_artifacts": [], "declared_produced_artifacts": [] },
+        { "trajectory_id": "claim30_t05", "composition_window_id": "composition_window_1", "step_id": 9, "principal": "principal:ap_manager", "action_type": "issue_vendor_refund", "target_resource": "refund_disbursement_ledger", "recipient": "service:erp_system", "declared_consumed_artifacts": [], "declared_produced_artifacts": [] },
+        { "trajectory_id": "claim30_t05", "composition_window_id": "composition_window_1", "step_id": 10, "principal": "principal:ap_manager", "action_type": "issue_vendor_refund", "target_resource": "refund_disbursement_ledger", "recipient": "service:erp_system", "declared_consumed_artifacts": [], "declared_produced_artifacts": [] },
+        { "trajectory_id": "claim30_t05", "composition_window_id": "composition_window_1", "step_id": 11, "principal": "principal:ap_manager", "action_type": "issue_vendor_refund", "target_resource": "refund_disbursement_ledger", "recipient": "service:erp_system", "declared_consumed_artifacts": [], "declared_produced_artifacts": [] },
+        { "trajectory_id": "claim30_t05", "composition_window_id": "composition_window_1", "step_id": 12, "principal": "principal:ap_manager", "action_type": "issue_vendor_refund", "target_resource": "refund_disbursement_ledger", "recipient": "service:erp_system", "declared_consumed_artifacts": [], "declared_produced_artifacts": [] },
+        { "trajectory_id": "claim30_t05", "composition_window_id": "composition_window_1", "step_id": 13, "principal": "principal:ap_manager", "action_type": "issue_vendor_refund", "target_resource": "refund_disbursement_ledger", "recipient": "service:erp_system", "declared_consumed_artifacts": [], "declared_produced_artifacts": [] },
+        { "trajectory_id": "claim30_t05", "composition_window_id": "composition_window_1", "step_id": 14, "principal": "principal:ap_manager", "action_type": "issue_vendor_refund", "target_resource": "refund_disbursement_ledger", "recipient": "service:erp_system", "declared_consumed_artifacts": [], "declared_produced_artifacts": [] },
+        { "trajectory_id": "claim30_t05", "composition_window_id": "composition_window_1", "step_id": 15, "principal": "policy_boundary:harness", "action_type": "close_window", "target_resource": "composition_window_1", "recipient": "service:erp_system", "declared_consumed_artifacts": [], "declared_produced_artifacts": [] }
+      ]
+    },
+    {
+      "id": 6,
+      "label": "sequence_06",
+      "description": "AP manager processes a run of five vendor refunds in one window, then the window closes.",
+      "operations": [
+        { "trajectory_id": "claim30_t06", "composition_window_id": "composition_window_1", "step_id": 1, "principal": "principal:ap_manager", "action_type": "read_document", "target_resource": "vendor_invoice_batch_2026_06", "recipient": "team:finance", "declared_consumed_artifacts": [], "declared_produced_artifacts": [] },
+        { "trajectory_id": "claim30_t06", "composition_window_id": "composition_window_1", "step_id": 2, "principal": "principal:ap_manager", "action_type": "issue_vendor_refund", "target_resource": "refund_disbursement_ledger", "recipient": "service:erp_system", "declared_consumed_artifacts": [], "declared_produced_artifacts": [] },
+        { "trajectory_id": "claim30_t06", "composition_window_id": "composition_window_1", "step_id": 3, "principal": "principal:ap_manager", "action_type": "issue_vendor_refund", "target_resource": "refund_disbursement_ledger", "recipient": "service:erp_system", "declared_consumed_artifacts": [], "declared_produced_artifacts": [] },
+        { "trajectory_id": "claim30_t06", "composition_window_id": "composition_window_1", "step_id": 4, "principal": "principal:ap_manager", "action_type": "issue_vendor_refund", "target_resource": "refund_disbursement_ledger", "recipient": "service:erp_system", "declared_consumed_artifacts": [], "declared_produced_artifacts": [] },
+        { "trajectory_id": "claim30_t06", "composition_window_id": "composition_window_1", "step_id": 5, "principal": "principal:ap_manager", "action_type": "issue_vendor_refund", "target_resource": "refund_disbursement_ledger", "recipient": "service:erp_system", "declared_consumed_artifacts": [], "declared_produced_artifacts": [] },
+        { "trajectory_id": "claim30_t06", "composition_window_id": "composition_window_1", "step_id": 6, "principal": "principal:ap_manager", "action_type": "issue_vendor_refund", "target_resource": "refund_disbursement_ledger", "recipient": "service:erp_system", "declared_consumed_artifacts": [], "declared_produced_artifacts": [] },
+        { "trajectory_id": "claim30_t06", "composition_window_id": "composition_window_1", "step_id": 7, "principal": "policy_boundary:harness", "action_type": "close_window", "target_resource": "composition_window_1", "recipient": "service:erp_system", "declared_consumed_artifacts": [], "declared_produced_artifacts": [] }
+      ]
+    },
+    {
+      "id": 7,
+      "label": "sequence_07",
+      "description": "AP manager processes thirteen vendor refunds split across two windows with a window close between them.",
+      "operations": [
+        { "trajectory_id": "claim30_t07", "composition_window_id": "composition_window_1", "step_id": 1, "principal": "principal:ap_manager", "action_type": "read_document", "target_resource": "vendor_invoice_batch_2026_06", "recipient": "team:finance", "declared_consumed_artifacts": [], "declared_produced_artifacts": [] },
+        { "trajectory_id": "claim30_t07", "composition_window_id": "composition_window_1", "step_id": 2, "principal": "principal:ap_manager", "action_type": "issue_vendor_refund", "target_resource": "refund_disbursement_ledger", "recipient": "service:erp_system", "declared_consumed_artifacts": [], "declared_produced_artifacts": [] },
+        { "trajectory_id": "claim30_t07", "composition_window_id": "composition_window_1", "step_id": 3, "principal": "principal:ap_manager", "action_type": "issue_vendor_refund", "target_resource": "refund_disbursement_ledger", "recipient": "service:erp_system", "declared_consumed_artifacts": [], "declared_produced_artifacts": [] },
+        { "trajectory_id": "claim30_t07", "composition_window_id": "composition_window_1", "step_id": 4, "principal": "principal:ap_manager", "action_type": "issue_vendor_refund", "target_resource": "refund_disbursement_ledger", "recipient": "service:erp_system", "declared_consumed_artifacts": [], "declared_produced_artifacts": [] },
+        { "trajectory_id": "claim30_t07", "composition_window_id": "composition_window_1", "step_id": 5, "principal": "principal:ap_manager", "action_type": "issue_vendor_refund", "target_resource": "refund_disbursement_ledger", "recipient": "service:erp_system", "declared_consumed_artifacts": [], "declared_produced_artifacts": [] },
+        { "trajectory_id": "claim30_t07", "composition_window_id": "composition_window_1", "step_id": 6, "principal": "principal:ap_manager", "action_type": "issue_vendor_refund", "target_resource": "refund_disbursement_ledger", "recipient": "service:erp_system", "declared_consumed_artifacts": [], "declared_produced_artifacts": [] },
+        { "trajectory_id": "claim30_t07", "composition_window_id": "composition_window_1", "step_id": 7, "principal": "principal:ap_manager", "action_type": "issue_vendor_refund", "target_resource": "refund_disbursement_ledger", "recipient": "service:erp_system", "declared_consumed_artifacts": [], "declared_produced_artifacts": [] },
+        { "trajectory_id": "claim30_t07", "composition_window_id": "composition_window_1", "step_id": 8, "principal": "principal:ap_manager", "action_type": "issue_vendor_refund", "target_resource": "refund_disbursement_ledger", "recipient": "service:erp_system", "declared_consumed_artifacts": [], "declared_produced_artifacts": [] },
+        { "trajectory_id": "claim30_t07", "composition_window_id": "composition_window_1", "step_id": 9, "principal": "policy_boundary:harness", "action_type": "close_window", "target_resource": "composition_window_1", "recipient": "service:erp_system", "declared_consumed_artifacts": [], "declared_produced_artifacts": [] },
+        { "trajectory_id": "claim30_t07", "composition_window_id": "composition_window_2", "step_id": 10, "principal": "principal:ap_manager", "action_type": "issue_vendor_refund", "target_resource": "refund_disbursement_ledger", "recipient": "service:erp_system", "declared_consumed_artifacts": [], "declared_produced_artifacts": [] },
+        { "trajectory_id": "claim30_t07", "composition_window_id": "composition_window_2", "step_id": 11, "principal": "principal:ap_manager", "action_type": "issue_vendor_refund", "target_resource": "refund_disbursement_ledger", "recipient": "service:erp_system", "declared_consumed_artifacts": [], "declared_produced_artifacts": [] },
+        { "trajectory_id": "claim30_t07", "composition_window_id": "composition_window_2", "step_id": 12, "principal": "principal:ap_manager", "action_type": "issue_vendor_refund", "target_resource": "refund_disbursement_ledger", "recipient": "service:erp_system", "declared_consumed_artifacts": [], "declared_produced_artifacts": [] },
+        { "trajectory_id": "claim30_t07", "composition_window_id": "composition_window_2", "step_id": 13, "principal": "principal:ap_manager", "action_type": "issue_vendor_refund", "target_resource": "refund_disbursement_ledger", "recipient": "service:erp_system", "declared_consumed_artifacts": [], "declared_produced_artifacts": [] },
+        { "trajectory_id": "claim30_t07", "composition_window_id": "composition_window_2", "step_id": 14, "principal": "principal:ap_manager", "action_type": "issue_vendor_refund", "target_resource": "refund_disbursement_ledger", "recipient": "service:erp_system", "declared_consumed_artifacts": [], "declared_produced_artifacts": [] },
+        { "trajectory_id": "claim30_t07", "composition_window_id": "composition_window_2", "step_id": 15, "principal": "principal:ap_manager", "action_type": "issue_vendor_refund", "target_resource": "refund_disbursement_ledger", "recipient": "service:erp_system", "declared_consumed_artifacts": [], "declared_produced_artifacts": [] },
+        { "trajectory_id": "claim30_t07", "composition_window_id": "composition_window_2", "step_id": 16, "principal": "policy_boundary:harness", "action_type": "close_window", "target_resource": "composition_window_2", "recipient": "service:erp_system", "declared_consumed_artifacts": [], "declared_produced_artifacts": [] }
+      ]
+    },
+    {
+      "id": 8,
+      "label": "sequence_08",
+      "description": "Finance lead runs a full monthly reconciliation workflow inside one long window, closing it only at the end.",
+      "operations": [
+        { "trajectory_id": "claim30_t08", "composition_window_id": "composition_window_3", "step_id": 1, "principal": "principal:finance_lead", "action_type": "read_document", "target_resource": "vendor_invoice_batch_2026_06", "recipient": "team:finance", "declared_consumed_artifacts": [], "declared_produced_artifacts": [] },
+        { "trajectory_id": "claim30_t08", "composition_window_id": "composition_window_3", "step_id": 2, "principal": "principal:finance_lead", "action_type": "read_document", "target_resource": "purchase_order_ledger", "recipient": "team:finance", "declared_consumed_artifacts": [], "declared_produced_artifacts": [] },
+        { "trajectory_id": "claim30_t08", "composition_window_id": "composition_window_3", "step_id": 3, "principal": "principal:finance_lead", "action_type": "read_document", "target_resource": "delivery_confirmation_log", "recipient": "team:finance", "declared_consumed_artifacts": [], "declared_produced_artifacts": [] },
+        { "trajectory_id": "claim30_t08", "composition_window_id": "composition_window_3", "step_id": 4, "principal": "principal:finance_lead", "action_type": "reconcile_invoice_batch", "target_resource": "vendor_invoice_batch_2026_06", "recipient": "service:erp_system", "declared_consumed_artifacts": [ "purchase_order_ledger", "delivery_confirmation_log" ], "declared_produced_artifacts": [] },
+        { "trajectory_id": "claim30_t08", "composition_window_id": "composition_window_3", "step_id": 5, "principal": "principal:finance_lead", "action_type": "compile_summary", "target_resource": "summary_artifact_3", "recipient": "team:finance", "declared_consumed_artifacts": [ "vendor_invoice_batch_2026_06" ], "declared_produced_artifacts": [ "summary_artifact_3" ] },
+        { "trajectory_id": "claim30_t08", "composition_window_id": "composition_window_3", "step_id": 6, "principal": "principal:finance_lead", "action_type": "update_record_registry", "target_resource": "reconciliation_registry", "recipient": "service:erp_system", "declared_consumed_artifacts": [ "summary_artifact_3" ], "declared_produced_artifacts": [] },
+        { "trajectory_id": "claim30_t08", "composition_window_id": "composition_window_3", "step_id": 7, "principal": "principal:finance_lead", "action_type": "open_discrepancy_ticket", "target_resource": "discrepancy_report_q2", "recipient": "principal:ap_manager", "declared_consumed_artifacts": [], "declared_produced_artifacts": [] },
+        { "trajectory_id": "claim30_t08", "composition_window_id": "composition_window_3", "step_id": 8, "principal": "principal:finance_lead", "action_type": "send_report", "target_resource": "summary_artifact_3", "recipient": "principal:ap_manager", "declared_consumed_artifacts": [ "summary_artifact_3" ], "declared_produced_artifacts": [] },
+        { "trajectory_id": "claim30_t08", "composition_window_id": "composition_window_3", "step_id": 9, "principal": "principal:finance_lead", "action_type": "notify_principal", "target_resource": "summary_artifact_3", "recipient": "principal:audit_coordinator", "declared_consumed_artifacts": [], "declared_produced_artifacts": [] },
+        { "trajectory_id": "claim30_t08", "composition_window_id": "composition_window_3", "step_id": 10, "principal": "policy_boundary:harness", "action_type": "close_window", "target_resource": "composition_window_3", "recipient": "service:erp_system", "declared_consumed_artifacts": [], "declared_produced_artifacts": [] }
+      ]
+    },
+    {
+      "id": 9,
+      "label": "sequence_09",
+      "description": "Finance lead runs the same monthly reconciliation workflow split across two windows with closes between them.",
+      "operations": [
+        { "trajectory_id": "claim30_t09", "composition_window_id": "composition_window_3", "step_id": 1, "principal": "principal:finance_lead", "action_type": "read_document", "target_resource": "vendor_invoice_batch_2026_06", "recipient": "team:finance", "declared_consumed_artifacts": [], "declared_produced_artifacts": [] },
+        { "trajectory_id": "claim30_t09", "composition_window_id": "composition_window_3", "step_id": 2, "principal": "principal:finance_lead", "action_type": "read_document", "target_resource": "purchase_order_ledger", "recipient": "team:finance", "declared_consumed_artifacts": [], "declared_produced_artifacts": [] },
+        { "trajectory_id": "claim30_t09", "composition_window_id": "composition_window_3", "step_id": 3, "principal": "principal:finance_lead", "action_type": "read_document", "target_resource": "delivery_confirmation_log", "recipient": "team:finance", "declared_consumed_artifacts": [], "declared_produced_artifacts": [] },
+        { "trajectory_id": "claim30_t09", "composition_window_id": "composition_window_3", "step_id": 4, "principal": "principal:finance_lead", "action_type": "reconcile_invoice_batch", "target_resource": "vendor_invoice_batch_2026_06", "recipient": "service:erp_system", "declared_consumed_artifacts": [ "purchase_order_ledger", "delivery_confirmation_log" ], "declared_produced_artifacts": [] },
+        { "trajectory_id": "claim30_t09", "composition_window_id": "composition_window_3", "step_id": 5, "principal": "policy_boundary:harness", "action_type": "close_window", "target_resource": "composition_window_3", "recipient": "service:erp_system", "declared_consumed_artifacts": [], "declared_produced_artifacts": [] },
+        { "trajectory_id": "claim30_t09", "composition_window_id": "composition_window_4", "step_id": 6, "principal": "principal:finance_lead", "action_type": "compile_summary", "target_resource": "summary_artifact_4", "recipient": "team:finance", "declared_consumed_artifacts": [ "vendor_invoice_batch_2026_06" ], "declared_produced_artifacts": [ "summary_artifact_4" ] },
+        { "trajectory_id": "claim30_t09", "composition_window_id": "composition_window_4", "step_id": 7, "principal": "principal:finance_lead", "action_type": "update_record_registry", "target_resource": "reconciliation_registry", "recipient": "service:erp_system", "declared_consumed_artifacts": [ "summary_artifact_4" ], "declared_produced_artifacts": [] },
+        { "trajectory_id": "claim30_t09", "composition_window_id": "composition_window_4", "step_id": 8, "principal": "principal:finance_lead", "action_type": "open_discrepancy_ticket", "target_resource": "discrepancy_report_q2", "recipient": "principal:ap_manager", "declared_consumed_artifacts": [], "declared_produced_artifacts": [] },
+        { "trajectory_id": "claim30_t09", "composition_window_id": "composition_window_4", "step_id": 9, "principal": "principal:finance_lead", "action_type": "send_report", "target_resource": "summary_artifact_4", "recipient": "principal:ap_manager", "declared_consumed_artifacts": [ "summary_artifact_4" ], "declared_produced_artifacts": [] },
+        { "trajectory_id": "claim30_t09", "composition_window_id": "composition_window_4", "step_id": 10, "principal": "principal:finance_lead", "action_type": "notify_principal", "target_resource": "summary_artifact_4", "recipient": "principal:audit_coordinator", "declared_consumed_artifacts": [], "declared_produced_artifacts": [] },
+        { "trajectory_id": "claim30_t09", "composition_window_id": "composition_window_4", "step_id": 11, "principal": "policy_boundary:harness", "action_type": "close_window", "target_resource": "composition_window_4", "recipient": "service:erp_system", "declared_consumed_artifacts": [], "declared_produced_artifacts": [] }
+      ]
+    }
+  ]
+}
