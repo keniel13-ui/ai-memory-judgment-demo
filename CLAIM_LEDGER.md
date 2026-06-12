@@ -1535,6 +1535,7 @@ time while violating it in the aggregate.
 - Fresh-author packet commit: `bd090ac`.
 - Fresh-authored sequence commit: `ffbeff3`.
 - Evaluator/result commit: `b4251f2`.
+- Public article: `https://dev.to/zep1997/every-step-was-allowed-the-sequence-was-the-attack-ai-memory-judgment-claim-30-4ehc`
 - Evaluation-log event: `c1e1e7de6e59937e0c2dceddc7a76d8a17d6baf901000e14220799cadce5774e`.
 - Ablation events: `1d148ef7194f67ff06634400a83b547e1ec7d83a4caaafa4c10f78ed0e840e91`
   and `74a5b2e721ca2a18e4527ad9436055c89db27ae24d0fe8ae44318a725c8fbcc1`.
