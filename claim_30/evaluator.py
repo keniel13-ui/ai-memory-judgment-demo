@@ -92,11 +92,15 @@ class Claim30Evaluator:
         self,
         *,
         disable_composition_clauses: bool = False,
+        disable_chain_integrity: bool = False,
         disable_derivation_closure: bool = False,
+        disable_asof_envelope: bool = False,
         window_limit: int | None = None,
     ):
         self.disable_composition_clauses = disable_composition_clauses
+        self.disable_chain_integrity = disable_chain_integrity
         self.disable_derivation_closure = disable_derivation_closure
+        self.disable_asof_envelope = disable_asof_envelope
         self.window_limit = window_limit
         self.claim29 = load_claim29_evaluator()
         self.role_profile_raw = load_json(CLAIM_30_DIR / "role_profile.json")
@@ -262,8 +266,42 @@ class Claim30Evaluator:
 
         return obs
 
+    def chain_integrity_tampered_operations(
+        self, operations: list[dict[str, Any]]
+    ) -> list[dict[str, Any]]:
+        threshold = self.composition_envelope["clauses"][2]["thresholds"][0]
+        bound = Decimal(threshold["window_bound"])
+        magnitude = Decimal(
+            self.observer_rules["per_operation_magnitudes"]["issue_vendor_refund"][
+                "magnitude"
+            ]
+        )
+        max_per_window = max(int(bound // magnitude), 1)
+        refund_count = 0
+        tampered: list[dict[str, Any]] = []
+        for op in operations:
+            copied = {
+                **op,
+                "declared_consumed_artifacts": list(
+                    op["declared_consumed_artifacts"]
+                ),
+                "declared_produced_artifacts": list(
+                    op["declared_produced_artifacts"]
+                ),
+            }
+            if op["action_type"] == "issue_vendor_refund":
+                window_index = refund_count // max_per_window
+                copied["composition_window_id"] = (
+                    f"{op['composition_window_id']}_tampered_{window_index + 1}"
+                )
+                refund_count += 1
+            tampered.append(copied)
+        return tampered
+
     def fold_sequence(self, sequence: dict[str, Any]) -> dict[str, FoldedWindow]:
         operations = sequence["operations"]
+        if self.disable_chain_integrity:
+            operations = self.chain_integrity_tampered_operations(operations)
         if self.window_limit is not None:
             by_window: dict[str, list[dict[str, Any]]] = {}
             for op in operations:
@@ -333,6 +371,8 @@ class Claim30Evaluator:
         for artifact, sources in window.artifact_sources.items():
             for source in sources:
                 allowed = self.allowed_recipients_for_source(source)
+                if self.disable_asof_envelope:
+                    allowed.update(window.recipients_reached)
                 if allowed:
                     outside = window.recipients_reached - allowed
                     if outside:
@@ -347,6 +387,8 @@ class Claim30Evaluator:
 
             for clause in self.composition_envelope["clauses"]:
                 if clause["type"] != "forbidden_combination":
+                    continue
+                if self.disable_asof_envelope:
                     continue
                 for combo in clause["forbidden_combinations"]:
                     combo_sources = set(combo["sources"])
@@ -364,6 +406,8 @@ class Claim30Evaluator:
             recipient = edge["recipient"]
             for source in edge["sources"]:
                 allowed = self.allowed_recipients_for_source(source)
+                if self.disable_asof_envelope:
+                    allowed.add(recipient)
                 if allowed and recipient not in allowed:
                     return (
                         REFUSE_COMPOSITE_DRIFT,
@@ -526,6 +570,12 @@ def run_ablations() -> list[dict[str, Any]]:
     baseline = Claim30Evaluator().run_without_ablations()["results"]
     ablation_specs = [
         {
+            "id": "ablation_1_remove_chain_integrity",
+            "description": "Permit deterministic log-window rewrites before folding.",
+            "expected_load_bearing_signal": "Threshold accumulation should leak when an adversary can rewrite window labels.",
+            "evaluator": Claim30Evaluator(disable_chain_integrity=True),
+        },
+        {
             "id": "ablation_2_remove_composition_clauses",
             "description": "Disable trajectory composition clauses after the frozen CLAIM-29 per-step precondition.",
             "expected_load_bearing_signal": "Previously refused sequence-level compositions should leak.",
@@ -536,6 +586,12 @@ def run_ablations() -> list[dict[str, Any]]:
             "description": "Keep windows and thresholds, but stop produced artifacts from inheriting declared input sources.",
             "expected_load_bearing_signal": "Derived-artifact composition classes should leak while direct accumulation can still be caught.",
             "evaluator": Claim30Evaluator(disable_derivation_closure=True),
+        },
+        {
+            "id": "ablation_4_remove_asof_envelope_pairing",
+            "description": "Evaluate lineage and recipient checks against a retroactively widened current envelope while leaving thresholds intact.",
+            "expected_load_bearing_signal": "Forbidden-combination and derived-recipient classes should leak when the envelope is not pinned as-of-decision.",
+            "evaluator": Claim30Evaluator(disable_asof_envelope=True),
         },
         {
             "id": "ablation_5_window_limit_last_3_operations",
@@ -583,7 +639,9 @@ def write_ablation_section(lines: list[str], ablations: list[dict[str, Any]]) ->
             "Interpretation:",
             "",
             "- Removing composition clauses leaks the three baseline refusals, showing that per-step purpose checks alone cannot see those packet-level compositions.",
+            "- Removing chain integrity leaks the threshold-accumulation sequence by letting the log's window labels be rewritten before folding.",
             "- Removing derivation closure leaks the derived-artifact classes while threshold accumulation remains catchable, showing that data-flow inheritance is load-bearing for the join and staging results.",
+            "- Removing as-of-decision envelope pairing leaks the forbidden-combination and derived-recipient classes while threshold accumulation remains catchable, showing that frozen policy pairing is load-bearing for retroactive policy-widening pressure.",
             "- Limiting each window to its last three operations leaks the threshold-accumulation sequence, showing that full-window reading is load-bearing for the accumulation result.",
         ]
     )

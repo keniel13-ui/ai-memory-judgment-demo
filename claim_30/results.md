@@ -29,12 +29,16 @@ These ablations are internal evaluator variants over the same frozen fixtures an
 
 | Ablation | Load-bearing signal | Leaked baseline refusals |
 | --- | --- | --- |
+| ablation_1_remove_chain_integrity | Threshold accumulation should leak when an adversary can rewrite window labels. | 5 |
 | ablation_2_remove_composition_clauses | Previously refused sequence-level compositions should leak. | 1, 3, 5 |
 | ablation_3_remove_derivation_closure | Derived-artifact composition classes should leak while direct accumulation can still be caught. | 1, 3 |
+| ablation_4_remove_asof_envelope_pairing | Forbidden-combination and derived-recipient classes should leak when the envelope is not pinned as-of-decision. | 1, 3 |
 | ablation_5_window_limit_last_3_operations | Long-window accumulation should leak when the trajectory is truncated. | 5 |
 
 Interpretation:
 
 - Removing composition clauses leaks the three baseline refusals, showing that per-step purpose checks alone cannot see those packet-level compositions.
+- Removing chain integrity leaks the threshold-accumulation sequence by letting the log's window labels be rewritten before folding.
 - Removing derivation closure leaks the derived-artifact classes while threshold accumulation remains catchable, showing that data-flow inheritance is load-bearing for the join and staging results.
+- Removing as-of-decision envelope pairing leaks the forbidden-combination and derived-recipient classes while threshold accumulation remains catchable, showing that frozen policy pairing is load-bearing for retroactive policy-widening pressure.
 - Limiting each window to its last three operations leaks the threshold-accumulation sequence, showing that full-window reading is load-bearing for the accumulation result.
