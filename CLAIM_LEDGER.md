@@ -1518,33 +1518,55 @@ time while violating it in the aggregate.
   `composition_envelope.json`, `observer_rules.json`, then fresh-author packet.
 - Fixture authors are disqualified from authoring escape rows.
 
-**Status:** `pre-registered design only` — frozen public pre-registration, no V0 packet
-or result yet.
+**V0 result:**
+- Fixture commits: `9cd2786` role profile, `6aed126` purpose envelope, `c96d931`
+  composition envelope, `16e48e9` observer rules.
+- Fresh-author packet commit: `bd090ac`.
+- Fresh-authored sequence commit: `ffbeff3`.
+- Evaluator/result commit: `b4251f2`.
+- Evaluation-log event: `c1e1e7de6e59937e0c2dceddc7a76d8a17d6baf901000e14220799cadce5774e`.
+- Result file: `claim_30/results.md` and `claim_30/results.json`.
+
+**Status:** `demonstrated internally, class-limited` — all 75 fresh-authored
+operations passed the imported frozen CLAIM-29 per-step PurposeEnvelopeGate. The
+TrajectoryCompositionGate refused three sequence-level compositions: forbidden
+combination, derived-recipient/staged-delivery, and threshold accumulation. Matched
+ordinary twins and refund-window controls were allowed. The fresh packet did not
+produce a distinct time-sliced escape, so the V0 result does not support that class.
 
 **Weakness known before running:**
-- No sequence rows exist yet.
-- No fixtures exist yet.
 - The composition envelope is hand-authored in V0.
+- Fresh-authored rows came from a packet authored by this project, not external
+  authors.
+- The V0 packet supports three composition classes, not the full pre-registered class
+  set: forbidden combination, derived-recipient/staged-delivery, and threshold
+  accumulation.
+- The time-sliced class remains open because the fresh-authored sequences behaved as
+  legitimate long-window controls rather than a distinct escape.
 - V0 assumes honestly declared step inputs; under-declared consumption is out of scope.
 - Internal-state laundering, cross-session splitting, exogenous completion, and learned
   or adaptive composition envelopes are explicitly out of scope.
 
 **Next test:**
-- Author and freeze fixtures in the Section 6 order.
-- Create a fresh-author packet only after fixtures freeze.
-- Run the frozen CLAIM-29 gate on every step before any sequence result counts.
-- Run the trajectory gate, negative controls, and ablations only after the per-step
-  precondition is mechanically satisfied.
+- Author a new fresh packet or external packet targeting the time-sliced class without
+  changing frozen fixtures or evaluator logic.
+- Add explicit negative controls and ablations for the three demonstrated classes.
+- Seek externally authored trajectory rows against the unchanged fixtures and
+  evaluator.
+- Preserve the current evidence boundary in any public article: internal,
+  class-limited, not externally validated.
 
-**Allowed wording before results:**
-> "CLAIM-30 is pre-registered. It names compositional escape: the possibility that
-> individually in-mandate steps compose into an out-of-mandate outcome."
+**Allowed wording:**
+> "On a firewalled, fresh-authored internal packet, every operation passed the frozen
+> CLAIM-29 per-step purpose gate, while the trajectory gate refused three
+> sequence-level compositions by frozen structural clauses."
 
-> "No CLAIM-30 result exists yet. The pre-registration is public and frozen before
-> fixtures, rows, evaluator, or results."
+> "CLAIM-30 V0 is demonstrated internally and class-limited: forbidden combination,
+> derived-recipient/staged-delivery, and threshold accumulation were caught; the
+> time-sliced class remains open."
 
 **Forbidden wording:**
-> "CLAIM-30 demonstrates composite drift."
+> "CLAIM-30 fully demonstrates composite drift."
 > "CLAIM-30 solves multi-step misuse."
 > "The trajectory gate works."
 > "This is externally validated."
