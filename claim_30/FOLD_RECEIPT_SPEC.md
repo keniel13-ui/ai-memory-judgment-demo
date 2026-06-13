@@ -8,9 +8,11 @@ first, under the house freeze protocol.
 
 ## Origin and credit
 
-Ken (Sovereign Synapse) named this layer in a public comment on the CLAIM-30 article on
-2026-06-12: treat the fold state itself as an inspectable object, because each local
-receipt can be true while the system-level receipt is false. This spec operationalizes
+Ken (DEV user kenerator, principal architect at nxus.SYSTEMS) named this layer in a
+public comment on the CLAIM-30 article on 2026-06-12: treat the fold state itself as an
+inspectable object, because each local receipt can be true while the system-level receipt
+is false. Correction note: an earlier revision of this spec misattributed the comment to
+a different community member named Ken; the record is corrected here. This spec operationalizes
 that contribution. It also inherits Norbert Rosenwinkel's earlier as-of-decision freezing
 constraint from the CLAIM-24/26 thread: the receipt must pin the policy state that was
 actually evaluated, not the policy state at read time.
