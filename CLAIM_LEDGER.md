@@ -1612,9 +1612,10 @@ workflow as abusive?
 **Pre-registration:**
 - Frozen pre-registration: `claim_31/CLAIM_31_VERIFIED_CARRYOVER_PREREGISTRATION.md`
 - Public freeze commit: `93b7683 Freeze CLAIM-31 pre-registration`
-- No fixtures authored at freeze time.
-- No scenario rows authored at freeze time.
-- No evaluator or results at freeze time.
+- Fixture commit: `b96bedb Add CLAIM-31 fixture layer`
+- No scenario rows authored yet.
+- No fresh-author packet authored yet.
+- No evaluator or results authored yet.
 
 **Design boundary frozen before testing:**
 - Inherits CLAIM-30 refund magnitude `40.00 USD`, per-window bound `500.00 USD`, exact
@@ -1631,7 +1632,8 @@ workflow as abusive?
   wrong mechanism is a failure.
 
 **Status:** `pre-registered`. Frozen before fixtures, rows, evaluator changes, or
-results exist. No empirical result yet.
+results existed; fixture layer has since been added at `b96bedb`. No fresh-author
+packet, scenario rows, evaluator, results, or empirical result yet.
 
 **Weakness known before running:**
 - V0 tests one close link across two windows, not a full multi-close chain.
@@ -1646,7 +1648,7 @@ results exist. No empirical result yet.
   fields.
 
 **Next test:**
-- Author CLAIM-31 fixtures and fresh-author packet under the frozen V0 boundary.
+- Author CLAIM-31 fresh-author packet under the frozen V0 boundary.
 - Produce rows only after the freeze commit.
 - Run baseline per-window behavior against the same rows.
 - Run `VerifiedCarryoverGate` and record mechanism-coded verdicts.
