@@ -38,8 +38,18 @@ Evidence boundary: designed controls test boundary and receipt mechanics. Fresh 
 | `sequence_09` | `allow_under_rolling_bound` | 1 | `40.00` | all computed totals at or below applicable bounds |
 | `sequence_10` | `allow_under_rolling_bound` | 8 | `320.00` | all computed totals at or below applicable bounds |
 
+## Ablations
+
+| Ablation | Scope | Expected leaks | Actual leaks | Match | Interpretation |
+| --- | --- | --- | --- | --- | --- |
+| `remove_rolling_carryover` | `row_flip` | `control_02`, `control_04` | `control_02`, `control_04` | `True` | Do not enforce the rolling bound across a verified close. |
+| `remove_close_receipt_verification` | `row_flip` | `control_05`, `control_06`, `control_07`, `control_08` | `control_05`, `control_06`, `control_07`, `control_08` | `True` | Treat close structure as trusted instead of verifying close receipts. |
+| `remove_replay_recomputation` | `auditability` | none | none | `True` | Without replay/recomputation from operations, the evaluator cannot independently reconstruct rolling totals or close validity. This is an auditability failure, not a row-flip leak-set claim. |
+| `collapse_to_per_window_only` | `row_flip` | `control_02`, `control_04` | `control_02`, `control_04` | `True` | Keep receipt validation, but collapse accumulation back to per-window checks. |
+
 ## Boundary
 
 - No external validation.
 - Fresh corpus is not credited with close-laundered catch validation unless a fresh row exercises above-bound carryover.
 - Right label by wrong mechanism remains a failure condition.
+- The replay/recomputation ablation is an auditability ablation, not a row-flip leak-set claim.

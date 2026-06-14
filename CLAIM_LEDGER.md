@@ -1649,13 +1649,30 @@ spec, evaluator, and results were added in order.
   returned `refuse_invalid_close` for a missing valid close link, and 1 returned
   `void_self_close`.
 
+**V0 ablations:**
+- `remove_rolling_carryover` leaked `control_02` and `control_04`, matching the
+  expected leak set.
+- `remove_close_receipt_verification` leaked `control_05`, `control_06`,
+  `control_07`, and `control_08`, matching the expected leak set.
+- `remove_replay_recomputation` is recorded as an auditability ablation, not a
+  row-flip leak-set claim: without recomputing from operations, rolling totals and
+  close validity cannot be independently reconstructed.
+- `collapse_to_per_window_only` leaked `control_02` and `control_04`, matching the
+  expected leak set.
+- The rolling-carryover and per-window-only ablations produce the same row leak set;
+  this double-checks the same rolling-layer property and should not be overstated as
+  two independent evidence classes.
+
 **Evidence boundary after V0:**
 - Designed controls demonstrate the boundary and receipt mechanics under deliberate
   edge cases.
 - The independent fresh corpus tests realistic workflow variety and overblocking risk.
   It is not credited with validating close-laundered catch behavior because no fresh
   row exercises above-bound carryover.
-- This is still internal validation, not external validation.
+- This is still internal validation, not external validation. The ablation predictions
+  were locked in-session before implementation, but not separately public-frozen as a
+  pre-run spec file, so they should be described as internal V0 ablations rather than
+  publicly pre-registered ablations.
 
 **Weakness known before running:**
 - V0 tests one close link across two windows, not a full multi-close chain.
@@ -1674,10 +1691,11 @@ spec, evaluator, and results were added in order.
   fields.
 
 **Next test:**
-- Run ablations for rolling carryover, close-receipt verification, replay, and
-  per-window-only collapse.
 - Add a future follow-on for multi-close chains or freshness only after a fixture can
   exercise those classes.
+- Apply the framework to a real agent continuity surface, beginning with Aza-Rion's
+  documented stale-state and durable-memory failure classes, without inducing harm to
+  create a demonstration.
 
 **Allowed wording:**
 > "CLAIM-31 is internally demonstrated in V0 on a frozen, class-limited packet."
@@ -1689,12 +1707,17 @@ spec, evaluator, and results were added in order.
 > "The fresh corpus tested realistic workflow variety and overblocking risk, not the
 > over-bound catch itself."
 
+> "Internal ablations showed the rolling layer and close-receipt verification were
+> load-bearing in V0; replay/recomputation is an auditability requirement rather than
+> a row-flip leak set."
+
 **Forbidden wording:**
 > "CLAIM-31 is externally validated."
 > "The verified-carryover gate works in production."
 > "This solves time-sliced escape."
 > "This proves close engineering is handled."
 > "This is production-ready."
+> "All CLAIM-31 ablations were publicly pre-registered."
 
 ---
 

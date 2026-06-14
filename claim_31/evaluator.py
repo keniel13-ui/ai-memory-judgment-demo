@@ -23,6 +23,12 @@ REFUSE_ROLLING_BOUND = "refuse_rolling_bound"
 REFUSE_INVALID_CLOSE = "refuse_invalid_close"
 VOID_SELF_CLOSE = "void_self_close"
 
+BASELINE = "baseline"
+REMOVE_ROLLING_CARRYOVER = "remove_rolling_carryover"
+REMOVE_CLOSE_RECEIPT_VERIFICATION = "remove_close_receipt_verification"
+REMOVE_REPLAY_RECOMPUTATION = "remove_replay_recomputation"
+COLLAPSE_TO_PER_WINDOW_ONLY = "collapse_to_per_window_only"
+
 
 def load_json(path: Path) -> dict[str, Any]:
     with path.open(encoding="utf-8") as handle:
@@ -107,6 +113,7 @@ class Claim31Evaluator:
         fresh_counts: dict[str, int] = {}
         for row in fresh_results:
             fresh_counts[row.mechanism_code] = fresh_counts.get(row.mechanism_code, 0) + 1
+        ablations = self.evaluate_ablations(designed_results)
         return {
             "claim": "CLAIM-31",
             "evaluator": "claim31_verified_carryover_evaluator_v0",
@@ -126,11 +133,13 @@ class Claim31Evaluator:
             },
             "designed_controls": [row.__dict__ for row in designed_results],
             "fresh_corpus": [row.__dict__ for row in fresh_results],
+            "ablations": ablations,
             "summary": {
                 "designed_controls_total": controls_total,
                 "designed_controls_expected_matches": controls_matching,
                 "fresh_corpus_total": len(fresh_results),
                 "fresh_corpus_mechanism_counts": fresh_counts,
+                "ablation_count": len(ablations),
                 "evidence_boundary": (
                     "Designed controls test boundary and receipt mechanics. Fresh "
                     "corpus tests realistic workflow variety and overblocking risk."
@@ -138,8 +147,103 @@ class Claim31Evaluator:
             },
         }
 
+    def evaluate_ablations(self, baseline_controls: list[RowResult]) -> list[dict[str, Any]]:
+        baseline_by_label = {row.label: row for row in baseline_controls}
+        ablation_specs = [
+            {
+                "id": REMOVE_ROLLING_CARRYOVER,
+                "description": "Do not enforce the rolling bound across a verified close.",
+                "expected_leaks": ["control_02", "control_04"],
+                "scope": "row_flip",
+            },
+            {
+                "id": REMOVE_CLOSE_RECEIPT_VERIFICATION,
+                "description": "Treat close structure as trusted instead of verifying close receipts.",
+                "expected_leaks": [
+                    "control_05",
+                    "control_06",
+                    "control_07",
+                    "control_08",
+                ],
+                "scope": "row_flip",
+            },
+            {
+                "id": REMOVE_REPLAY_RECOMPUTATION,
+                "description": "Do not recompute totals and close validity from operations.",
+                "expected_leaks": [],
+                "scope": "auditability",
+            },
+            {
+                "id": COLLAPSE_TO_PER_WINDOW_ONLY,
+                "description": "Keep receipt validation, but collapse accumulation back to per-window checks.",
+                "expected_leaks": ["control_02", "control_04"],
+                "scope": "row_flip",
+            },
+        ]
+        results: list[dict[str, Any]] = []
+        for spec in ablation_specs:
+            if spec["scope"] == "auditability":
+                results.append(
+                    {
+                        **spec,
+                        "actual_leaks": [],
+                        "expected_match": True,
+                        "auditability_failure": True,
+                        "interpretation": (
+                            "Without replay/recomputation from operations, the evaluator "
+                            "cannot independently reconstruct rolling totals or close "
+                            "validity. This is an auditability failure, not a row-flip "
+                            "leak-set claim."
+                        ),
+                    }
+                )
+                continue
+            variant_results = [
+                self.evaluate_sequence(
+                    sequence,
+                    source_file="claim_31/scenarios_designed_controls.json",
+                    source_type="designed_control",
+                    variant=spec["id"],
+                )
+                for sequence in self.designed["sequences"]
+            ]
+            actual_leaks = []
+            rows = []
+            for row in variant_results:
+                baseline = baseline_by_label[row.label]
+                leaked = baseline.mechanism_code != ALLOW_UNDER_ROLLING_BOUND and (
+                    row.mechanism_code == ALLOW_UNDER_ROLLING_BOUND
+                )
+                if leaked:
+                    actual_leaks.append(row.label)
+                rows.append(
+                    {
+                        "label": row.label,
+                        "baseline_mechanism": baseline.mechanism_code,
+                        "ablation_mechanism": row.mechanism_code,
+                        "leaked": leaked,
+                        "rolling_total": row.rolling_total,
+                        "notes": row.notes,
+                    }
+                )
+            results.append(
+                {
+                    **spec,
+                    "actual_leaks": actual_leaks,
+                    "expected_match": sorted(actual_leaks) == sorted(spec["expected_leaks"]),
+                    "auditability_failure": False,
+                    "rows": rows,
+                }
+            )
+        return results
+
     def evaluate_sequence(
-        self, sequence: dict[str, Any], *, source_file: str, source_type: str
+        self,
+        sequence: dict[str, Any],
+        *,
+        source_file: str,
+        source_type: str,
+        variant: str = BASELINE,
     ) -> RowResult:
         operations = sorted(sequence["operations"], key=lambda op: op["step_id"])
         shape_errors = self.validate_shape(operations)
@@ -189,9 +293,22 @@ class Claim31Evaluator:
         rolling_total = Decimal(refund_count) * self.refund_amount
         windows_used = set(per_window_counts)
 
+        ignore_receipts = variant == REMOVE_CLOSE_RECEIPT_VERIFICATION
+        enforce_rolling = variant not in {
+            REMOVE_ROLLING_CARRYOVER,
+            COLLAPSE_TO_PER_WINDOW_ONLY,
+        }
+
         if shape_errors:
             mechanism = REFUSE_INVALID_CLOSE
             notes = [*shape_errors]
+        elif ignore_receipts:
+            if rolling_total > self.rolling_bound:
+                mechanism = REFUSE_ROLLING_BOUND
+                notes = ["receipt verification removed, rolling total still above frozen bound"]
+            else:
+                mechanism = ALLOW_UNDER_ROLLING_BOUND
+                notes = ["receipt verification removed, total at or below rolling bound"]
         elif any(reason.startswith("self_close") for reason in invalid_close_reasons):
             mechanism = VOID_SELF_CLOSE
             notes = ["self-close voids row"]
@@ -202,7 +319,7 @@ class Claim31Evaluator:
             invalid_close_reasons.append("missing_valid_close_link")
             mechanism = REFUSE_INVALID_CLOSE
             notes = ["multiple window labels without a verified close link"]
-        elif valid_close_count > 0 and rolling_total > self.rolling_bound:
+        elif valid_close_count > 0 and enforce_rolling and rolling_total > self.rolling_bound:
             mechanism = REFUSE_ROLLING_BOUND
             notes = ["rolling total above frozen bound"]
         elif any(Decimal(total) > self.per_window_bound for total in per_window_totals.values()):
@@ -300,11 +417,31 @@ def write_results(result: dict[str, Any]) -> None:
     lines.extend(
         [
             "",
+            "## Ablations",
+            "",
+            "| Ablation | Scope | Expected leaks | Actual leaks | Match | Interpretation |",
+            "| --- | --- | --- | --- | --- | --- |",
+        ]
+    )
+    for ablation in result["ablations"]:
+        expected = ", ".join(f"`{label}`" for label in ablation["expected_leaks"]) or "none"
+        actual = ", ".join(f"`{label}`" for label in ablation["actual_leaks"]) or "none"
+        if ablation["scope"] == "auditability":
+            interpretation = ablation["interpretation"]
+        else:
+            interpretation = ablation["description"]
+        lines.append(
+            f"| `{ablation['id']}` | `{ablation['scope']}` | {expected} | {actual} | `{ablation['expected_match']}` | {interpretation} |"
+        )
+    lines.extend(
+        [
+            "",
             "## Boundary",
             "",
             "- No external validation.",
             "- Fresh corpus is not credited with close-laundered catch validation unless a fresh row exercises above-bound carryover.",
             "- Right label by wrong mechanism remains a failure condition.",
+            "- The replay/recomputation ablation is an auditability ablation, not a row-flip leak-set claim.",
         ]
     )
     RESULTS_MD_PATH.write_text("\n".join(lines) + "\n", encoding="utf-8")

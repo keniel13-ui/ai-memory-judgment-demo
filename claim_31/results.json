@@ -422,6 +422,313 @@
       "expected_match": null
     }
   ],
+  "ablations": [
+    {
+      "id": "remove_rolling_carryover",
+      "description": "Do not enforce the rolling bound across a verified close.",
+      "expected_leaks": [
+        "control_02",
+        "control_04"
+      ],
+      "scope": "row_flip",
+      "actual_leaks": [
+        "control_02",
+        "control_04"
+      ],
+      "expected_match": true,
+      "auditability_failure": false,
+      "rows": [
+        {
+          "label": "control_01",
+          "baseline_mechanism": "allow_under_rolling_bound",
+          "ablation_mechanism": "allow_under_rolling_bound",
+          "leaked": false,
+          "rolling_total": "520.00",
+          "notes": [
+            "all computed totals at or below applicable bounds"
+          ]
+        },
+        {
+          "label": "control_02",
+          "baseline_mechanism": "refuse_rolling_bound",
+          "ablation_mechanism": "allow_under_rolling_bound",
+          "leaked": true,
+          "rolling_total": "960.00",
+          "notes": [
+            "all computed totals at or below applicable bounds"
+          ]
+        },
+        {
+          "label": "control_03",
+          "baseline_mechanism": "allow_under_rolling_bound",
+          "ablation_mechanism": "allow_under_rolling_bound",
+          "leaked": false,
+          "rolling_total": "800.00",
+          "notes": [
+            "all computed totals at or below applicable bounds"
+          ]
+        },
+        {
+          "label": "control_04",
+          "baseline_mechanism": "refuse_rolling_bound",
+          "ablation_mechanism": "allow_under_rolling_bound",
+          "leaked": true,
+          "rolling_total": "840.00",
+          "notes": [
+            "all computed totals at or below applicable bounds"
+          ]
+        },
+        {
+          "label": "control_05",
+          "baseline_mechanism": "void_self_close",
+          "ablation_mechanism": "void_self_close",
+          "leaked": false,
+          "rolling_total": "440.00",
+          "notes": [
+            "self-close voids row"
+          ]
+        },
+        {
+          "label": "control_06",
+          "baseline_mechanism": "refuse_invalid_close",
+          "ablation_mechanism": "refuse_invalid_close",
+          "leaked": false,
+          "rolling_total": "440.00",
+          "notes": [
+            "invalid close present"
+          ]
+        },
+        {
+          "label": "control_07",
+          "baseline_mechanism": "refuse_invalid_close",
+          "ablation_mechanism": "refuse_invalid_close",
+          "leaked": false,
+          "rolling_total": "440.00",
+          "notes": [
+            "invalid close present"
+          ]
+        },
+        {
+          "label": "control_08",
+          "baseline_mechanism": "refuse_invalid_close",
+          "ablation_mechanism": "refuse_invalid_close",
+          "leaked": false,
+          "rolling_total": "440.00",
+          "notes": [
+            "multiple window labels without a verified close link"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "remove_close_receipt_verification",
+      "description": "Treat close structure as trusted instead of verifying close receipts.",
+      "expected_leaks": [
+        "control_05",
+        "control_06",
+        "control_07",
+        "control_08"
+      ],
+      "scope": "row_flip",
+      "actual_leaks": [
+        "control_05",
+        "control_06",
+        "control_07",
+        "control_08"
+      ],
+      "expected_match": true,
+      "auditability_failure": false,
+      "rows": [
+        {
+          "label": "control_01",
+          "baseline_mechanism": "allow_under_rolling_bound",
+          "ablation_mechanism": "allow_under_rolling_bound",
+          "leaked": false,
+          "rolling_total": "520.00",
+          "notes": [
+            "receipt verification removed, total at or below rolling bound"
+          ]
+        },
+        {
+          "label": "control_02",
+          "baseline_mechanism": "refuse_rolling_bound",
+          "ablation_mechanism": "refuse_rolling_bound",
+          "leaked": false,
+          "rolling_total": "960.00",
+          "notes": [
+            "receipt verification removed, rolling total still above frozen bound"
+          ]
+        },
+        {
+          "label": "control_03",
+          "baseline_mechanism": "allow_under_rolling_bound",
+          "ablation_mechanism": "allow_under_rolling_bound",
+          "leaked": false,
+          "rolling_total": "800.00",
+          "notes": [
+            "receipt verification removed, total at or below rolling bound"
+          ]
+        },
+        {
+          "label": "control_04",
+          "baseline_mechanism": "refuse_rolling_bound",
+          "ablation_mechanism": "refuse_rolling_bound",
+          "leaked": false,
+          "rolling_total": "840.00",
+          "notes": [
+            "receipt verification removed, rolling total still above frozen bound"
+          ]
+        },
+        {
+          "label": "control_05",
+          "baseline_mechanism": "void_self_close",
+          "ablation_mechanism": "allow_under_rolling_bound",
+          "leaked": true,
+          "rolling_total": "440.00",
+          "notes": [
+            "receipt verification removed, total at or below rolling bound"
+          ]
+        },
+        {
+          "label": "control_06",
+          "baseline_mechanism": "refuse_invalid_close",
+          "ablation_mechanism": "allow_under_rolling_bound",
+          "leaked": true,
+          "rolling_total": "440.00",
+          "notes": [
+            "receipt verification removed, total at or below rolling bound"
+          ]
+        },
+        {
+          "label": "control_07",
+          "baseline_mechanism": "refuse_invalid_close",
+          "ablation_mechanism": "allow_under_rolling_bound",
+          "leaked": true,
+          "rolling_total": "440.00",
+          "notes": [
+            "receipt verification removed, total at or below rolling bound"
+          ]
+        },
+        {
+          "label": "control_08",
+          "baseline_mechanism": "refuse_invalid_close",
+          "ablation_mechanism": "allow_under_rolling_bound",
+          "leaked": true,
+          "rolling_total": "440.00",
+          "notes": [
+            "receipt verification removed, total at or below rolling bound"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "remove_replay_recomputation",
+      "description": "Do not recompute totals and close validity from operations.",
+      "expected_leaks": [],
+      "scope": "auditability",
+      "actual_leaks": [],
+      "expected_match": true,
+      "auditability_failure": true,
+      "interpretation": "Without replay/recomputation from operations, the evaluator cannot independently reconstruct rolling totals or close validity. This is an auditability failure, not a row-flip leak-set claim."
+    },
+    {
+      "id": "collapse_to_per_window_only",
+      "description": "Keep receipt validation, but collapse accumulation back to per-window checks.",
+      "expected_leaks": [
+        "control_02",
+        "control_04"
+      ],
+      "scope": "row_flip",
+      "actual_leaks": [
+        "control_02",
+        "control_04"
+      ],
+      "expected_match": true,
+      "auditability_failure": false,
+      "rows": [
+        {
+          "label": "control_01",
+          "baseline_mechanism": "allow_under_rolling_bound",
+          "ablation_mechanism": "allow_under_rolling_bound",
+          "leaked": false,
+          "rolling_total": "520.00",
+          "notes": [
+            "all computed totals at or below applicable bounds"
+          ]
+        },
+        {
+          "label": "control_02",
+          "baseline_mechanism": "refuse_rolling_bound",
+          "ablation_mechanism": "allow_under_rolling_bound",
+          "leaked": true,
+          "rolling_total": "960.00",
+          "notes": [
+            "all computed totals at or below applicable bounds"
+          ]
+        },
+        {
+          "label": "control_03",
+          "baseline_mechanism": "allow_under_rolling_bound",
+          "ablation_mechanism": "allow_under_rolling_bound",
+          "leaked": false,
+          "rolling_total": "800.00",
+          "notes": [
+            "all computed totals at or below applicable bounds"
+          ]
+        },
+        {
+          "label": "control_04",
+          "baseline_mechanism": "refuse_rolling_bound",
+          "ablation_mechanism": "allow_under_rolling_bound",
+          "leaked": true,
+          "rolling_total": "840.00",
+          "notes": [
+            "all computed totals at or below applicable bounds"
+          ]
+        },
+        {
+          "label": "control_05",
+          "baseline_mechanism": "void_self_close",
+          "ablation_mechanism": "void_self_close",
+          "leaked": false,
+          "rolling_total": "440.00",
+          "notes": [
+            "self-close voids row"
+          ]
+        },
+        {
+          "label": "control_06",
+          "baseline_mechanism": "refuse_invalid_close",
+          "ablation_mechanism": "refuse_invalid_close",
+          "leaked": false,
+          "rolling_total": "440.00",
+          "notes": [
+            "invalid close present"
+          ]
+        },
+        {
+          "label": "control_07",
+          "baseline_mechanism": "refuse_invalid_close",
+          "ablation_mechanism": "refuse_invalid_close",
+          "leaked": false,
+          "rolling_total": "440.00",
+          "notes": [
+            "invalid close present"
+          ]
+        },
+        {
+          "label": "control_08",
+          "baseline_mechanism": "refuse_invalid_close",
+          "ablation_mechanism": "refuse_invalid_close",
+          "leaked": false,
+          "rolling_total": "440.00",
+          "notes": [
+            "multiple window labels without a verified close link"
+          ]
+        }
+      ]
+    }
+  ],
   "summary": {
     "designed_controls_total": 8,
     "designed_controls_expected_matches": 8,
@@ -431,6 +738,7 @@
       "refuse_invalid_close": 1,
       "void_self_close": 1
     },
+    "ablation_count": 4,
     "evidence_boundary": "Designed controls test boundary and receipt mechanics. Fresh corpus tests realistic workflow variety and overblocking risk."
   }
 }
