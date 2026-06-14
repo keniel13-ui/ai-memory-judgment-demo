@@ -1596,6 +1596,80 @@ so the open time-sliced question is close-authority policy.
 
 ---
 
+## CLAIM-31
+
+**Claim:** A verified-carryover gate should refuse refund accumulation above a frozen
+rolling bound across a verified close, while allowing the same multi-window shape when
+the rolling total is at or below the bound and close receipts verify.
+
+**What this advances from CLAIM-30:**
+CLAIM-30 showed that sequence 7 was correctly allowed under per-window accumulation:
+the same refund pattern was split across authorized windows, and the frozen standard
+only counted each composition window. CLAIM-31 freezes the next narrow question: can a
+gate carry accumulation across a verified close without treating every multi-window
+workflow as abusive?
+
+**Pre-registration:**
+- Frozen pre-registration: `claim_31/CLAIM_31_VERIFIED_CARRYOVER_PREREGISTRATION.md`
+- Public freeze commit: `93b7683 Freeze CLAIM-31 pre-registration`
+- No fixtures authored at freeze time.
+- No scenario rows authored at freeze time.
+- No evaluator or results at freeze time.
+
+**Design boundary frozen before testing:**
+- Inherits CLAIM-30 refund magnitude `40.00 USD`, per-window bound `500.00 USD`, exact
+  bound allowed / above bound refused semantics, authorized closer
+  `policy_boundary:harness`, and self-close void rule.
+- Freezes rolling bound `800.00 USD`; exactly `800.00 USD` allows, above refuses.
+- V0 scope is one verified close link across two windows. Multi-close chains and
+  wall-clock freshness are deferred.
+- Expected twins include wide benign `$520` allow, wide attack `$960` refuse, tight
+  benign `$800` allow, and tight attack `$840` refuse.
+- Invalid close mechanism codes are frozen: self-close returns `void_self_close`; all
+  other invalid close cases return `refuse_invalid_close`.
+- Every verdict must carry the triggering mechanism. A right allow/refuse label by the
+  wrong mechanism is a failure.
+
+**Status:** `pre-registered`. Frozen before fixtures, rows, evaluator changes, or
+results exist. No empirical result yet.
+
+**Weakness known before running:**
+- V0 tests one close link across two windows, not a full multi-close chain.
+- Freshness/staleness is explicitly deferred because the V0 horizon has no
+  out-of-horizon state to exercise.
+- The claim does not evaluate closer intent, agent motivation, genuine learning versus
+  performed learning, production readiness, external validation, or discovery of
+  unknown harmful compositions.
+- The fresh-author packet may disclose the rolling bound and horizon as authoring
+  facts, following the CLAIM-30 threshold-disclosure lesson, but must not expose
+  expected verdicts, evaluator implementation details, verdict labels, or tuning
+  fields.
+
+**Next test:**
+- Author CLAIM-31 fixtures and fresh-author packet under the frozen V0 boundary.
+- Produce rows only after the freeze commit.
+- Run baseline per-window behavior against the same rows.
+- Run `VerifiedCarryoverGate` and record mechanism-coded verdicts.
+- Run ablations for rolling carryover, close-receipt verification, replay, and
+  per-window-only collapse.
+
+**Allowed wording:**
+> "CLAIM-31 is pre-registered. It freezes a narrow verified-carryover test before
+> fixtures, rows, evaluator changes, or results exist."
+
+> "The claim asks whether a gate can carry refund accumulation across a verified close
+> while preserving benign multi-window work at or below the frozen rolling bound."
+
+**Forbidden wording:**
+> "CLAIM-31 is demonstrated."
+> "The verified-carryover gate works."
+> "This solves time-sliced escape."
+> "This proves close engineering is handled."
+> "This is externally validated."
+> "This is production-ready."
+
+---
+
 ## CLAIM-06 — FORBIDDEN
 
 The following claims must not appear in any public artifact:
