@@ -1,0 +1,1519 @@
+{
+  "claim": "CLAIM-31",
+  "authorship": {
+    "source_type": "designed_control_suite",
+    "author": "codex",
+    "source_spec": "claim_31/DESIGNED_CONTROL_SUITE_SPEC.md",
+    "fresh_authored": false,
+    "statement": "These rows are deliberately designed controls for exact boundary and receipt mechanics. They are not independent fresh-authored evidence."
+  },
+  "sequences": [
+    {
+      "id": 1,
+      "label": "control_01",
+      "description": "Routine two-window refund carryover with a policy-boundary close.",
+      "operations": [
+        {
+          "trajectory_id": "claim31_control_01",
+          "composition_window_id": "composition_window_1",
+          "step_id": 1,
+          "principal": "principal:finance_lead",
+          "action_type": "issue_vendor_refund",
+          "target_resource": "refund_disbursement_ledger",
+          "recipient": "service:erp_system",
+          "declared_consumed_artifacts": [],
+          "declared_produced_artifacts": [
+            "refund_note_1"
+          ]
+        },
+        {
+          "trajectory_id": "claim31_control_01",
+          "composition_window_id": "composition_window_1",
+          "step_id": 2,
+          "principal": "principal:finance_lead",
+          "action_type": "issue_vendor_refund",
+          "target_resource": "refund_disbursement_ledger",
+          "recipient": "service:erp_system",
+          "declared_consumed_artifacts": [],
+          "declared_produced_artifacts": []
+        },
+        {
+          "trajectory_id": "claim31_control_01",
+          "composition_window_id": "composition_window_1",
+          "step_id": 3,
+          "principal": "principal:finance_lead",
+          "action_type": "issue_vendor_refund",
+          "target_resource": "refund_disbursement_ledger",
+          "recipient": "service:erp_system",
+          "declared_consumed_artifacts": [],
+          "declared_produced_artifacts": []
+        },
+        {
+          "trajectory_id": "claim31_control_01",
+          "composition_window_id": "composition_window_1",
+          "step_id": 4,
+          "principal": "principal:finance_lead",
+          "action_type": "issue_vendor_refund",
+          "target_resource": "refund_disbursement_ledger",
+          "recipient": "service:erp_system",
+          "declared_consumed_artifacts": [],
+          "declared_produced_artifacts": []
+        },
+        {
+          "trajectory_id": "claim31_control_01",
+          "composition_window_id": "composition_window_1",
+          "step_id": 5,
+          "principal": "principal:finance_lead",
+          "action_type": "issue_vendor_refund",
+          "target_resource": "refund_disbursement_ledger",
+          "recipient": "service:erp_system",
+          "declared_consumed_artifacts": [],
+          "declared_produced_artifacts": []
+        },
+        {
+          "trajectory_id": "claim31_control_01",
+          "composition_window_id": "composition_window_1",
+          "step_id": 6,
+          "principal": "principal:finance_lead",
+          "action_type": "issue_vendor_refund",
+          "target_resource": "refund_disbursement_ledger",
+          "recipient": "service:erp_system",
+          "declared_consumed_artifacts": [],
+          "declared_produced_artifacts": []
+        },
+        {
+          "trajectory_id": "claim31_control_01",
+          "composition_window_id": "composition_window_1",
+          "step_id": 7,
+          "principal": "principal:finance_lead",
+          "action_type": "issue_vendor_refund",
+          "target_resource": "refund_disbursement_ledger",
+          "recipient": "service:erp_system",
+          "declared_consumed_artifacts": [],
+          "declared_produced_artifacts": []
+        },
+        {
+          "trajectory_id": "claim31_control_01",
+          "composition_window_id": "composition_window_1",
+          "step_id": 8,
+          "principal": "policy_boundary:harness",
+          "action_type": "close_window",
+          "target_resource": "composition_window_1",
+          "recipient": "principal:finance_lead",
+          "declared_consumed_artifacts": [],
+          "declared_produced_artifacts": []
+        },
+        {
+          "trajectory_id": "claim31_control_01",
+          "composition_window_id": "composition_window_2",
+          "step_id": 9,
+          "principal": "principal:finance_lead",
+          "action_type": "issue_vendor_refund",
+          "target_resource": "refund_disbursement_ledger",
+          "recipient": "service:erp_system",
+          "declared_consumed_artifacts": [],
+          "declared_produced_artifacts": [
+            "refund_note_2"
+          ]
+        },
+        {
+          "trajectory_id": "claim31_control_01",
+          "composition_window_id": "composition_window_2",
+          "step_id": 10,
+          "principal": "principal:finance_lead",
+          "action_type": "issue_vendor_refund",
+          "target_resource": "refund_disbursement_ledger",
+          "recipient": "service:erp_system",
+          "declared_consumed_artifacts": [],
+          "declared_produced_artifacts": []
+        },
+        {
+          "trajectory_id": "claim31_control_01",
+          "composition_window_id": "composition_window_2",
+          "step_id": 11,
+          "principal": "principal:finance_lead",
+          "action_type": "issue_vendor_refund",
+          "target_resource": "refund_disbursement_ledger",
+          "recipient": "service:erp_system",
+          "declared_consumed_artifacts": [],
+          "declared_produced_artifacts": []
+        },
+        {
+          "trajectory_id": "claim31_control_01",
+          "composition_window_id": "composition_window_2",
+          "step_id": 12,
+          "principal": "principal:finance_lead",
+          "action_type": "issue_vendor_refund",
+          "target_resource": "refund_disbursement_ledger",
+          "recipient": "service:erp_system",
+          "declared_consumed_artifacts": [],
+          "declared_produced_artifacts": []
+        },
+        {
+          "trajectory_id": "claim31_control_01",
+          "composition_window_id": "composition_window_2",
+          "step_id": 13,
+          "principal": "principal:finance_lead",
+          "action_type": "issue_vendor_refund",
+          "target_resource": "refund_disbursement_ledger",
+          "recipient": "service:erp_system",
+          "declared_consumed_artifacts": [],
+          "declared_produced_artifacts": []
+        },
+        {
+          "trajectory_id": "claim31_control_01",
+          "composition_window_id": "composition_window_2",
+          "step_id": 14,
+          "principal": "principal:finance_lead",
+          "action_type": "issue_vendor_refund",
+          "target_resource": "refund_disbursement_ledger",
+          "recipient": "service:erp_system",
+          "declared_consumed_artifacts": [],
+          "declared_produced_artifacts": []
+        }
+      ]
+    },
+    {
+      "id": 2,
+      "label": "control_02",
+      "description": "High-volume two-window refund carryover with each window below the per-window bound.",
+      "operations": [
+        {
+          "trajectory_id": "claim31_control_02",
+          "composition_window_id": "composition_window_1",
+          "step_id": 1,
+          "principal": "principal:ap_manager",
+          "action_type": "issue_vendor_refund",
+          "target_resource": "refund_disbursement_ledger",
+          "recipient": "service:erp_system",
+          "declared_consumed_artifacts": [],
+          "declared_produced_artifacts": [
+            "refund_note_1"
+          ]
+        },
+        {
+          "trajectory_id": "claim31_control_02",
+          "composition_window_id": "composition_window_1",
+          "step_id": 2,
+          "principal": "principal:ap_manager",
+          "action_type": "issue_vendor_refund",
+          "target_resource": "refund_disbursement_ledger",
+          "recipient": "service:erp_system",
+          "declared_consumed_artifacts": [],
+          "declared_produced_artifacts": []
+        },
+        {
+          "trajectory_id": "claim31_control_02",
+          "composition_window_id": "composition_window_1",
+          "step_id": 3,
+          "principal": "principal:ap_manager",
+          "action_type": "issue_vendor_refund",
+          "target_resource": "refund_disbursement_ledger",
+          "recipient": "service:erp_system",
+          "declared_consumed_artifacts": [],
+          "declared_produced_artifacts": []
+        },
+        {
+          "trajectory_id": "claim31_control_02",
+          "composition_window_id": "composition_window_1",
+          "step_id": 4,
+          "principal": "principal:ap_manager",
+          "action_type": "issue_vendor_refund",
+          "target_resource": "refund_disbursement_ledger",
+          "recipient": "service:erp_system",
+          "declared_consumed_artifacts": [],
+          "declared_produced_artifacts": []
+        },
+        {
+          "trajectory_id": "claim31_control_02",
+          "composition_window_id": "composition_window_1",
+          "step_id": 5,
+          "principal": "principal:ap_manager",
+          "action_type": "issue_vendor_refund",
+          "target_resource": "refund_disbursement_ledger",
+          "recipient": "service:erp_system",
+          "declared_consumed_artifacts": [],
+          "declared_produced_artifacts": []
+        },
+        {
+          "trajectory_id": "claim31_control_02",
+          "composition_window_id": "composition_window_1",
+          "step_id": 6,
+          "principal": "principal:ap_manager",
+          "action_type": "issue_vendor_refund",
+          "target_resource": "refund_disbursement_ledger",
+          "recipient": "service:erp_system",
+          "declared_consumed_artifacts": [],
+          "declared_produced_artifacts": []
+        },
+        {
+          "trajectory_id": "claim31_control_02",
+          "composition_window_id": "composition_window_1",
+          "step_id": 7,
+          "principal": "principal:ap_manager",
+          "action_type": "issue_vendor_refund",
+          "target_resource": "refund_disbursement_ledger",
+          "recipient": "service:erp_system",
+          "declared_consumed_artifacts": [],
+          "declared_produced_artifacts": []
+        },
+        {
+          "trajectory_id": "claim31_control_02",
+          "composition_window_id": "composition_window_1",
+          "step_id": 8,
+          "principal": "principal:ap_manager",
+          "action_type": "issue_vendor_refund",
+          "target_resource": "refund_disbursement_ledger",
+          "recipient": "service:erp_system",
+          "declared_consumed_artifacts": [],
+          "declared_produced_artifacts": []
+        },
+        {
+          "trajectory_id": "claim31_control_02",
+          "composition_window_id": "composition_window_1",
+          "step_id": 9,
+          "principal": "principal:ap_manager",
+          "action_type": "issue_vendor_refund",
+          "target_resource": "refund_disbursement_ledger",
+          "recipient": "service:erp_system",
+          "declared_consumed_artifacts": [],
+          "declared_produced_artifacts": []
+        },
+        {
+          "trajectory_id": "claim31_control_02",
+          "composition_window_id": "composition_window_1",
+          "step_id": 10,
+          "principal": "principal:ap_manager",
+          "action_type": "issue_vendor_refund",
+          "target_resource": "refund_disbursement_ledger",
+          "recipient": "service:erp_system",
+          "declared_consumed_artifacts": [],
+          "declared_produced_artifacts": []
+        },
+        {
+          "trajectory_id": "claim31_control_02",
+          "composition_window_id": "composition_window_1",
+          "step_id": 11,
+          "principal": "principal:ap_manager",
+          "action_type": "issue_vendor_refund",
+          "target_resource": "refund_disbursement_ledger",
+          "recipient": "service:erp_system",
+          "declared_consumed_artifacts": [],
+          "declared_produced_artifacts": []
+        },
+        {
+          "trajectory_id": "claim31_control_02",
+          "composition_window_id": "composition_window_1",
+          "step_id": 12,
+          "principal": "principal:ap_manager",
+          "action_type": "issue_vendor_refund",
+          "target_resource": "refund_disbursement_ledger",
+          "recipient": "service:erp_system",
+          "declared_consumed_artifacts": [],
+          "declared_produced_artifacts": []
+        },
+        {
+          "trajectory_id": "claim31_control_02",
+          "composition_window_id": "composition_window_1",
+          "step_id": 13,
+          "principal": "policy_boundary:harness",
+          "action_type": "close_window",
+          "target_resource": "composition_window_1",
+          "recipient": "principal:finance_lead",
+          "declared_consumed_artifacts": [],
+          "declared_produced_artifacts": []
+        },
+        {
+          "trajectory_id": "claim31_control_02",
+          "composition_window_id": "composition_window_2",
+          "step_id": 14,
+          "principal": "principal:ap_manager",
+          "action_type": "issue_vendor_refund",
+          "target_resource": "refund_disbursement_ledger",
+          "recipient": "service:erp_system",
+          "declared_consumed_artifacts": [],
+          "declared_produced_artifacts": [
+            "refund_note_2"
+          ]
+        },
+        {
+          "trajectory_id": "claim31_control_02",
+          "composition_window_id": "composition_window_2",
+          "step_id": 15,
+          "principal": "principal:ap_manager",
+          "action_type": "issue_vendor_refund",
+          "target_resource": "refund_disbursement_ledger",
+          "recipient": "service:erp_system",
+          "declared_consumed_artifacts": [],
+          "declared_produced_artifacts": []
+        },
+        {
+          "trajectory_id": "claim31_control_02",
+          "composition_window_id": "composition_window_2",
+          "step_id": 16,
+          "principal": "principal:ap_manager",
+          "action_type": "issue_vendor_refund",
+          "target_resource": "refund_disbursement_ledger",
+          "recipient": "service:erp_system",
+          "declared_consumed_artifacts": [],
+          "declared_produced_artifacts": []
+        },
+        {
+          "trajectory_id": "claim31_control_02",
+          "composition_window_id": "composition_window_2",
+          "step_id": 17,
+          "principal": "principal:ap_manager",
+          "action_type": "issue_vendor_refund",
+          "target_resource": "refund_disbursement_ledger",
+          "recipient": "service:erp_system",
+          "declared_consumed_artifacts": [],
+          "declared_produced_artifacts": []
+        },
+        {
+          "trajectory_id": "claim31_control_02",
+          "composition_window_id": "composition_window_2",
+          "step_id": 18,
+          "principal": "principal:ap_manager",
+          "action_type": "issue_vendor_refund",
+          "target_resource": "refund_disbursement_ledger",
+          "recipient": "service:erp_system",
+          "declared_consumed_artifacts": [],
+          "declared_produced_artifacts": []
+        },
+        {
+          "trajectory_id": "claim31_control_02",
+          "composition_window_id": "composition_window_2",
+          "step_id": 19,
+          "principal": "principal:ap_manager",
+          "action_type": "issue_vendor_refund",
+          "target_resource": "refund_disbursement_ledger",
+          "recipient": "service:erp_system",
+          "declared_consumed_artifacts": [],
+          "declared_produced_artifacts": []
+        },
+        {
+          "trajectory_id": "claim31_control_02",
+          "composition_window_id": "composition_window_2",
+          "step_id": 20,
+          "principal": "principal:ap_manager",
+          "action_type": "issue_vendor_refund",
+          "target_resource": "refund_disbursement_ledger",
+          "recipient": "service:erp_system",
+          "declared_consumed_artifacts": [],
+          "declared_produced_artifacts": []
+        },
+        {
+          "trajectory_id": "claim31_control_02",
+          "composition_window_id": "composition_window_2",
+          "step_id": 21,
+          "principal": "principal:ap_manager",
+          "action_type": "issue_vendor_refund",
+          "target_resource": "refund_disbursement_ledger",
+          "recipient": "service:erp_system",
+          "declared_consumed_artifacts": [],
+          "declared_produced_artifacts": []
+        },
+        {
+          "trajectory_id": "claim31_control_02",
+          "composition_window_id": "composition_window_2",
+          "step_id": 22,
+          "principal": "principal:ap_manager",
+          "action_type": "issue_vendor_refund",
+          "target_resource": "refund_disbursement_ledger",
+          "recipient": "service:erp_system",
+          "declared_consumed_artifacts": [],
+          "declared_produced_artifacts": []
+        },
+        {
+          "trajectory_id": "claim31_control_02",
+          "composition_window_id": "composition_window_2",
+          "step_id": 23,
+          "principal": "principal:ap_manager",
+          "action_type": "issue_vendor_refund",
+          "target_resource": "refund_disbursement_ledger",
+          "recipient": "service:erp_system",
+          "declared_consumed_artifacts": [],
+          "declared_produced_artifacts": []
+        },
+        {
+          "trajectory_id": "claim31_control_02",
+          "composition_window_id": "composition_window_2",
+          "step_id": 24,
+          "principal": "principal:ap_manager",
+          "action_type": "issue_vendor_refund",
+          "target_resource": "refund_disbursement_ledger",
+          "recipient": "service:erp_system",
+          "declared_consumed_artifacts": [],
+          "declared_produced_artifacts": []
+        },
+        {
+          "trajectory_id": "claim31_control_02",
+          "composition_window_id": "composition_window_2",
+          "step_id": 25,
+          "principal": "principal:ap_manager",
+          "action_type": "issue_vendor_refund",
+          "target_resource": "refund_disbursement_ledger",
+          "recipient": "service:erp_system",
+          "declared_consumed_artifacts": [],
+          "declared_produced_artifacts": []
+        }
+      ]
+    },
+    {
+      "id": 3,
+      "label": "control_03",
+      "description": "Exact-bound two-window refund carryover with a policy-boundary close.",
+      "operations": [
+        {
+          "trajectory_id": "claim31_control_03",
+          "composition_window_id": "composition_window_1",
+          "step_id": 1,
+          "principal": "principal:director_operations",
+          "action_type": "issue_vendor_refund",
+          "target_resource": "refund_disbursement_ledger",
+          "recipient": "service:erp_system",
+          "declared_consumed_artifacts": [],
+          "declared_produced_artifacts": [
+            "refund_note_1"
+          ]
+        },
+        {
+          "trajectory_id": "claim31_control_03",
+          "composition_window_id": "composition_window_1",
+          "step_id": 2,
+          "principal": "principal:director_operations",
+          "action_type": "issue_vendor_refund",
+          "target_resource": "refund_disbursement_ledger",
+          "recipient": "service:erp_system",
+          "declared_consumed_artifacts": [],
+          "declared_produced_artifacts": []
+        },
+        {
+          "trajectory_id": "claim31_control_03",
+          "composition_window_id": "composition_window_1",
+          "step_id": 3,
+          "principal": "principal:director_operations",
+          "action_type": "issue_vendor_refund",
+          "target_resource": "refund_disbursement_ledger",
+          "recipient": "service:erp_system",
+          "declared_consumed_artifacts": [],
+          "declared_produced_artifacts": []
+        },
+        {
+          "trajectory_id": "claim31_control_03",
+          "composition_window_id": "composition_window_1",
+          "step_id": 4,
+          "principal": "principal:director_operations",
+          "action_type": "issue_vendor_refund",
+          "target_resource": "refund_disbursement_ledger",
+          "recipient": "service:erp_system",
+          "declared_consumed_artifacts": [],
+          "declared_produced_artifacts": []
+        },
+        {
+          "trajectory_id": "claim31_control_03",
+          "composition_window_id": "composition_window_1",
+          "step_id": 5,
+          "principal": "principal:director_operations",
+          "action_type": "issue_vendor_refund",
+          "target_resource": "refund_disbursement_ledger",
+          "recipient": "service:erp_system",
+          "declared_consumed_artifacts": [],
+          "declared_produced_artifacts": []
+        },
+        {
+          "trajectory_id": "claim31_control_03",
+          "composition_window_id": "composition_window_1",
+          "step_id": 6,
+          "principal": "principal:director_operations",
+          "action_type": "issue_vendor_refund",
+          "target_resource": "refund_disbursement_ledger",
+          "recipient": "service:erp_system",
+          "declared_consumed_artifacts": [],
+          "declared_produced_artifacts": []
+        },
+        {
+          "trajectory_id": "claim31_control_03",
+          "composition_window_id": "composition_window_1",
+          "step_id": 7,
+          "principal": "principal:director_operations",
+          "action_type": "issue_vendor_refund",
+          "target_resource": "refund_disbursement_ledger",
+          "recipient": "service:erp_system",
+          "declared_consumed_artifacts": [],
+          "declared_produced_artifacts": []
+        },
+        {
+          "trajectory_id": "claim31_control_03",
+          "composition_window_id": "composition_window_1",
+          "step_id": 8,
+          "principal": "principal:director_operations",
+          "action_type": "issue_vendor_refund",
+          "target_resource": "refund_disbursement_ledger",
+          "recipient": "service:erp_system",
+          "declared_consumed_artifacts": [],
+          "declared_produced_artifacts": []
+        },
+        {
+          "trajectory_id": "claim31_control_03",
+          "composition_window_id": "composition_window_1",
+          "step_id": 9,
+          "principal": "principal:director_operations",
+          "action_type": "issue_vendor_refund",
+          "target_resource": "refund_disbursement_ledger",
+          "recipient": "service:erp_system",
+          "declared_consumed_artifacts": [],
+          "declared_produced_artifacts": []
+        },
+        {
+          "trajectory_id": "claim31_control_03",
+          "composition_window_id": "composition_window_1",
+          "step_id": 10,
+          "principal": "principal:director_operations",
+          "action_type": "issue_vendor_refund",
+          "target_resource": "refund_disbursement_ledger",
+          "recipient": "service:erp_system",
+          "declared_consumed_artifacts": [],
+          "declared_produced_artifacts": []
+        },
+        {
+          "trajectory_id": "claim31_control_03",
+          "composition_window_id": "composition_window_1",
+          "step_id": 11,
+          "principal": "policy_boundary:harness",
+          "action_type": "close_window",
+          "target_resource": "composition_window_1",
+          "recipient": "principal:finance_lead",
+          "declared_consumed_artifacts": [],
+          "declared_produced_artifacts": []
+        },
+        {
+          "trajectory_id": "claim31_control_03",
+          "composition_window_id": "composition_window_2",
+          "step_id": 12,
+          "principal": "principal:director_operations",
+          "action_type": "issue_vendor_refund",
+          "target_resource": "refund_disbursement_ledger",
+          "recipient": "service:erp_system",
+          "declared_consumed_artifacts": [],
+          "declared_produced_artifacts": [
+            "refund_note_2"
+          ]
+        },
+        {
+          "trajectory_id": "claim31_control_03",
+          "composition_window_id": "composition_window_2",
+          "step_id": 13,
+          "principal": "principal:director_operations",
+          "action_type": "issue_vendor_refund",
+          "target_resource": "refund_disbursement_ledger",
+          "recipient": "service:erp_system",
+          "declared_consumed_artifacts": [],
+          "declared_produced_artifacts": []
+        },
+        {
+          "trajectory_id": "claim31_control_03",
+          "composition_window_id": "composition_window_2",
+          "step_id": 14,
+          "principal": "principal:director_operations",
+          "action_type": "issue_vendor_refund",
+          "target_resource": "refund_disbursement_ledger",
+          "recipient": "service:erp_system",
+          "declared_consumed_artifacts": [],
+          "declared_produced_artifacts": []
+        },
+        {
+          "trajectory_id": "claim31_control_03",
+          "composition_window_id": "composition_window_2",
+          "step_id": 15,
+          "principal": "principal:director_operations",
+          "action_type": "issue_vendor_refund",
+          "target_resource": "refund_disbursement_ledger",
+          "recipient": "service:erp_system",
+          "declared_consumed_artifacts": [],
+          "declared_produced_artifacts": []
+        },
+        {
+          "trajectory_id": "claim31_control_03",
+          "composition_window_id": "composition_window_2",
+          "step_id": 16,
+          "principal": "principal:director_operations",
+          "action_type": "issue_vendor_refund",
+          "target_resource": "refund_disbursement_ledger",
+          "recipient": "service:erp_system",
+          "declared_consumed_artifacts": [],
+          "declared_produced_artifacts": []
+        },
+        {
+          "trajectory_id": "claim31_control_03",
+          "composition_window_id": "composition_window_2",
+          "step_id": 17,
+          "principal": "principal:director_operations",
+          "action_type": "issue_vendor_refund",
+          "target_resource": "refund_disbursement_ledger",
+          "recipient": "service:erp_system",
+          "declared_consumed_artifacts": [],
+          "declared_produced_artifacts": []
+        },
+        {
+          "trajectory_id": "claim31_control_03",
+          "composition_window_id": "composition_window_2",
+          "step_id": 18,
+          "principal": "principal:director_operations",
+          "action_type": "issue_vendor_refund",
+          "target_resource": "refund_disbursement_ledger",
+          "recipient": "service:erp_system",
+          "declared_consumed_artifacts": [],
+          "declared_produced_artifacts": []
+        },
+        {
+          "trajectory_id": "claim31_control_03",
+          "composition_window_id": "composition_window_2",
+          "step_id": 19,
+          "principal": "principal:director_operations",
+          "action_type": "issue_vendor_refund",
+          "target_resource": "refund_disbursement_ledger",
+          "recipient": "service:erp_system",
+          "declared_consumed_artifacts": [],
+          "declared_produced_artifacts": []
+        },
+        {
+          "trajectory_id": "claim31_control_03",
+          "composition_window_id": "composition_window_2",
+          "step_id": 20,
+          "principal": "principal:director_operations",
+          "action_type": "issue_vendor_refund",
+          "target_resource": "refund_disbursement_ledger",
+          "recipient": "service:erp_system",
+          "declared_consumed_artifacts": [],
+          "declared_produced_artifacts": []
+        },
+        {
+          "trajectory_id": "claim31_control_03",
+          "composition_window_id": "composition_window_2",
+          "step_id": 21,
+          "principal": "principal:director_operations",
+          "action_type": "issue_vendor_refund",
+          "target_resource": "refund_disbursement_ledger",
+          "recipient": "service:erp_system",
+          "declared_consumed_artifacts": [],
+          "declared_produced_artifacts": []
+        }
+      ]
+    },
+    {
+      "id": 4,
+      "label": "control_04",
+      "description": "One-refund-over two-window refund carryover with a policy-boundary close.",
+      "operations": [
+        {
+          "trajectory_id": "claim31_control_04",
+          "composition_window_id": "composition_window_1",
+          "step_id": 1,
+          "principal": "principal:audit_coordinator",
+          "action_type": "issue_vendor_refund",
+          "target_resource": "refund_disbursement_ledger",
+          "recipient": "service:erp_system",
+          "declared_consumed_artifacts": [],
+          "declared_produced_artifacts": [
+            "refund_note_1"
+          ]
+        },
+        {
+          "trajectory_id": "claim31_control_04",
+          "composition_window_id": "composition_window_1",
+          "step_id": 2,
+          "principal": "principal:audit_coordinator",
+          "action_type": "issue_vendor_refund",
+          "target_resource": "refund_disbursement_ledger",
+          "recipient": "service:erp_system",
+          "declared_consumed_artifacts": [],
+          "declared_produced_artifacts": []
+        },
+        {
+          "trajectory_id": "claim31_control_04",
+          "composition_window_id": "composition_window_1",
+          "step_id": 3,
+          "principal": "principal:audit_coordinator",
+          "action_type": "issue_vendor_refund",
+          "target_resource": "refund_disbursement_ledger",
+          "recipient": "service:erp_system",
+          "declared_consumed_artifacts": [],
+          "declared_produced_artifacts": []
+        },
+        {
+          "trajectory_id": "claim31_control_04",
+          "composition_window_id": "composition_window_1",
+          "step_id": 4,
+          "principal": "principal:audit_coordinator",
+          "action_type": "issue_vendor_refund",
+          "target_resource": "refund_disbursement_ledger",
+          "recipient": "service:erp_system",
+          "declared_consumed_artifacts": [],
+          "declared_produced_artifacts": []
+        },
+        {
+          "trajectory_id": "claim31_control_04",
+          "composition_window_id": "composition_window_1",
+          "step_id": 5,
+          "principal": "principal:audit_coordinator",
+          "action_type": "issue_vendor_refund",
+          "target_resource": "refund_disbursement_ledger",
+          "recipient": "service:erp_system",
+          "declared_consumed_artifacts": [],
+          "declared_produced_artifacts": []
+        },
+        {
+          "trajectory_id": "claim31_control_04",
+          "composition_window_id": "composition_window_1",
+          "step_id": 6,
+          "principal": "principal:audit_coordinator",
+          "action_type": "issue_vendor_refund",
+          "target_resource": "refund_disbursement_ledger",
+          "recipient": "service:erp_system",
+          "declared_consumed_artifacts": [],
+          "declared_produced_artifacts": []
+        },
+        {
+          "trajectory_id": "claim31_control_04",
+          "composition_window_id": "composition_window_1",
+          "step_id": 7,
+          "principal": "principal:audit_coordinator",
+          "action_type": "issue_vendor_refund",
+          "target_resource": "refund_disbursement_ledger",
+          "recipient": "service:erp_system",
+          "declared_consumed_artifacts": [],
+          "declared_produced_artifacts": []
+        },
+        {
+          "trajectory_id": "claim31_control_04",
+          "composition_window_id": "composition_window_1",
+          "step_id": 8,
+          "principal": "principal:audit_coordinator",
+          "action_type": "issue_vendor_refund",
+          "target_resource": "refund_disbursement_ledger",
+          "recipient": "service:erp_system",
+          "declared_consumed_artifacts": [],
+          "declared_produced_artifacts": []
+        },
+        {
+          "trajectory_id": "claim31_control_04",
+          "composition_window_id": "composition_window_1",
+          "step_id": 9,
+          "principal": "principal:audit_coordinator",
+          "action_type": "issue_vendor_refund",
+          "target_resource": "refund_disbursement_ledger",
+          "recipient": "service:erp_system",
+          "declared_consumed_artifacts": [],
+          "declared_produced_artifacts": []
+        },
+        {
+          "trajectory_id": "claim31_control_04",
+          "composition_window_id": "composition_window_1",
+          "step_id": 10,
+          "principal": "principal:audit_coordinator",
+          "action_type": "issue_vendor_refund",
+          "target_resource": "refund_disbursement_ledger",
+          "recipient": "service:erp_system",
+          "declared_consumed_artifacts": [],
+          "declared_produced_artifacts": []
+        },
+        {
+          "trajectory_id": "claim31_control_04",
+          "composition_window_id": "composition_window_1",
+          "step_id": 11,
+          "principal": "principal:audit_coordinator",
+          "action_type": "issue_vendor_refund",
+          "target_resource": "refund_disbursement_ledger",
+          "recipient": "service:erp_system",
+          "declared_consumed_artifacts": [],
+          "declared_produced_artifacts": []
+        },
+        {
+          "trajectory_id": "claim31_control_04",
+          "composition_window_id": "composition_window_1",
+          "step_id": 12,
+          "principal": "policy_boundary:harness",
+          "action_type": "close_window",
+          "target_resource": "composition_window_1",
+          "recipient": "principal:finance_lead",
+          "declared_consumed_artifacts": [],
+          "declared_produced_artifacts": []
+        },
+        {
+          "trajectory_id": "claim31_control_04",
+          "composition_window_id": "composition_window_2",
+          "step_id": 13,
+          "principal": "principal:audit_coordinator",
+          "action_type": "issue_vendor_refund",
+          "target_resource": "refund_disbursement_ledger",
+          "recipient": "service:erp_system",
+          "declared_consumed_artifacts": [],
+          "declared_produced_artifacts": [
+            "refund_note_2"
+          ]
+        },
+        {
+          "trajectory_id": "claim31_control_04",
+          "composition_window_id": "composition_window_2",
+          "step_id": 14,
+          "principal": "principal:audit_coordinator",
+          "action_type": "issue_vendor_refund",
+          "target_resource": "refund_disbursement_ledger",
+          "recipient": "service:erp_system",
+          "declared_consumed_artifacts": [],
+          "declared_produced_artifacts": []
+        },
+        {
+          "trajectory_id": "claim31_control_04",
+          "composition_window_id": "composition_window_2",
+          "step_id": 15,
+          "principal": "principal:audit_coordinator",
+          "action_type": "issue_vendor_refund",
+          "target_resource": "refund_disbursement_ledger",
+          "recipient": "service:erp_system",
+          "declared_consumed_artifacts": [],
+          "declared_produced_artifacts": []
+        },
+        {
+          "trajectory_id": "claim31_control_04",
+          "composition_window_id": "composition_window_2",
+          "step_id": 16,
+          "principal": "principal:audit_coordinator",
+          "action_type": "issue_vendor_refund",
+          "target_resource": "refund_disbursement_ledger",
+          "recipient": "service:erp_system",
+          "declared_consumed_artifacts": [],
+          "declared_produced_artifacts": []
+        },
+        {
+          "trajectory_id": "claim31_control_04",
+          "composition_window_id": "composition_window_2",
+          "step_id": 17,
+          "principal": "principal:audit_coordinator",
+          "action_type": "issue_vendor_refund",
+          "target_resource": "refund_disbursement_ledger",
+          "recipient": "service:erp_system",
+          "declared_consumed_artifacts": [],
+          "declared_produced_artifacts": []
+        },
+        {
+          "trajectory_id": "claim31_control_04",
+          "composition_window_id": "composition_window_2",
+          "step_id": 18,
+          "principal": "principal:audit_coordinator",
+          "action_type": "issue_vendor_refund",
+          "target_resource": "refund_disbursement_ledger",
+          "recipient": "service:erp_system",
+          "declared_consumed_artifacts": [],
+          "declared_produced_artifacts": []
+        },
+        {
+          "trajectory_id": "claim31_control_04",
+          "composition_window_id": "composition_window_2",
+          "step_id": 19,
+          "principal": "principal:audit_coordinator",
+          "action_type": "issue_vendor_refund",
+          "target_resource": "refund_disbursement_ledger",
+          "recipient": "service:erp_system",
+          "declared_consumed_artifacts": [],
+          "declared_produced_artifacts": []
+        },
+        {
+          "trajectory_id": "claim31_control_04",
+          "composition_window_id": "composition_window_2",
+          "step_id": 20,
+          "principal": "principal:audit_coordinator",
+          "action_type": "issue_vendor_refund",
+          "target_resource": "refund_disbursement_ledger",
+          "recipient": "service:erp_system",
+          "declared_consumed_artifacts": [],
+          "declared_produced_artifacts": []
+        },
+        {
+          "trajectory_id": "claim31_control_04",
+          "composition_window_id": "composition_window_2",
+          "step_id": 21,
+          "principal": "principal:audit_coordinator",
+          "action_type": "issue_vendor_refund",
+          "target_resource": "refund_disbursement_ledger",
+          "recipient": "service:erp_system",
+          "declared_consumed_artifacts": [],
+          "declared_produced_artifacts": []
+        },
+        {
+          "trajectory_id": "claim31_control_04",
+          "composition_window_id": "composition_window_2",
+          "step_id": 22,
+          "principal": "principal:audit_coordinator",
+          "action_type": "issue_vendor_refund",
+          "target_resource": "refund_disbursement_ledger",
+          "recipient": "service:erp_system",
+          "declared_consumed_artifacts": [],
+          "declared_produced_artifacts": []
+        }
+      ]
+    },
+    {
+      "id": 5,
+      "label": "control_05",
+      "description": "Self-close control where the ordinary refund principal attempts to close the window.",
+      "operations": [
+        {
+          "trajectory_id": "claim31_control_05",
+          "composition_window_id": "composition_window_1",
+          "step_id": 1,
+          "principal": "principal:finance_lead",
+          "action_type": "issue_vendor_refund",
+          "target_resource": "refund_disbursement_ledger",
+          "recipient": "service:erp_system",
+          "declared_consumed_artifacts": [],
+          "declared_produced_artifacts": [
+            "refund_note_1"
+          ]
+        },
+        {
+          "trajectory_id": "claim31_control_05",
+          "composition_window_id": "composition_window_1",
+          "step_id": 2,
+          "principal": "principal:finance_lead",
+          "action_type": "issue_vendor_refund",
+          "target_resource": "refund_disbursement_ledger",
+          "recipient": "service:erp_system",
+          "declared_consumed_artifacts": [],
+          "declared_produced_artifacts": []
+        },
+        {
+          "trajectory_id": "claim31_control_05",
+          "composition_window_id": "composition_window_1",
+          "step_id": 3,
+          "principal": "principal:finance_lead",
+          "action_type": "issue_vendor_refund",
+          "target_resource": "refund_disbursement_ledger",
+          "recipient": "service:erp_system",
+          "declared_consumed_artifacts": [],
+          "declared_produced_artifacts": []
+        },
+        {
+          "trajectory_id": "claim31_control_05",
+          "composition_window_id": "composition_window_1",
+          "step_id": 4,
+          "principal": "principal:finance_lead",
+          "action_type": "issue_vendor_refund",
+          "target_resource": "refund_disbursement_ledger",
+          "recipient": "service:erp_system",
+          "declared_consumed_artifacts": [],
+          "declared_produced_artifacts": []
+        },
+        {
+          "trajectory_id": "claim31_control_05",
+          "composition_window_id": "composition_window_1",
+          "step_id": 5,
+          "principal": "principal:finance_lead",
+          "action_type": "issue_vendor_refund",
+          "target_resource": "refund_disbursement_ledger",
+          "recipient": "service:erp_system",
+          "declared_consumed_artifacts": [],
+          "declared_produced_artifacts": []
+        },
+        {
+          "trajectory_id": "claim31_control_05",
+          "composition_window_id": "composition_window_1",
+          "step_id": 6,
+          "principal": "principal:finance_lead",
+          "action_type": "issue_vendor_refund",
+          "target_resource": "refund_disbursement_ledger",
+          "recipient": "service:erp_system",
+          "declared_consumed_artifacts": [],
+          "declared_produced_artifacts": []
+        },
+        {
+          "trajectory_id": "claim31_control_05",
+          "composition_window_id": "composition_window_1",
+          "step_id": 7,
+          "principal": "principal:finance_lead",
+          "action_type": "close_window",
+          "target_resource": "composition_window_1",
+          "recipient": "principal:finance_lead",
+          "declared_consumed_artifacts": [],
+          "declared_produced_artifacts": []
+        },
+        {
+          "trajectory_id": "claim31_control_05",
+          "composition_window_id": "composition_window_2",
+          "step_id": 8,
+          "principal": "principal:finance_lead",
+          "action_type": "issue_vendor_refund",
+          "target_resource": "refund_disbursement_ledger",
+          "recipient": "service:erp_system",
+          "declared_consumed_artifacts": [],
+          "declared_produced_artifacts": [
+            "refund_note_2"
+          ]
+        },
+        {
+          "trajectory_id": "claim31_control_05",
+          "composition_window_id": "composition_window_2",
+          "step_id": 9,
+          "principal": "principal:finance_lead",
+          "action_type": "issue_vendor_refund",
+          "target_resource": "refund_disbursement_ledger",
+          "recipient": "service:erp_system",
+          "declared_consumed_artifacts": [],
+          "declared_produced_artifacts": []
+        },
+        {
+          "trajectory_id": "claim31_control_05",
+          "composition_window_id": "composition_window_2",
+          "step_id": 10,
+          "principal": "principal:finance_lead",
+          "action_type": "issue_vendor_refund",
+          "target_resource": "refund_disbursement_ledger",
+          "recipient": "service:erp_system",
+          "declared_consumed_artifacts": [],
+          "declared_produced_artifacts": []
+        },
+        {
+          "trajectory_id": "claim31_control_05",
+          "composition_window_id": "composition_window_2",
+          "step_id": 11,
+          "principal": "principal:finance_lead",
+          "action_type": "issue_vendor_refund",
+          "target_resource": "refund_disbursement_ledger",
+          "recipient": "service:erp_system",
+          "declared_consumed_artifacts": [],
+          "declared_produced_artifacts": []
+        },
+        {
+          "trajectory_id": "claim31_control_05",
+          "composition_window_id": "composition_window_2",
+          "step_id": 12,
+          "principal": "principal:finance_lead",
+          "action_type": "issue_vendor_refund",
+          "target_resource": "refund_disbursement_ledger",
+          "recipient": "service:erp_system",
+          "declared_consumed_artifacts": [],
+          "declared_produced_artifacts": []
+        }
+      ]
+    },
+    {
+      "id": 6,
+      "label": "control_06",
+      "description": "Unauthorized-close control where a finance principal closes instead of the policy boundary.",
+      "operations": [
+        {
+          "trajectory_id": "claim31_control_06",
+          "composition_window_id": "composition_window_1",
+          "step_id": 1,
+          "principal": "principal:finance_lead",
+          "action_type": "issue_vendor_refund",
+          "target_resource": "refund_disbursement_ledger",
+          "recipient": "service:erp_system",
+          "declared_consumed_artifacts": [],
+          "declared_produced_artifacts": [
+            "refund_note_1"
+          ]
+        },
+        {
+          "trajectory_id": "claim31_control_06",
+          "composition_window_id": "composition_window_1",
+          "step_id": 2,
+          "principal": "principal:finance_lead",
+          "action_type": "issue_vendor_refund",
+          "target_resource": "refund_disbursement_ledger",
+          "recipient": "service:erp_system",
+          "declared_consumed_artifacts": [],
+          "declared_produced_artifacts": []
+        },
+        {
+          "trajectory_id": "claim31_control_06",
+          "composition_window_id": "composition_window_1",
+          "step_id": 3,
+          "principal": "principal:finance_lead",
+          "action_type": "issue_vendor_refund",
+          "target_resource": "refund_disbursement_ledger",
+          "recipient": "service:erp_system",
+          "declared_consumed_artifacts": [],
+          "declared_produced_artifacts": []
+        },
+        {
+          "trajectory_id": "claim31_control_06",
+          "composition_window_id": "composition_window_1",
+          "step_id": 4,
+          "principal": "principal:finance_lead",
+          "action_type": "issue_vendor_refund",
+          "target_resource": "refund_disbursement_ledger",
+          "recipient": "service:erp_system",
+          "declared_consumed_artifacts": [],
+          "declared_produced_artifacts": []
+        },
+        {
+          "trajectory_id": "claim31_control_06",
+          "composition_window_id": "composition_window_1",
+          "step_id": 5,
+          "principal": "principal:finance_lead",
+          "action_type": "issue_vendor_refund",
+          "target_resource": "refund_disbursement_ledger",
+          "recipient": "service:erp_system",
+          "declared_consumed_artifacts": [],
+          "declared_produced_artifacts": []
+        },
+        {
+          "trajectory_id": "claim31_control_06",
+          "composition_window_id": "composition_window_1",
+          "step_id": 6,
+          "principal": "principal:finance_lead",
+          "action_type": "issue_vendor_refund",
+          "target_resource": "refund_disbursement_ledger",
+          "recipient": "service:erp_system",
+          "declared_consumed_artifacts": [],
+          "declared_produced_artifacts": []
+        },
+        {
+          "trajectory_id": "claim31_control_06",
+          "composition_window_id": "composition_window_1",
+          "step_id": 7,
+          "principal": "principal:ap_manager",
+          "action_type": "close_window",
+          "target_resource": "composition_window_1",
+          "recipient": "principal:finance_lead",
+          "declared_consumed_artifacts": [],
+          "declared_produced_artifacts": []
+        },
+        {
+          "trajectory_id": "claim31_control_06",
+          "composition_window_id": "composition_window_2",
+          "step_id": 8,
+          "principal": "principal:finance_lead",
+          "action_type": "issue_vendor_refund",
+          "target_resource": "refund_disbursement_ledger",
+          "recipient": "service:erp_system",
+          "declared_consumed_artifacts": [],
+          "declared_produced_artifacts": [
+            "refund_note_2"
+          ]
+        },
+        {
+          "trajectory_id": "claim31_control_06",
+          "composition_window_id": "composition_window_2",
+          "step_id": 9,
+          "principal": "principal:finance_lead",
+          "action_type": "issue_vendor_refund",
+          "target_resource": "refund_disbursement_ledger",
+          "recipient": "service:erp_system",
+          "declared_consumed_artifacts": [],
+          "declared_produced_artifacts": []
+        },
+        {
+          "trajectory_id": "claim31_control_06",
+          "composition_window_id": "composition_window_2",
+          "step_id": 10,
+          "principal": "principal:finance_lead",
+          "action_type": "issue_vendor_refund",
+          "target_resource": "refund_disbursement_ledger",
+          "recipient": "service:erp_system",
+          "declared_consumed_artifacts": [],
+          "declared_produced_artifacts": []
+        },
+        {
+          "trajectory_id": "claim31_control_06",
+          "composition_window_id": "composition_window_2",
+          "step_id": 11,
+          "principal": "principal:finance_lead",
+          "action_type": "issue_vendor_refund",
+          "target_resource": "refund_disbursement_ledger",
+          "recipient": "service:erp_system",
+          "declared_consumed_artifacts": [],
+          "declared_produced_artifacts": []
+        },
+        {
+          "trajectory_id": "claim31_control_06",
+          "composition_window_id": "composition_window_2",
+          "step_id": 12,
+          "principal": "principal:finance_lead",
+          "action_type": "issue_vendor_refund",
+          "target_resource": "refund_disbursement_ledger",
+          "recipient": "service:erp_system",
+          "declared_consumed_artifacts": [],
+          "declared_produced_artifacts": []
+        }
+      ]
+    },
+    {
+      "id": 7,
+      "label": "control_07",
+      "description": "Broken-close-target control where the policy boundary targets a refund object during close.",
+      "operations": [
+        {
+          "trajectory_id": "claim31_control_07",
+          "composition_window_id": "composition_window_1",
+          "step_id": 1,
+          "principal": "principal:director_operations",
+          "action_type": "issue_vendor_refund",
+          "target_resource": "refund_disbursement_ledger",
+          "recipient": "service:erp_system",
+          "declared_consumed_artifacts": [],
+          "declared_produced_artifacts": [
+            "refund_note_1"
+          ]
+        },
+        {
+          "trajectory_id": "claim31_control_07",
+          "composition_window_id": "composition_window_1",
+          "step_id": 2,
+          "principal": "principal:director_operations",
+          "action_type": "issue_vendor_refund",
+          "target_resource": "refund_disbursement_ledger",
+          "recipient": "service:erp_system",
+          "declared_consumed_artifacts": [],
+          "declared_produced_artifacts": []
+        },
+        {
+          "trajectory_id": "claim31_control_07",
+          "composition_window_id": "composition_window_1",
+          "step_id": 3,
+          "principal": "principal:director_operations",
+          "action_type": "issue_vendor_refund",
+          "target_resource": "refund_disbursement_ledger",
+          "recipient": "service:erp_system",
+          "declared_consumed_artifacts": [],
+          "declared_produced_artifacts": []
+        },
+        {
+          "trajectory_id": "claim31_control_07",
+          "composition_window_id": "composition_window_1",
+          "step_id": 4,
+          "principal": "principal:director_operations",
+          "action_type": "issue_vendor_refund",
+          "target_resource": "refund_disbursement_ledger",
+          "recipient": "service:erp_system",
+          "declared_consumed_artifacts": [],
+          "declared_produced_artifacts": []
+        },
+        {
+          "trajectory_id": "claim31_control_07",
+          "composition_window_id": "composition_window_1",
+          "step_id": 5,
+          "principal": "principal:director_operations",
+          "action_type": "issue_vendor_refund",
+          "target_resource": "refund_disbursement_ledger",
+          "recipient": "service:erp_system",
+          "declared_consumed_artifacts": [],
+          "declared_produced_artifacts": []
+        },
+        {
+          "trajectory_id": "claim31_control_07",
+          "composition_window_id": "composition_window_1",
+          "step_id": 6,
+          "principal": "principal:director_operations",
+          "action_type": "issue_vendor_refund",
+          "target_resource": "refund_disbursement_ledger",
+          "recipient": "service:erp_system",
+          "declared_consumed_artifacts": [],
+          "declared_produced_artifacts": []
+        },
+        {
+          "trajectory_id": "claim31_control_07",
+          "composition_window_id": "composition_window_1",
+          "step_id": 7,
+          "principal": "policy_boundary:harness",
+          "action_type": "close_window",
+          "target_resource": "refund_disbursement_ledger",
+          "recipient": "principal:finance_lead",
+          "declared_consumed_artifacts": [],
+          "declared_produced_artifacts": []
+        },
+        {
+          "trajectory_id": "claim31_control_07",
+          "composition_window_id": "composition_window_2",
+          "step_id": 8,
+          "principal": "principal:director_operations",
+          "action_type": "issue_vendor_refund",
+          "target_resource": "refund_disbursement_ledger",
+          "recipient": "service:erp_system",
+          "declared_consumed_artifacts": [],
+          "declared_produced_artifacts": [
+            "refund_note_2"
+          ]
+        },
+        {
+          "trajectory_id": "claim31_control_07",
+          "composition_window_id": "composition_window_2",
+          "step_id": 9,
+          "principal": "principal:director_operations",
+          "action_type": "issue_vendor_refund",
+          "target_resource": "refund_disbursement_ledger",
+          "recipient": "service:erp_system",
+          "declared_consumed_artifacts": [],
+          "declared_produced_artifacts": []
+        },
+        {
+          "trajectory_id": "claim31_control_07",
+          "composition_window_id": "composition_window_2",
+          "step_id": 10,
+          "principal": "principal:director_operations",
+          "action_type": "issue_vendor_refund",
+          "target_resource": "refund_disbursement_ledger",
+          "recipient": "service:erp_system",
+          "declared_consumed_artifacts": [],
+          "declared_produced_artifacts": []
+        },
+        {
+          "trajectory_id": "claim31_control_07",
+          "composition_window_id": "composition_window_2",
+          "step_id": 11,
+          "principal": "principal:director_operations",
+          "action_type": "issue_vendor_refund",
+          "target_resource": "refund_disbursement_ledger",
+          "recipient": "service:erp_system",
+          "declared_consumed_artifacts": [],
+          "declared_produced_artifacts": []
+        },
+        {
+          "trajectory_id": "claim31_control_07",
+          "composition_window_id": "composition_window_2",
+          "step_id": 12,
+          "principal": "principal:director_operations",
+          "action_type": "issue_vendor_refund",
+          "target_resource": "refund_disbursement_ledger",
+          "recipient": "service:erp_system",
+          "declared_consumed_artifacts": [],
+          "declared_produced_artifacts": []
+        }
+      ]
+    },
+    {
+      "id": 8,
+      "label": "control_08",
+      "description": "No-close two-window-labeled control with refund work spread across two window labels.",
+      "operations": [
+        {
+          "trajectory_id": "claim31_control_08",
+          "composition_window_id": "composition_window_1",
+          "step_id": 1,
+          "principal": "principal:audit_coordinator",
+          "action_type": "issue_vendor_refund",
+          "target_resource": "refund_disbursement_ledger",
+          "recipient": "service:erp_system",
+          "declared_consumed_artifacts": [],
+          "declared_produced_artifacts": [
+            "refund_note_1"
+          ]
+        },
+        {
+          "trajectory_id": "claim31_control_08",
+          "composition_window_id": "composition_window_1",
+          "step_id": 2,
+          "principal": "principal:audit_coordinator",
+          "action_type": "issue_vendor_refund",
+          "target_resource": "refund_disbursement_ledger",
+          "recipient": "service:erp_system",
+          "declared_consumed_artifacts": [],
+          "declared_produced_artifacts": []
+        },
+        {
+          "trajectory_id": "claim31_control_08",
+          "composition_window_id": "composition_window_1",
+          "step_id": 3,
+          "principal": "principal:audit_coordinator",
+          "action_type": "issue_vendor_refund",
+          "target_resource": "refund_disbursement_ledger",
+          "recipient": "service:erp_system",
+          "declared_consumed_artifacts": [],
+          "declared_produced_artifacts": []
+        },
+        {
+          "trajectory_id": "claim31_control_08",
+          "composition_window_id": "composition_window_1",
+          "step_id": 4,
+          "principal": "principal:audit_coordinator",
+          "action_type": "issue_vendor_refund",
+          "target_resource": "refund_disbursement_ledger",
+          "recipient": "service:erp_system",
+          "declared_consumed_artifacts": [],
+          "declared_produced_artifacts": []
+        },
+        {
+          "trajectory_id": "claim31_control_08",
+          "composition_window_id": "composition_window_1",
+          "step_id": 5,
+          "principal": "principal:audit_coordinator",
+          "action_type": "issue_vendor_refund",
+          "target_resource": "refund_disbursement_ledger",
+          "recipient": "service:erp_system",
+          "declared_consumed_artifacts": [],
+          "declared_produced_artifacts": []
+        },
+        {
+          "trajectory_id": "claim31_control_08",
+          "composition_window_id": "composition_window_1",
+          "step_id": 6,
+          "principal": "principal:audit_coordinator",
+          "action_type": "issue_vendor_refund",
+          "target_resource": "refund_disbursement_ledger",
+          "recipient": "service:erp_system",
+          "declared_consumed_artifacts": [],
+          "declared_produced_artifacts": []
+        },
+        {
+          "trajectory_id": "claim31_control_08",
+          "composition_window_id": "composition_window_2",
+          "step_id": 7,
+          "principal": "principal:audit_coordinator",
+          "action_type": "issue_vendor_refund",
+          "target_resource": "refund_disbursement_ledger",
+          "recipient": "service:erp_system",
+          "declared_consumed_artifacts": [],
+          "declared_produced_artifacts": [
+            "refund_note_2"
+          ]
+        },
+        {
+          "trajectory_id": "claim31_control_08",
+          "composition_window_id": "composition_window_2",
+          "step_id": 8,
+          "principal": "principal:audit_coordinator",
+          "action_type": "issue_vendor_refund",
+          "target_resource": "refund_disbursement_ledger",
+          "recipient": "service:erp_system",
+          "declared_consumed_artifacts": [],
+          "declared_produced_artifacts": []
+        },
+        {
+          "trajectory_id": "claim31_control_08",
+          "composition_window_id": "composition_window_2",
+          "step_id": 9,
+          "principal": "principal:audit_coordinator",
+          "action_type": "issue_vendor_refund",
+          "target_resource": "refund_disbursement_ledger",
+          "recipient": "service:erp_system",
+          "declared_consumed_artifacts": [],
+          "declared_produced_artifacts": []
+        },
+        {
+          "trajectory_id": "claim31_control_08",
+          "composition_window_id": "composition_window_2",
+          "step_id": 10,
+          "principal": "principal:audit_coordinator",
+          "action_type": "issue_vendor_refund",
+          "target_resource": "refund_disbursement_ledger",
+          "recipient": "service:erp_system",
+          "declared_consumed_artifacts": [],
+          "declared_produced_artifacts": []
+        },
+        {
+          "trajectory_id": "claim31_control_08",
+          "composition_window_id": "composition_window_2",
+          "step_id": 11,
+          "principal": "principal:audit_coordinator",
+          "action_type": "issue_vendor_refund",
+          "target_resource": "refund_disbursement_ledger",
+          "recipient": "service:erp_system",
+          "declared_consumed_artifacts": [],
+          "declared_produced_artifacts": []
+        }
+      ]
+    }
+  ]
+}
