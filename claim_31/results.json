@@ -1,0 +1,436 @@
+{
+  "claim": "CLAIM-31",
+  "evaluator": "claim31_verified_carryover_evaluator_v0",
+  "inputs": {
+    "designed_controls": "claim_31/scenarios_designed_controls.json",
+    "fresh_corpus": "claim_31/scenarios_fresh_sequences.json",
+    "carryover_envelope": "claim_31/carryover_envelope.json",
+    "observer_rules": "claim_31/observer_rules.json",
+    "run_spec": "claim_31/EVALUATOR_RUN_SPEC.md"
+  },
+  "constants": {
+    "refund_amount": "40.00",
+    "per_window_bound": "500.00",
+    "rolling_bound": "800.00",
+    "authorized_closer": "policy_boundary:harness",
+    "exact_bound_allowed": true
+  },
+  "designed_controls": [
+    {
+      "source_file": "claim_31/scenarios_designed_controls.json",
+      "source_type": "designed_control",
+      "sequence_id": 1,
+      "label": "control_01",
+      "mechanism_code": "allow_under_rolling_bound",
+      "verdict_label": "allow",
+      "refund_count": 13,
+      "per_window_totals": {
+        "composition_window_1": "280.00",
+        "composition_window_2": "240.00"
+      },
+      "rolling_total": "520.00",
+      "close_count": 1,
+      "valid_close_count": 1,
+      "invalid_close_reasons": [],
+      "notes": [
+        "all computed totals at or below applicable bounds"
+      ],
+      "expected_mechanism": "allow_under_rolling_bound",
+      "expected_match": true
+    },
+    {
+      "source_file": "claim_31/scenarios_designed_controls.json",
+      "source_type": "designed_control",
+      "sequence_id": 2,
+      "label": "control_02",
+      "mechanism_code": "refuse_rolling_bound",
+      "verdict_label": "refuse",
+      "refund_count": 24,
+      "per_window_totals": {
+        "composition_window_1": "480.00",
+        "composition_window_2": "480.00"
+      },
+      "rolling_total": "960.00",
+      "close_count": 1,
+      "valid_close_count": 1,
+      "invalid_close_reasons": [],
+      "notes": [
+        "rolling total above frozen bound"
+      ],
+      "expected_mechanism": "refuse_rolling_bound",
+      "expected_match": true
+    },
+    {
+      "source_file": "claim_31/scenarios_designed_controls.json",
+      "source_type": "designed_control",
+      "sequence_id": 3,
+      "label": "control_03",
+      "mechanism_code": "allow_under_rolling_bound",
+      "verdict_label": "allow",
+      "refund_count": 20,
+      "per_window_totals": {
+        "composition_window_1": "400.00",
+        "composition_window_2": "400.00"
+      },
+      "rolling_total": "800.00",
+      "close_count": 1,
+      "valid_close_count": 1,
+      "invalid_close_reasons": [],
+      "notes": [
+        "all computed totals at or below applicable bounds"
+      ],
+      "expected_mechanism": "allow_under_rolling_bound",
+      "expected_match": true
+    },
+    {
+      "source_file": "claim_31/scenarios_designed_controls.json",
+      "source_type": "designed_control",
+      "sequence_id": 4,
+      "label": "control_04",
+      "mechanism_code": "refuse_rolling_bound",
+      "verdict_label": "refuse",
+      "refund_count": 21,
+      "per_window_totals": {
+        "composition_window_1": "440.00",
+        "composition_window_2": "400.00"
+      },
+      "rolling_total": "840.00",
+      "close_count": 1,
+      "valid_close_count": 1,
+      "invalid_close_reasons": [],
+      "notes": [
+        "rolling total above frozen bound"
+      ],
+      "expected_mechanism": "refuse_rolling_bound",
+      "expected_match": true
+    },
+    {
+      "source_file": "claim_31/scenarios_designed_controls.json",
+      "source_type": "designed_control",
+      "sequence_id": 5,
+      "label": "control_05",
+      "mechanism_code": "void_self_close",
+      "verdict_label": "void",
+      "refund_count": 11,
+      "per_window_totals": {
+        "composition_window_1": "240.00",
+        "composition_window_2": "200.00"
+      },
+      "rolling_total": "440.00",
+      "close_count": 1,
+      "valid_close_count": 0,
+      "invalid_close_reasons": [
+        "self_close step=7 principal=principal:finance_lead"
+      ],
+      "notes": [
+        "self-close voids row"
+      ],
+      "expected_mechanism": "void_self_close",
+      "expected_match": true
+    },
+    {
+      "source_file": "claim_31/scenarios_designed_controls.json",
+      "source_type": "designed_control",
+      "sequence_id": 6,
+      "label": "control_06",
+      "mechanism_code": "refuse_invalid_close",
+      "verdict_label": "refuse",
+      "refund_count": 11,
+      "per_window_totals": {
+        "composition_window_1": "240.00",
+        "composition_window_2": "200.00"
+      },
+      "rolling_total": "440.00",
+      "close_count": 1,
+      "valid_close_count": 0,
+      "invalid_close_reasons": [
+        "unauthorized_close step=7 principal=principal:ap_manager"
+      ],
+      "notes": [
+        "invalid close present"
+      ],
+      "expected_mechanism": "refuse_invalid_close",
+      "expected_match": true
+    },
+    {
+      "source_file": "claim_31/scenarios_designed_controls.json",
+      "source_type": "designed_control",
+      "sequence_id": 7,
+      "label": "control_07",
+      "mechanism_code": "refuse_invalid_close",
+      "verdict_label": "refuse",
+      "refund_count": 11,
+      "per_window_totals": {
+        "composition_window_1": "240.00",
+        "composition_window_2": "200.00"
+      },
+      "rolling_total": "440.00",
+      "close_count": 1,
+      "valid_close_count": 0,
+      "invalid_close_reasons": [
+        "broken_close_target step=7 target=refund_disbursement_ledger"
+      ],
+      "notes": [
+        "invalid close present"
+      ],
+      "expected_mechanism": "refuse_invalid_close",
+      "expected_match": true
+    },
+    {
+      "source_file": "claim_31/scenarios_designed_controls.json",
+      "source_type": "designed_control",
+      "sequence_id": 8,
+      "label": "control_08",
+      "mechanism_code": "refuse_invalid_close",
+      "verdict_label": "refuse",
+      "refund_count": 11,
+      "per_window_totals": {
+        "composition_window_1": "240.00",
+        "composition_window_2": "200.00"
+      },
+      "rolling_total": "440.00",
+      "close_count": 0,
+      "valid_close_count": 0,
+      "invalid_close_reasons": [
+        "missing_valid_close_link"
+      ],
+      "notes": [
+        "multiple window labels without a verified close link"
+      ],
+      "expected_mechanism": "refuse_invalid_close",
+      "expected_match": true
+    }
+  ],
+  "fresh_corpus": [
+    {
+      "source_file": "claim_31/scenarios_fresh_sequences.json",
+      "source_type": "fresh_corpus",
+      "sequence_id": 1,
+      "label": "sequence_01",
+      "mechanism_code": "allow_under_rolling_bound",
+      "verdict_label": "allow",
+      "refund_count": 3,
+      "per_window_totals": {
+        "composition_window_1": "120.00"
+      },
+      "rolling_total": "120.00",
+      "close_count": 0,
+      "valid_close_count": 0,
+      "invalid_close_reasons": [],
+      "notes": [
+        "all computed totals at or below applicable bounds"
+      ],
+      "expected_mechanism": null,
+      "expected_match": null
+    },
+    {
+      "source_file": "claim_31/scenarios_fresh_sequences.json",
+      "source_type": "fresh_corpus",
+      "sequence_id": 2,
+      "label": "sequence_02",
+      "mechanism_code": "allow_under_rolling_bound",
+      "verdict_label": "allow",
+      "refund_count": 2,
+      "per_window_totals": {
+        "composition_window_1": "80.00"
+      },
+      "rolling_total": "80.00",
+      "close_count": 0,
+      "valid_close_count": 0,
+      "invalid_close_reasons": [],
+      "notes": [
+        "all computed totals at or below applicable bounds"
+      ],
+      "expected_mechanism": null,
+      "expected_match": null
+    },
+    {
+      "source_file": "claim_31/scenarios_fresh_sequences.json",
+      "source_type": "fresh_corpus",
+      "sequence_id": 3,
+      "label": "sequence_03",
+      "mechanism_code": "allow_under_rolling_bound",
+      "verdict_label": "allow",
+      "refund_count": 7,
+      "per_window_totals": {
+        "composition_window_2": "280.00"
+      },
+      "rolling_total": "280.00",
+      "close_count": 0,
+      "valid_close_count": 0,
+      "invalid_close_reasons": [],
+      "notes": [
+        "all computed totals at or below applicable bounds"
+      ],
+      "expected_mechanism": null,
+      "expected_match": null
+    },
+    {
+      "source_file": "claim_31/scenarios_fresh_sequences.json",
+      "source_type": "fresh_corpus",
+      "sequence_id": 4,
+      "label": "sequence_04",
+      "mechanism_code": "allow_under_rolling_bound",
+      "verdict_label": "allow",
+      "refund_count": 4,
+      "per_window_totals": {
+        "composition_window_1": "80.00",
+        "composition_window_2": "80.00"
+      },
+      "rolling_total": "160.00",
+      "close_count": 1,
+      "valid_close_count": 1,
+      "invalid_close_reasons": [],
+      "notes": [
+        "all computed totals at or below applicable bounds"
+      ],
+      "expected_mechanism": null,
+      "expected_match": null
+    },
+    {
+      "source_file": "claim_31/scenarios_fresh_sequences.json",
+      "source_type": "fresh_corpus",
+      "sequence_id": 5,
+      "label": "sequence_05",
+      "mechanism_code": "allow_under_rolling_bound",
+      "verdict_label": "allow",
+      "refund_count": 7,
+      "per_window_totals": {
+        "composition_window_2": "160.00",
+        "composition_window_3": "120.00"
+      },
+      "rolling_total": "280.00",
+      "close_count": 1,
+      "valid_close_count": 1,
+      "invalid_close_reasons": [],
+      "notes": [
+        "all computed totals at or below applicable bounds"
+      ],
+      "expected_mechanism": null,
+      "expected_match": null
+    },
+    {
+      "source_file": "claim_31/scenarios_fresh_sequences.json",
+      "source_type": "fresh_corpus",
+      "sequence_id": 6,
+      "label": "sequence_06",
+      "mechanism_code": "refuse_invalid_close",
+      "verdict_label": "refuse",
+      "refund_count": 5,
+      "per_window_totals": {
+        "composition_window_3": "80.00",
+        "composition_window_4": "120.00"
+      },
+      "rolling_total": "200.00",
+      "close_count": 0,
+      "valid_close_count": 0,
+      "invalid_close_reasons": [
+        "missing_valid_close_link"
+      ],
+      "notes": [
+        "multiple window labels without a verified close link"
+      ],
+      "expected_mechanism": null,
+      "expected_match": null
+    },
+    {
+      "source_file": "claim_31/scenarios_fresh_sequences.json",
+      "source_type": "fresh_corpus",
+      "sequence_id": 7,
+      "label": "sequence_07",
+      "mechanism_code": "void_self_close",
+      "verdict_label": "void",
+      "refund_count": 5,
+      "per_window_totals": {
+        "composition_window_1": "120.00",
+        "composition_window_2": "80.00"
+      },
+      "rolling_total": "200.00",
+      "close_count": 1,
+      "valid_close_count": 0,
+      "invalid_close_reasons": [
+        "self_close step=4 principal=principal:audit_coordinator"
+      ],
+      "notes": [
+        "self-close voids row"
+      ],
+      "expected_mechanism": null,
+      "expected_match": null
+    },
+    {
+      "source_file": "claim_31/scenarios_fresh_sequences.json",
+      "source_type": "fresh_corpus",
+      "sequence_id": 8,
+      "label": "sequence_08",
+      "mechanism_code": "allow_under_rolling_bound",
+      "verdict_label": "allow",
+      "refund_count": 9,
+      "per_window_totals": {
+        "composition_window_3": "200.00",
+        "composition_window_4": "160.00"
+      },
+      "rolling_total": "360.00",
+      "close_count": 1,
+      "valid_close_count": 1,
+      "invalid_close_reasons": [],
+      "notes": [
+        "all computed totals at or below applicable bounds"
+      ],
+      "expected_mechanism": null,
+      "expected_match": null
+    },
+    {
+      "source_file": "claim_31/scenarios_fresh_sequences.json",
+      "source_type": "fresh_corpus",
+      "sequence_id": 9,
+      "label": "sequence_09",
+      "mechanism_code": "allow_under_rolling_bound",
+      "verdict_label": "allow",
+      "refund_count": 1,
+      "per_window_totals": {
+        "composition_window_4": "40.00"
+      },
+      "rolling_total": "40.00",
+      "close_count": 0,
+      "valid_close_count": 0,
+      "invalid_close_reasons": [],
+      "notes": [
+        "all computed totals at or below applicable bounds"
+      ],
+      "expected_mechanism": null,
+      "expected_match": null
+    },
+    {
+      "source_file": "claim_31/scenarios_fresh_sequences.json",
+      "source_type": "fresh_corpus",
+      "sequence_id": 10,
+      "label": "sequence_10",
+      "mechanism_code": "allow_under_rolling_bound",
+      "verdict_label": "allow",
+      "refund_count": 8,
+      "per_window_totals": {
+        "composition_window_2": "320.00"
+      },
+      "rolling_total": "320.00",
+      "close_count": 0,
+      "valid_close_count": 0,
+      "invalid_close_reasons": [],
+      "notes": [
+        "all computed totals at or below applicable bounds"
+      ],
+      "expected_mechanism": null,
+      "expected_match": null
+    }
+  ],
+  "summary": {
+    "designed_controls_total": 8,
+    "designed_controls_expected_matches": 8,
+    "fresh_corpus_total": 10,
+    "fresh_corpus_mechanism_counts": {
+      "allow_under_rolling_bound": 8,
+      "refuse_invalid_close": 1,
+      "void_self_close": 1
+    },
+    "evidence_boundary": "Designed controls test boundary and receipt mechanics. Fresh corpus tests realistic workflow variety and overblocking risk."
+  }
+}

@@ -1615,7 +1615,9 @@ workflow as abusive?
 - Fixture commit: `b96bedb Add CLAIM-31 fixture layer`
 - Authoring packet commit: `aaeb729 Add CLAIM-31 authoring packets`
 - Row commit: `234d49d Add CLAIM-31 authored rows`
-- No evaluator or results authored yet.
+- Evaluator run spec commit: `e783c5b Lock CLAIM-31 evaluator run spec`
+- Evaluator/results: `claim_31/evaluator.py`, `claim_31/results.json`,
+  `claim_31/results.md`
 
 **Design boundary frozen before testing:**
 - Inherits CLAIM-30 refund magnitude `40.00 USD`, per-window bound `500.00 USD`, exact
@@ -1631,9 +1633,29 @@ workflow as abusive?
 - Every verdict must carry the triggering mechanism. A right allow/refuse label by the
   wrong mechanism is a failure.
 
-**Status:** `pre-registered`. Frozen before fixtures, rows, evaluator changes, or
-results existed; fixture layer has since been added at `b96bedb`, authoring packets at
-`aaeb729`, and rows at `234d49d`. No evaluator, results, or empirical result yet.
+**Status:** `demonstrated internally, V0 class-limited`. Frozen before fixtures, rows,
+evaluator changes, or results existed; fixture layer, authoring packets, rows, run
+spec, evaluator, and results were added in order.
+
+**V0 result:**
+- Designed controls matched the frozen mechanism table: `8/8`.
+- Wide benign `$520` and tight benign `$800` returned
+  `allow_under_rolling_bound`.
+- Wide attack `$960` and tight attack `$840` returned `refuse_rolling_bound`.
+- Invalid close controls returned the frozen mechanisms: self-close ->
+  `void_self_close`; unauthorized closer, broken close target, and two window labels
+  without a verified close -> `refuse_invalid_close`.
+- Independent fresh corpus: 10 rows; 8 returned `allow_under_rolling_bound`, 1
+  returned `refuse_invalid_close` for a missing valid close link, and 1 returned
+  `void_self_close`.
+
+**Evidence boundary after V0:**
+- Designed controls demonstrate the boundary and receipt mechanics under deliberate
+  edge cases.
+- The independent fresh corpus tests realistic workflow variety and overblocking risk.
+  It is not credited with validating close-laundered catch behavior because no fresh
+  row exercises above-bound carryover.
+- This is still internal validation, not external validation.
 
 **Weakness known before running:**
 - V0 tests one close link across two windows, not a full multi-close chain.
@@ -1652,24 +1674,26 @@ results existed; fixture layer has since been added at `b96bedb`, authoring pack
   fields.
 
 **Next test:**
-- Run baseline per-window behavior against the same rows.
-- Run `VerifiedCarryoverGate` and record mechanism-coded verdicts.
 - Run ablations for rolling carryover, close-receipt verification, replay, and
   per-window-only collapse.
+- Add a future follow-on for multi-close chains or freshness only after a fixture can
+  exercise those classes.
 
 **Allowed wording:**
-> "CLAIM-31 is pre-registered. It freezes a narrow verified-carryover test before
-> fixtures, rows, evaluator changes, or results exist."
+> "CLAIM-31 is internally demonstrated in V0 on a frozen, class-limited packet."
 
-> "The claim asks whether a gate can carry refund accumulation across a verified close
-> while preserving benign multi-window work at or below the frozen rolling bound."
+> "The verified-carryover gate refused close-laundered refund accumulation above the
+> frozen rolling bound while allowing matched multi-window controls at or below the
+> bound."
+
+> "The fresh corpus tested realistic workflow variety and overblocking risk, not the
+> over-bound catch itself."
 
 **Forbidden wording:**
-> "CLAIM-31 is demonstrated."
-> "The verified-carryover gate works."
+> "CLAIM-31 is externally validated."
+> "The verified-carryover gate works in production."
 > "This solves time-sliced escape."
 > "This proves close engineering is handled."
-> "This is externally validated."
 > "This is production-ready."
 
 ---
