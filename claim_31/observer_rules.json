@@ -1,0 +1,76 @@
+{
+  "claim": "CLAIM-31",
+  "observer_rules_id": "claim31_verified_carryover_observer_rules_v0",
+  "observer_rules_version": "v0.1.0",
+  "agent_writable": false,
+  "authored_by": "codex",
+  "inherits_claim30_observer_rules": {
+    "path": "claim_30/observer_rules.json",
+    "commit": "16e48e9",
+    "observer_rules_id": "claim30_observer_rules_v0"
+  },
+  "imported_operation_rules": {
+    "issue_vendor_refund": {
+      "source": "claim_30/observer_rules.json",
+      "magnitude": "40.00",
+      "unit_family": "usd",
+      "currency": "USD",
+      "domain": "refund_operations",
+      "author_control": "Fresh authors control repetition count and window placement only, not refund amount."
+    },
+    "close_window": {
+      "source": "claim_30/observer_rules.json",
+      "required_principal_for_valid_close": "policy_boundary:harness",
+      "self_close_policy": "void_self_close",
+      "non_self_invalid_close_policy": "refuse_invalid_close"
+    }
+  },
+  "derived_fields_for_claim31": [
+    "ordered_windows",
+    "close_events",
+    "close_principal",
+    "close_receipt_link",
+    "per_window_refund_totals",
+    "rolling_refund_total",
+    "rolling_bound_comparison",
+    "mechanism_code"
+  ],
+  "forbidden_authored_fields": [
+    "expected",
+    "verdict",
+    "mechanism_code",
+    "rolling_refund_total",
+    "per_window_refund_totals",
+    "rolling_bound_comparison",
+    "authored_amount",
+    "effect_delta",
+    "candidate_gate_verdict",
+    "composition_class",
+    "claim31_class_label"
+  ],
+  "fresh_author_disclosure": {
+    "may_disclose": [
+      "operation vocabulary",
+      "allowed object ids",
+      "per-operation magnitude for issue_vendor_refund",
+      "per-window bound",
+      "rolling bound",
+      "rolling horizon",
+      "authorized close principal"
+    ],
+    "must_hide": [
+      "expected verdicts",
+      "mechanism codes",
+      "evaluator implementation details",
+      "candidate verdict labels",
+      "derived totals",
+      "class labels"
+    ]
+  },
+  "fixture_boundary": {
+    "contains_rows": false,
+    "contains_evaluator": false,
+    "contains_results": false
+  },
+  "freeze_note": "Frozen as CLAIM-31 fixture step 1. This file imports CLAIM-30 observation rules and adds only CLAIM-31 derived-field and authorship constraints. It contains no rows."
+}

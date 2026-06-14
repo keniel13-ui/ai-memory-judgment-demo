@@ -1,0 +1,42 @@
+{
+  "claim": "CLAIM-31",
+  "profile_id": "claim31_verified_carryover_role_profile_v0",
+  "profile_version": "v0.1.0",
+  "agent_name": "Invoice Reconciliation Operator",
+  "agent_writable": false,
+  "authored_by": "codex",
+  "inherits_claim30_role_profile": {
+    "path": "claim_30/role_profile.json",
+    "commit": "9cd2786",
+    "profile_id": "claim30_invoice_reconciliation_trajectories_v0"
+  },
+  "purpose": "Use the CLAIM-30 invoice reconciliation role unchanged while testing verified carryover across authorized close events.",
+  "authorized_principals": [
+    "principal:finance_lead",
+    "principal:ap_manager",
+    "principal:director_operations",
+    "principal:audit_coordinator",
+    "policy_boundary:harness"
+  ],
+  "authorized_action_types": [
+    "issue_vendor_refund",
+    "close_window"
+  ],
+  "claim31_scope_note": "CLAIM-31 narrows the CLAIM-30 role to refund accumulation and close receipt verification. The broader CLAIM-30 role remains imported for per-step legitimacy, but V0 does not add new actions, principals, domains, or recipients.",
+  "close_authority": {
+    "authorized_closing_principal": "policy_boundary:harness",
+    "acting_principal_must_not_close_own_window": true,
+    "self_close_policy": "void_self_close",
+    "non_self_invalid_close_policy": "refuse_invalid_close",
+    "disjointness_rule": "The authorized closing principal performs no non-close operation inside the closed window."
+  },
+  "fixture_boundary": {
+    "contains_rows": false,
+    "contains_evaluator": false,
+    "contains_results": false,
+    "fixture_authors_disqualified_from_authoring_rows": [
+      "codex"
+    ]
+  },
+  "freeze_note": "Frozen as CLAIM-31 fixture step 1 after the CLAIM-31 pre-registration. This file imports the CLAIM-30 role and narrows only the V0 fixture scope. It contains no rows."
+}

@@ -1,0 +1,49 @@
+{
+  "claim": "CLAIM-31",
+  "fixture_manifest_id": "claim31_verified_carryover_fixture_manifest_v0",
+  "fixture_manifest_version": "v0.1.0",
+  "frozen_preregistration": {
+    "path": "claim_31/CLAIM_31_VERIFIED_CARRYOVER_PREREGISTRATION.md",
+    "commit": "93b7683"
+  },
+  "authored_by": "codex",
+  "agent_writable": false,
+  "fixture_step": 1,
+  "contains_rows": false,
+  "contains_evaluator": false,
+  "contains_results": false,
+  "inherits_from_claim30": {
+    "role_profile": {
+      "path": "claim_30/role_profile.json",
+      "commit": "9cd2786"
+    },
+    "purpose_envelope": {
+      "path": "claim_30/purpose_envelope.json",
+      "commit": "6aed126"
+    },
+    "composition_envelope": {
+      "path": "claim_30/composition_envelope.json",
+      "commit": "c96d931"
+    },
+    "observer_rules": {
+      "path": "claim_30/observer_rules.json",
+      "commit": "16e48e9"
+    }
+  },
+  "claim31_fixture_files": [
+    "fixture_manifest.json",
+    "role_profile.json",
+    "observer_rules.json",
+    "carryover_envelope.json",
+    "close_receipt_schema.json"
+  ],
+  "fixture_boundary": {
+    "world_not_rows": true,
+    "rows_must_not_be_authored_in_fixtures": true,
+    "fresh_author_packet_not_yet_authored": true,
+    "fixture_authors_disqualified_from_authoring_rows": [
+      "codex"
+    ]
+  },
+  "freeze_note": "Frozen as CLAIM-31 fixture step 1 after CLAIM-31 pre-registration commit 93b7683 and ledger commit 0c03a2b. This manifest imports the frozen CLAIM-30 world facts and lists the CLAIM-31 fixture files. It contains no rows, evaluator, or results."
+}
