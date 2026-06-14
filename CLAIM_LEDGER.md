@@ -1613,8 +1613,8 @@ workflow as abusive?
 - Frozen pre-registration: `claim_31/CLAIM_31_VERIFIED_CARRYOVER_PREREGISTRATION.md`
 - Public freeze commit: `93b7683 Freeze CLAIM-31 pre-registration`
 - Fixture commit: `b96bedb Add CLAIM-31 fixture layer`
+- Authoring packet commit: `aaeb729 Add CLAIM-31 authoring packets`
 - No scenario rows authored yet.
-- No fresh-author packet authored yet.
 - No evaluator or results authored yet.
 
 **Design boundary frozen before testing:**
@@ -1632,8 +1632,8 @@ workflow as abusive?
   wrong mechanism is a failure.
 
 **Status:** `pre-registered`. Frozen before fixtures, rows, evaluator changes, or
-results existed; fixture layer has since been added at `b96bedb`. No fresh-author
-packet, scenario rows, evaluator, results, or empirical result yet.
+results existed; fixture layer has since been added at `b96bedb`, and authoring
+packets at `aaeb729`. No scenario rows, evaluator, results, or empirical result yet.
 
 **Weakness known before running:**
 - V0 tests one close link across two windows, not a full multi-close chain.
@@ -1648,8 +1648,10 @@ packet, scenario rows, evaluator, results, or empirical result yet.
   fields.
 
 **Next test:**
-- Author CLAIM-31 fresh-author packet under the frozen V0 boundary.
-- Produce rows only after the freeze commit.
+- Produce the transparent designed-control rows from
+  `claim_31/DESIGNED_CONTROL_SUITE_SPEC.md`.
+- Produce the independent fresh-authored corpus from
+  `claim_31/FRESH_AUTHOR_PACKET.md` using a clean context that reads only that packet.
 - Run baseline per-window behavior against the same rows.
 - Run `VerifiedCarryoverGate` and record mechanism-coded verdicts.
 - Run ablations for rolling carryover, close-receipt verification, replay, and
