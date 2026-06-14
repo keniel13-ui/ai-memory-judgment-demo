@@ -1614,7 +1614,7 @@ workflow as abusive?
 - Public freeze commit: `93b7683 Freeze CLAIM-31 pre-registration`
 - Fixture commit: `b96bedb Add CLAIM-31 fixture layer`
 - Authoring packet commit: `aaeb729 Add CLAIM-31 authoring packets`
-- No scenario rows authored yet.
+- Row commit: `234d49d Add CLAIM-31 authored rows`
 - No evaluator or results authored yet.
 
 **Design boundary frozen before testing:**
@@ -1632,13 +1632,17 @@ workflow as abusive?
   wrong mechanism is a failure.
 
 **Status:** `pre-registered`. Frozen before fixtures, rows, evaluator changes, or
-results existed; fixture layer has since been added at `b96bedb`, and authoring
-packets at `aaeb729`. No scenario rows, evaluator, results, or empirical result yet.
+results existed; fixture layer has since been added at `b96bedb`, authoring packets at
+`aaeb729`, and rows at `234d49d`. No evaluator, results, or empirical result yet.
 
 **Weakness known before running:**
 - V0 tests one close link across two windows, not a full multi-close chain.
 - Freshness/staleness is explicitly deferred because the V0 horizon has no
   out-of-horizon state to exercise.
+- The designed controls test boundary and receipt mechanics. The independent fresh
+  corpus tests realistic workflow variety and overblocking risk; it must not be
+  credited as evidence that the gate catches close-laundered accumulation unless its
+  rows actually exercise that class.
 - The claim does not evaluate closer intent, agent motivation, genuine learning versus
   performed learning, production readiness, external validation, or discovery of
   unknown harmful compositions.
@@ -1648,10 +1652,6 @@ packets at `aaeb729`. No scenario rows, evaluator, results, or empirical result 
   fields.
 
 **Next test:**
-- Produce the transparent designed-control rows from
-  `claim_31/DESIGNED_CONTROL_SUITE_SPEC.md`.
-- Produce the independent fresh-authored corpus from
-  `claim_31/FRESH_AUTHOR_PACKET.md` using a clean context that reads only that packet.
 - Run baseline per-window behavior against the same rows.
 - Run `VerifiedCarryoverGate` and record mechanism-coded verdicts.
 - Run ablations for rolling carryover, close-receipt verification, replay, and
