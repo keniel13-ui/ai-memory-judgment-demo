@@ -1618,6 +1618,10 @@ workflow as abusive?
 - Evaluator run spec commit: `e783c5b Lock CLAIM-31 evaluator run spec`
 - Evaluator/results: `claim_31/evaluator.py`, `claim_31/results.json`,
   `claim_31/results.md`
+- Evaluator/results commit: `42bb3a6 Add CLAIM-31 V0 evaluator results`
+- Internal ablations commit: `910a0d5 Add CLAIM-31 internal ablations`
+- Public article: `https://dev.to/zep1997/the-rule-held-the-boundary-moved-up-ai-memory-judgment-claim-31-verified-carryover-11if`
+- Article source: `claim_31/ARTICLE_CLAIM31_VERIFIED_CARRYOVER_DRAFT.md` (honest/conditional framing; survived three external gauntlets plus Codex audit before publish)
 
 **Design boundary frozen before testing:**
 - Inherits CLAIM-30 refund magnitude `40.00 USD`, per-window bound `500.00 USD`, exact
