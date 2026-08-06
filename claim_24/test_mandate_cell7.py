@@ -560,6 +560,58 @@ class MandateCell7Tests(unittest.TestCase):
         )
         self.assertFalse((self.root / "duplicate-0001" / CAPTURE_RAW_NAME).exists())
 
+    def test_expires_at_unix_integer_is_accepted_like_live_fipsign(self):
+        """Reality-shaped fixture: FIPSign emits expiresAt as Unix epoch int.
+
+        The first live CAPTURE against German's API failed with
+        INVALID_SOURCE_RESPONSE because every suite fixture used ISO strings
+        and shared that assumption with parse_aware_datetime. A test that
+        only speaks ISO can never catch a live integer shape.
+        """
+        from mandate_cell7 import parse_aware_datetime
+
+        epoch = int((NOW + timedelta(hours=6)).timestamp())
+        parsed = parse_aware_datetime(epoch, "mandate.expiresAt")
+        self.assertEqual(parsed, datetime.fromtimestamp(epoch, tz=timezone.utc))
+
+        # Digit-only string form (if a transport stringifies the field).
+        parsed_s = parse_aware_datetime(str(epoch), "mandate.expiresAt")
+        self.assertEqual(parsed_s, parsed)
+
+        # bool must not be treated as int(True)==1.
+        self.assert_error(
+            "INVALID_SOURCE_RESPONSE",
+            lambda: parse_aware_datetime(True, "mandate.expiresAt"),
+        )
+
+        # K1: Unicode "digits" must classify as INVALID_SOURCE_RESPONSE, never
+        # raise bare ValueError out of the fail-closed surface.
+        for bad in ("²", "³", "¹", "⁴⁵", "1786038601²", "١٧٨٦٠٣٨٦٠١", "１７８６"):
+            with self.subTest(bad=bad):
+                try:
+                    parse_aware_datetime(bad, "mandate.expiresAt")
+                except MandateCell7Error as exc:
+                    self.assertEqual(exc.code, "INVALID_SOURCE_RESPONSE")
+                except Exception as exc:  # pragma: no cover — must not happen
+                    self.fail(f"uncaught {type(exc).__name__} for {bad!r}: {exc}")
+                else:
+                    self.fail(f"expected refuse for {bad!r}")
+
+        payload = mandate_payload()
+        payload["mandate"]["expiresAt"] = epoch
+        raw = json.dumps(payload, ensure_ascii=False).encode("utf-8")
+        result, counter = self.capture_case(raw=raw, run_id="unix-expires-0001")
+        self.assertEqual(counter.calls, 1)
+        self.assertTrue(result.baseline_sha256)
+        # Capture succeeded; lifecycle was recorded as ISO on the receipt side.
+        receipt_path = Path(result.run_dir) / CAPTURE_RECEIPT_NAME
+        receipt = json.loads(receipt_path.read_text(encoding="utf-8"))
+        self.assertIn("source_expires_at_utc", receipt)
+        self.assertEqual(
+            parse_aware_datetime(receipt["source_expires_at_utc"], "source_expires_at_utc"),
+            datetime.fromtimestamp(epoch, tz=timezone.utc),
+        )
+
 
 if __name__ == "__main__":
     unittest.main(verbosity=2)

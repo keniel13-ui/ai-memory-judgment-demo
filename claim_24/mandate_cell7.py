@@ -232,16 +232,70 @@ def parse_aware_datetime(
     field: str,
     error_code: str = "INVALID_SOURCE_RESPONSE",
 ) -> datetime:
-    if not isinstance(value, str) or not value:
-        raise MandateCell7Error(error_code, f"{field} must be a timestamp string")
-    try:
-        parsed = datetime.fromisoformat(value.replace("Z", "+00:00"))
-    except ValueError as exc:
-        raise MandateCell7Error(error_code, f"{field} is not ISO-8601") from exc
-    try:
-        return require_aware_datetime(parsed, field).astimezone(timezone.utc)
-    except MandateCell7Error as exc:
-        raise MandateCell7Error(error_code, exc.detail) from exc
+    """Parse a source or receipt timestamp into timezone-aware UTC.
+
+    Accepts:
+    - ISO-8601 strings (with ``Z`` or offset) — used for our own receipts and
+      any source that emits strings;
+    - Unix epoch seconds as ``int`` or non-bool ``float`` — FIPSign's live
+      ``expiresAt`` shape (documented and observed as an integer);
+    - ASCII digit-only strings (optional leading ``-``) as Unix seconds.
+      Match is ``re.fullmatch(r"-?[0-9]+", ...)`` — not ``str.isdigit()``, which
+      is true for Unicode digits ``int()`` refuses (e.g. superscript ``²``) and
+      would otherwise raise an uncaught ``ValueError`` out of the fail-closed
+      ``MandateCell7Error`` surface (breaker K1).
+
+    Rejects bool (``True``/``False`` are ``int`` subclasses in Python), empty
+    values, non-finite numbers, non-ASCII digit forms, and values outside a hard
+    epoch window so a millisecond or nanosecond accident cannot silently become
+    year 56000+.
+    """
+    # bool is a subclass of int; never treat True/False as epoch seconds.
+    if isinstance(value, bool):
+        raise MandateCell7Error(
+            error_code, f"{field} must be a timestamp string or Unix epoch seconds"
+        )
+
+    if isinstance(value, (int, float)):
+        if isinstance(value, float) and (value != value or value in (float("inf"), float("-inf"))):
+            raise MandateCell7Error(error_code, f"{field} is not a finite Unix timestamp")
+        # Whole seconds only; reject fractional ms-looking floats that would
+        # round ambiguously. Integers are the documented live shape.
+        if isinstance(value, float) and not value.is_integer():
+            raise MandateCell7Error(
+                error_code, f"{field} Unix timestamp must be whole seconds"
+            )
+        epoch = int(value)
+        # 2001-09-09 .. 2100-01-01 in seconds — bounds accidental ms/ns scale.
+        if epoch < 1_000_000_000 or epoch > 4_102_444_800:
+            raise MandateCell7Error(
+                error_code, f"{field} Unix timestamp is outside the accepted range"
+            )
+        return datetime.fromtimestamp(epoch, tz=timezone.utc)
+
+    if isinstance(value, str) and value:
+        stripped = value.strip()
+        # ASCII-only digits. str.isdigit() is wrong here: "²".isdigit() is True
+        # but int("²") raises ValueError uncaught by the CLI (K1).
+        if re.fullmatch(r"-?[0-9]+", stripped):
+            try:
+                return parse_aware_datetime(int(stripped), field, error_code=error_code)
+            except (ValueError, OverflowError) as exc:
+                raise MandateCell7Error(
+                    error_code, f"{field} is not a valid Unix timestamp string"
+                ) from exc
+        try:
+            parsed = datetime.fromisoformat(stripped.replace("Z", "+00:00"))
+        except ValueError as exc:
+            raise MandateCell7Error(error_code, f"{field} is not ISO-8601") from exc
+        try:
+            return require_aware_datetime(parsed, field).astimezone(timezone.utc)
+        except MandateCell7Error as exc:
+            raise MandateCell7Error(error_code, exc.detail) from exc
+
+    raise MandateCell7Error(
+        error_code, f"{field} must be a timestamp string or Unix epoch seconds"
+    )
 
 
 def require_aware_datetime(value: datetime, field: str) -> datetime:
