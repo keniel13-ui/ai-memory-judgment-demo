@@ -49,18 +49,31 @@ def path_matches(path: Path, include: list[str] | None, exclude: list[str] | Non
     rel = repo_relative(path)
     include = include or ["**/*"]
     exclude = exclude or []
-    return any(fnmatch.fnmatch(rel, pattern) for pattern in include) and not any(
-        fnmatch.fnmatch(rel, pattern) for pattern in exclude
+    return any(glob_match(rel, pattern) for pattern in include) and not any(
+        glob_match(rel, pattern) for pattern in exclude
     )
 
 
-def scan_file(path: Path, patterns: list[dict[str, Any]]) -> list[Finding]:
-    if not path.exists() or not path.is_file():
-        return []
-    try:
-        text = path.read_text(encoding="utf-8")
-    except UnicodeDecodeError:
-        return []
+def glob_match(rel: str, pattern: str) -> bool:
+    """fnmatch with glob-style ``**/``: a leading ``**/`` also matches zero directories.
+
+    Plain fnmatch needs at least one ``/`` for ``**/*.json``, so repo-root JSON
+    files were silently excluded from every JSON rule.
+    """
+    if fnmatch.fnmatch(rel, pattern):
+        return True
+    return pattern.startswith("**/") and fnmatch.fnmatch(rel, pattern[3:])
+
+
+def scan_file(path: Path, patterns: list[dict[str, Any]], text: str | None = None) -> list[Finding]:
+    """Scan one file. When ``text`` is given it is scanned instead of the on-disk copy."""
+    if text is None:
+        if not path.exists() or not path.is_file():
+            return []
+        try:
+            text = path.read_text(encoding="utf-8")
+        except UnicodeDecodeError:
+            return []
 
     findings: list[Finding] = []
     for pattern in patterns:
@@ -90,27 +103,53 @@ def scan_file(path: Path, patterns: list[dict[str, Any]]) -> list[Finding]:
 
 def staged_files() -> list[Path]:
     result = subprocess.run(
-        ["git", "diff", "--cached", "--name-only", "--diff-filter=ACMR"],
+        ["git", "diff", "--cached", "--name-only", "-z", "--diff-filter=ACMR"],
         cwd=ROOT,
-        text=True,
         stdout=subprocess.PIPE,
         stderr=subprocess.PIPE,
         check=False,
     )
     if result.returncode != 0:
-        raise RuntimeError(result.stderr.strip() or "git diff failed")
-    return [ROOT / line for line in result.stdout.splitlines() if line.strip()]
+        raise RuntimeError(result.stderr.decode("utf-8", "replace").strip() or "git diff failed")
+    names = result.stdout.decode("utf-8", "surrogateescape").split("\0")
+    return [ROOT / name for name in names if name]
+
+
+def staged_text(path: Path) -> str | None:
+    """Return the staged (index) content of ``path``, or None if it is not UTF-8 text.
+
+    The pre-commit hook must scan what will be committed. Reading the working
+    tree instead lets a partially staged file pass (or fail) on content that is
+    not part of the commit.
+    """
+    result = subprocess.run(
+        ["git", "show", f":{repo_relative(path)}"],
+        cwd=ROOT,
+        stdout=subprocess.PIPE,
+        stderr=subprocess.PIPE,
+        check=False,
+    )
+    if result.returncode != 0:
+        raise RuntimeError(result.stderr.decode("utf-8", "replace").strip() or "git show failed")
+    try:
+        return result.stdout.decode("utf-8")
+    except UnicodeDecodeError:
+        return None
+
+
+# Directories that never hold research artifacts. Walking them makes --all slow
+# and can report findings from third-party JSON (virtualenvs, node_modules).
+SKIP_DIRS = {".git", ".venv", "venv", "env", "node_modules", "__pycache__", ".ruff_cache", ".pytest_cache"}
 
 
 def all_candidate_files() -> list[Path]:
-    roots = [ROOT / "external_scenarios", ROOT / "results", ROOT]
     files: list[Path] = []
-    for base in roots:
-        if not base.exists():
+    for path in ROOT.rglob("*"):
+        rel_parts = path.relative_to(ROOT).parts
+        if any(part in SKIP_DIRS for part in rel_parts[:-1]):
             continue
-        for path in base.rglob("*"):
-            if path.is_file() and path.suffix in {".json", ".md"}:
-                files.append(path)
+        if path.is_file() and path.suffix in {".json", ".md"}:
+            files.append(path)
     return sorted(set(files))
 
 
@@ -145,7 +184,13 @@ def main() -> int:
     files = [path for path in files if path.suffix in {".json", ".md"}]
     findings: list[Finding] = []
     for path in files:
-        findings.extend(scan_file(path, patterns))
+        if args.staged:
+            text = staged_text(path)
+            if text is None:
+                continue
+            findings.extend(scan_file(path, patterns, text=text))
+        else:
+            findings.extend(scan_file(path, patterns))
 
     if findings:
         print(render_findings(findings), file=sys.stderr)

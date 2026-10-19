@@ -16,6 +16,7 @@ from __future__ import annotations
 import argparse
 import hashlib
 import json
+import sys
 from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
@@ -55,6 +56,10 @@ def file_record(path: Path) -> dict:
     }
 
 
+class LogFormatError(ValueError):
+    """Raised when a log line is not a JSON object."""
+
+
 def load_events(log_path: Path) -> list[dict]:
     if not log_path.exists():
         return []
@@ -62,7 +67,12 @@ def load_events(log_path: Path) -> list[dict]:
     for line_number, line in enumerate(log_path.read_text(encoding="utf-8").splitlines(), start=1):
         if not line.strip():
             continue
-        event = json.loads(line)
+        try:
+            event = json.loads(line)
+        except json.JSONDecodeError as exc:
+            raise LogFormatError(f"line {line_number} is not valid JSON: {exc.msg}") from exc
+        if not isinstance(event, dict):
+            raise LogFormatError(f"line {line_number} is not a JSON object")
         event["_line_number"] = line_number
         events.append(event)
     return events
@@ -84,8 +94,19 @@ def previous_hash(log_path: Path) -> str:
     return last["event_hash"]
 
 
+class BrokenChainError(RuntimeError):
+    """Raised when appending would extend a log whose chain does not verify."""
+
+
 def append_event(args: argparse.Namespace) -> dict:
     log_path = Path(args.log).resolve()
+    # Refuse to chain a new event onto a log that is already broken (edited,
+    # truncated, or reordered). Appending would bury the break under a fresh,
+    # valid-looking tail and make the tamper evidence harder to read.
+    ok, messages = verify_log(log_path)
+    if not ok:
+        problems = "; ".join(message for message in messages if not message.startswith("events_checked="))
+        raise BrokenChainError(f"refusing to append: existing log does not verify ({problems})")
     result_file = Path(args.result).resolve()
     scenario_files = [Path(item).resolve() for item in args.scenario or []]
     evaluator_files = [Path(item).resolve() for item in args.evaluator or []]
@@ -114,7 +135,10 @@ def append_event(args: argparse.Namespace) -> dict:
 
 
 def verify_log(log_path: Path) -> tuple[bool, list[str]]:
-    events = load_events(log_path)
+    try:
+        events = load_events(log_path)
+    except LogFormatError as exc:
+        return False, [str(exc), "events_checked=0"]
     messages = []
     previous = "GENESIS"
     ok = True
@@ -122,7 +146,10 @@ def verify_log(log_path: Path) -> tuple[bool, list[str]]:
     for index, event in enumerate(events, start=1):
         event_body = strip_runtime_keys(event)
         expected_hash = compute_event_hash(event_body)
-        if event.get("event_hash") != expected_hash:
+        if "event_hash" not in event:
+            ok = False
+            messages.append(f"line {event.get('_line_number', index)} missing event_hash")
+        elif event.get("event_hash") != expected_hash:
             ok = False
             messages.append(f"line {event.get('_line_number', index)} hash mismatch")
         if event_body.get("previous_event_hash") != previous:
@@ -132,6 +159,35 @@ def verify_log(log_path: Path) -> tuple[bool, list[str]]:
 
     messages.append(f"events_checked={len(events)}")
     return ok, messages
+
+
+def file_drift(log_path: Path) -> list[str]:
+    """List logged files whose current bytes no longer match the logged sha256.
+
+    Informational only: a later event may legitimately supersede an earlier
+    artifact (for example a re-run that rewrote results.json). Drift on the
+    newest event for a path is the case worth a closer look.
+    """
+    lines = []
+    for event in load_events(log_path):
+        records = [event.get("result")] + [
+            record
+            for key in ("scenario_files", "evaluator_files", "extra_files")
+            for record in event.get(key) or []
+        ]
+        for record in records:
+            if not isinstance(record, dict) or "path" not in record:
+                continue
+            path = Path(record["path"])
+            path = path if path.is_absolute() else ROOT / path
+            if not path.exists():
+                status = "missing"
+            elif sha256_file(path) != record.get("sha256"):
+                status = "changed"
+            else:
+                continue
+            lines.append(f"file_{status} line={event['_line_number']} claim={event.get('claim_id')} path={record['path']}")
+    return lines
 
 
 def main() -> int:
@@ -151,17 +207,32 @@ def main() -> int:
 
     verify_parser = subparsers.add_parser("verify", help="Verify event hashes and previous-hash chain.")
     verify_parser.add_argument("--log", default=str(DEFAULT_LOG), help="JSONL log path.")
+    verify_parser.add_argument(
+        "--check-files",
+        action="store_true",
+        help="Also report logged files whose current sha256 differs (informational; does not affect exit code).",
+    )
 
     args = parser.parse_args()
     if args.command == "append":
-        event = append_event(args)
+        try:
+            event = append_event(args)
+        except (BrokenChainError, LogFormatError, FileNotFoundError) as exc:
+            print(f"error: {exc}", file=sys.stderr)
+            return 1
         print(f"appended_event_hash={event['event_hash']}")
         print(f"log={Path(args.log).resolve()}")
         return 0
 
-    ok, messages = verify_log(Path(args.log).resolve())
+    log_path = Path(args.log).resolve()
+    ok, messages = verify_log(log_path)
     for message in messages:
         print(message)
+    if args.check_files and ok:
+        drift = file_drift(log_path)
+        for line in drift:
+            print(line)
+        print(f"files_drifted={len(drift)}")
     print(f"chain_ok={ok}")
     return 0 if ok else 1
 

@@ -42,6 +42,22 @@ Expected output includes:
 chain_ok=True
 ```
 
+`verify` exits 1 and prints `chain_ok=False` if any line is malformed JSON, is
+missing its `event_hash`, or fails the hash or previous-hash check. `append`
+refuses (exit 1, log untouched) when the existing log does not verify, so a new
+event is never chained onto a broken log.
+
+To also see which logged files no longer match their logged sha256:
+
+```bash
+python3 scripts/append_eval_log.py verify --check-files
+```
+
+This prints one `file_changed` or `file_missing` line per drifted record and a
+`files_drifted=N` total. It is informational and does not change the exit code:
+a later event can legitimately supersede an earlier artifact (for example a
+re-run that rewrote `results.json`).
+
 ## Evidence Boundary
 
 This is an audit-integrity layer. It proves the log is internally chained. It does not prove that any claim is externally validated.
