@@ -76,7 +76,7 @@ Memory layers:
 
 Supporting files:
 
-- `scenarios/retrieval_scenarios.json` — 10 scenario labels.
+- `scenarios/retrieval_scenarios.json`: 12 scenario labels (s01 to s10 from the first release, plus the s11 and s12 adversarial scenarios added for CLAIM-04).
 - `run_retrieval_eval.py` — deterministic TF-IDF evaluator.
 - `run_embedding_eval.py` — local Ollama embedding evaluator.
 - `run_topk_inspection.py` — deterministic top-k inspection for the s02 downgrade miss.
@@ -156,6 +156,12 @@ Supporting files:
 python3 run_retrieval_eval.py
 ```
 
+Every evaluator writes over the committed artifact it produced. To check that
+a result reproduces without touching recorded evidence, run it in a scratch
+worktree; see [docs/DEVELOPMENT.md](docs/DEVELOPMENT.md), which also lists
+which committed artifacts reproduce byte-for-byte today and which do not (and
+why).
+
 The command regenerates:
 
 - `results/retrieval_eval_results.md`
@@ -184,6 +190,11 @@ Generated from the sanitized memory objects:
 | bm25_content_only | 9/10 | 9/10 | 9/10 | 0 | 1 | 0 | 0 |
 | bm25_metadata_content | 9/10 | 9/10 | 9/10 | 0 | 1 | 0 | 0 |
 | bm25_keyword_expanded | 9/10 | 9/10 | 9/10 | 0 | 1 | 0 | 0 |
+
+Note: this table was recorded on the original 10 scenarios. The current
+scenario file also contains s11 and s12, so `python3 run_retrieval_eval.py`
+now reports totals out of 12; the committed
+`results/retrieval_eval_results.md` shows that 12-scenario run.
 
 ## Interpretation
 
@@ -361,6 +372,13 @@ The next meaningful versions should add:
 2. Embedding retrieval compared against the lexical baselines.
 3. Multi-memory retrieval, because one top-1 memory may be too brittle for judgment-lineage work.
 4. Model-in-the-loop generation and blind scoring.
+
+## Development
+
+- [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md): how inputs, evaluators, and recorded evidence fit together.
+- [docs/DEVELOPMENT.md](docs/DEVELOPMENT.md): local setup, verified commands, and reproduction status.
+- [CONTRIBUTING.md](CONTRIBUTING.md): branch workflow and evidence rules.
+- [CLAUDE.md](CLAUDE.md): guidance for coding agents.
 
 ## License
 
