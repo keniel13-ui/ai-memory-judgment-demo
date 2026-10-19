@@ -25,8 +25,13 @@ CLEAN = '{"governs": {"any_terms": ["vpn"]}}\n'
 
 
 def git(cwd: Path, *args: str) -> None:
-    env = {**os.environ, "GIT_AUTHOR_NAME": "t", "GIT_AUTHOR_EMAIL": "t@example.invalid",
-           "GIT_COMMITTER_NAME": "t", "GIT_COMMITTER_EMAIL": "t@example.invalid"}
+    env = {
+        **os.environ,
+        "GIT_AUTHOR_NAME": "t",
+        "GIT_AUTHOR_EMAIL": "t@example.invalid",
+        "GIT_COMMITTER_NAME": "t",
+        "GIT_COMMITTER_EMAIL": "t@example.invalid",
+    }
     subprocess.run(["git", *args], cwd=cwd, check=True, capture_output=True, env=env)
 
 
@@ -74,7 +79,10 @@ class StagedScanTests(unittest.TestCase):
     def run_staged(self) -> subprocess.CompletedProcess:
         return subprocess.run(
             [sys.executable, "scripts/check_authority_patterns.py", "--staged"],
-            cwd=self.repo, capture_output=True, text=True, check=False,
+            cwd=self.repo,
+            capture_output=True,
+            text=True,
+            check=False,
         )
 
     def test_staged_scan_reads_index_not_worktree(self) -> None:

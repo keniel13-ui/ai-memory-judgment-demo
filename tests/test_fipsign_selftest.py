@@ -17,7 +17,10 @@ class FipsignSelftestTests(unittest.TestCase):
     def test_selftest_passes(self) -> None:
         proc = subprocess.run(
             [sys.executable, "run_fipsign_adapter_selftest.py"],
-            cwd=ROOT / "claim_24", capture_output=True, text=True, check=False,
+            cwd=ROOT / "claim_24",
+            capture_output=True,
+            text=True,
+            check=False,
         )
         self.assertEqual(proc.returncode, 0, proc.stdout + proc.stderr)
         self.assertNotIn("FAIL", proc.stdout)

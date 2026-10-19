@@ -100,9 +100,22 @@ class EvalLogTests(unittest.TestCase):
     def test_cli_append_on_broken_log_exits_nonzero(self) -> None:
         self.log.write_text("not json\n", encoding="utf-8")
         proc = subprocess.run(
-            [sys.executable, str(SCRIPT), "append", "--claim", "C", "--label", "L",
-             "--result", str(self.result), "--log", str(self.log)],
-            capture_output=True, text=True, check=False,
+            [
+                sys.executable,
+                str(SCRIPT),
+                "append",
+                "--claim",
+                "C",
+                "--label",
+                "L",
+                "--result",
+                str(self.result),
+                "--log",
+                str(self.log),
+            ],
+            capture_output=True,
+            text=True,
+            check=False,
         )
         self.assertEqual(proc.returncode, 1, proc.stderr)
         self.assertIn("refusing to append", proc.stderr)
