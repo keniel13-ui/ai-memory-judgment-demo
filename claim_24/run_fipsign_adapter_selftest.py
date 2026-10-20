@@ -6,6 +6,9 @@ evidence. It proves the adapter satisfies the SourceAdapter contract and that th
 existing RederivationGate can consume normalized FIPSign-shaped certificate state.
 """
 
+# Postpones annotation evaluation so `dict | None` below also works on Python 3.9.
+from __future__ import annotations
+
 from datetime import datetime, timezone
 
 from fipsign_source_adapter import FIPSignSourceAdapter, normalize_pqcert
