@@ -1,0 +1,22 @@
+# Ruff configuration (https://docs.astral.sh/ruff/configuration/).
+# The repo is stdlib-only Python; ruff is a dev tool, not a runtime dependency.
+target-version = "py39"
+line-length = 120
+extend-exclude = ["results", "external_scenarios", "scenarios"]
+
+[lint]
+# Ruff's defaults (pyflakes plus pycodestyle error subsets).
+select = ["E4", "E7", "E9", "F"]
+
+[lint.per-file-ignores]
+# Evaluators, gates, and claim harnesses are research evidence: several are
+# hash-pinned in results/evaluation_log.jsonl or in claim_24 breaker verdicts,
+# and their recorded outputs must keep reproducing byte-for-byte. Unused imports
+# and placeholder-less f-strings are cosmetic there, so they are tolerated
+# rather than "fixed" in files whose hashes are evidence. New code in tests/ and
+# scripts/ gets the full default rule set.
+"run_*.py" = ["F401", "F541"]
+"claim_*/*.py" = ["F401", "F541"]
+
+[format]
+quote-style = "double"
